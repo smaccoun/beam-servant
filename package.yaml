@@ -25,11 +25,11 @@ dependencies:
 - text
 - aeson
 - attoparsec
-- http-media
-- http-types
-- mmorph
-- text
 - word8
+- wai
+- warp
+- servant
+- servant-server
 
 library:
   source-dirs: src
@@ -44,6 +44,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - api
+
 
 tests:
   api-test:

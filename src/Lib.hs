@@ -1,9 +1,32 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeOperators #-}
+
 module Lib
-    ( someFunc
+    ( startApp
     ) where
+
+import Network.Wai
+import qualified Network.Wai.Handler.Warp as Warp
+import Servant
+import Servant.API
+import Data.Aeson
 
 import qualified AppPrelude as AP
 import qualified Data.Text as T
 
-someFunc :: IO ()
-someFunc = print "Hello world"
+type API = Get '[JSON] Int
+
+api :: AP.Proxy API
+api = AP.Proxy
+
+server :: Server API
+server = return 10
+
+startApp :: IO ()
+startApp = do
+    Warp.run 8080 app
+
+app :: Application
+app =
+    serve api server
+

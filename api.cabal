@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: fdb5d0382abde26294e6a7adfc8fe2dc256d5cdbeeed60a1ba476ad0c8f4fbf7
+-- hash: 5f9a3f8b4d483647a84f12ee4ae3bbc71119b17dc024b1df8b414659e69adf1e
 
 name:           api
 version:        0.1.0.0
@@ -32,11 +32,12 @@ library
       aeson
     , attoparsec
     , base >=4.7 && <5
-    , http-media
-    , http-types
-    , mmorph
     , protolude
+    , servant
+    , servant-server
     , text
+    , wai
+    , warp
     , word8
   exposed-modules:
       AppPrelude
@@ -55,11 +56,12 @@ executable api-exe
     , api
     , attoparsec
     , base >=4.7 && <5
-    , http-media
-    , http-types
-    , mmorph
     , protolude
+    , servant
+    , servant-server
     , text
+    , wai
+    , warp
     , word8
   other-modules:
       Paths_api
@@ -76,11 +78,12 @@ test-suite api-test
     , api
     , attoparsec
     , base >=4.7 && <5
-    , http-media
-    , http-types
-    , mmorph
     , protolude
+    , servant
+    , servant-server
     , text
+    , wai
+    , warp
     , word8
   other-modules:
       Paths_api
