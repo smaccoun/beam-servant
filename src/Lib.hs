@@ -2,8 +2,8 @@ module Lib
     ( someFunc
     ) where
 
-import AppPrelude
+import qualified AppPrelude as AP
 import qualified Data.Text as T
 
 someFunc :: IO ()
-someFunc = putStrLn ("Hello world!" :: T.Text)
+someFunc = print "Hello world"
