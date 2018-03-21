@@ -23,6 +23,13 @@ dependencies:
 - base >= 4.7 && < 5
 - protolude
 - text
+- aeson
+- attoparsec
+- http-media
+- http-types
+- mmorph
+- text
+- word8
 
 library:
   source-dirs: src
