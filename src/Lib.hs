@@ -14,14 +14,20 @@ import Data.Aeson
 import AppPrelude
 import qualified Data.Text as T
 
+import Api.User
 
-type API = Get '[JSON] Int
+
+type API =
+         Get '[JSON] T.Text
+    :<|> UserAPI
 
 api :: Proxy API
 api = Proxy
 
 server :: Server API
-server = return 10
+server = return "Hello World"
+    :<|> userServer
+
 
 startApp :: IO ()
 startApp = do

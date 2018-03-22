@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c668bb7f2d3bc5866cf7f2b99dcc033da5050ef17cb81771ccc57918729d9037
+-- hash: a466415147a11da4a04ba3d50044c05d70755b7aacd1133ae8983c7c5cdf02fb
 
 name:           api
 version:        0.1.0.0
@@ -41,8 +41,10 @@ library
     , warp
     , word8
   exposed-modules:
+      Api.User
       AppPrelude
       Lib
+      Models.User
   other-modules:
       Paths_api
   default-language: Haskell2010
