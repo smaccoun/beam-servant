@@ -19,9 +19,23 @@ extra-source-files:
 # common to point users to the README.md file.
 description:         Please see the README on Github at <https://github.com/smaccoun/api#readme>
 
+default-extensions:
+- OverloadedStrings
+- NoImplicitPrelude
+- ScopedTypeVariables
+- FlexibleContexts
+- FlexibleInstances
+- MultiParamTypeClasses
+- RecordWildCards
+- NamedFieldPuns
+- DeriveGeneric
+- DuplicateRecordFields
+- TypeOperators
+- DataKinds
+
 dependencies:
 - base >= 4.7 && < 5
-- protolude
+- foundation
 - text
 - aeson
 - attoparsec

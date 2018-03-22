@@ -11,13 +11,14 @@ import Servant
 import Servant.API
 import Data.Aeson
 
-import qualified AppPrelude as AP
+import AppPrelude
 import qualified Data.Text as T
+
 
 type API = Get '[JSON] Int
 
-api :: AP.Proxy API
-api = AP.Proxy
+api :: Proxy API
+api = Proxy
 
 server :: Server API
 server = return 10

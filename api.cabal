@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5f9a3f8b4d483647a84f12ee4ae3bbc71119b17dc024b1df8b414659e69adf1e
+-- hash: c668bb7f2d3bc5866cf7f2b99dcc033da5050ef17cb81771ccc57918729d9037
 
 name:           api
 version:        0.1.0.0
@@ -28,11 +28,12 @@ source-repository head
 library
   hs-source-dirs:
       src
+  default-extensions: OverloadedStrings NoImplicitPrelude ScopedTypeVariables FlexibleContexts FlexibleInstances MultiParamTypeClasses RecordWildCards NamedFieldPuns DeriveGeneric DuplicateRecordFields TypeOperators DataKinds
   build-depends:
       aeson
     , attoparsec
     , base >=4.7 && <5
-    , protolude
+    , foundation
     , servant
     , servant-server
     , text
@@ -50,13 +51,14 @@ executable api-exe
   main-is: Main.hs
   hs-source-dirs:
       app
+  default-extensions: OverloadedStrings NoImplicitPrelude ScopedTypeVariables FlexibleContexts FlexibleInstances MultiParamTypeClasses RecordWildCards NamedFieldPuns DeriveGeneric DuplicateRecordFields TypeOperators DataKinds
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , api
     , attoparsec
     , base >=4.7 && <5
-    , protolude
+    , foundation
     , servant
     , servant-server
     , text
@@ -72,13 +74,14 @@ test-suite api-test
   main-is: Spec.hs
   hs-source-dirs:
       test
+  default-extensions: OverloadedStrings NoImplicitPrelude ScopedTypeVariables FlexibleContexts FlexibleInstances MultiParamTypeClasses RecordWildCards NamedFieldPuns DeriveGeneric DuplicateRecordFields TypeOperators DataKinds
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , api
     , attoparsec
     , base >=4.7 && <5
-    , protolude
+    , foundation
     , servant
     , servant-server
     , text
