@@ -24,13 +24,16 @@ import Api.User
 
 
 type API =
-         UserAPI
+       Get '[JSON] T.Text
+  :<|> UserAPI
 
 api :: Proxy API
 api = Proxy
 
 server :: S.ServerT API AppM
-server = userServer
+server =
+       return "hello world"
+  :<|> userServer
 
 startApp :: [String] -> IO ()
 startApp args = do
