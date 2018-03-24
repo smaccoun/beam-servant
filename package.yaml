@@ -49,6 +49,9 @@ dependencies:
 - fast-logger
 - natural-transformation
 - mtl
+- wai-cors
+- wai-extra
+- data-default
 
 library:
   source-dirs: src

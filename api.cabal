@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1b646356c9f13bfd5e808fa74275ee01fe5f71af65e4d8da57ed061037886bdc
+-- hash: e1d0ab5901217e3127a5451b2bbf7fa8df642b11bffa1e8f5767e8c4047d5f53
 
 name:           api
 version:        0.1.0.0
@@ -33,6 +33,7 @@ library
       aeson
     , attoparsec
     , base >=4.7 && <5
+    , data-default
     , fast-logger
     , foundation
     , foundation-edge
@@ -43,6 +44,8 @@ library
     , text
     , transformers
     , wai
+    , wai-cors
+    , wai-extra
     , warp
     , word8
   exposed-modules:
@@ -66,6 +69,7 @@ executable api-exe
     , api
     , attoparsec
     , base >=4.7 && <5
+    , data-default
     , fast-logger
     , foundation
     , foundation-edge
@@ -76,6 +80,8 @@ executable api-exe
     , text
     , transformers
     , wai
+    , wai-cors
+    , wai-extra
     , warp
     , word8
   other-modules:
@@ -94,6 +100,7 @@ test-suite api-test
     , api
     , attoparsec
     , base >=4.7 && <5
+    , data-default
     , fast-logger
     , foundation
     , foundation-edge
@@ -104,6 +111,8 @@ test-suite api-test
     , text
     , transformers
     , wai
+    , wai-cors
+    , wai-extra
     , warp
     , word8
   other-modules:
