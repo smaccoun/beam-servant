@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a466415147a11da4a04ba3d50044c05d70755b7aacd1133ae8983c7c5cdf02fb
+-- hash: 1b646356c9f13bfd5e808fa74275ee01fe5f71af65e4d8da57ed061037886bdc
 
 name:           api
 version:        0.1.0.0
@@ -33,15 +33,21 @@ library
       aeson
     , attoparsec
     , base >=4.7 && <5
+    , fast-logger
     , foundation
+    , foundation-edge
+    , mtl
+    , natural-transformation
     , servant
     , servant-server
     , text
+    , transformers
     , wai
     , warp
     , word8
   exposed-modules:
       Api.User
+      App
       AppPrelude
       Lib
       Models.User
@@ -60,10 +66,15 @@ executable api-exe
     , api
     , attoparsec
     , base >=4.7 && <5
+    , fast-logger
     , foundation
+    , foundation-edge
+    , mtl
+    , natural-transformation
     , servant
     , servant-server
     , text
+    , transformers
     , wai
     , warp
     , word8
@@ -83,10 +94,15 @@ test-suite api-test
     , api
     , attoparsec
     , base >=4.7 && <5
+    , fast-logger
     , foundation
+    , foundation-edge
+    , mtl
+    , natural-transformation
     , servant
     , servant-server
     , text
+    , transformers
     , wai
     , warp
     , word8

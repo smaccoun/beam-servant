@@ -36,6 +36,7 @@ default-extensions:
 dependencies:
 - base >= 4.7 && < 5
 - foundation
+- foundation-edge
 - text
 - aeson
 - attoparsec
@@ -44,6 +45,10 @@ dependencies:
 - warp
 - servant
 - servant-server
+- transformers
+- fast-logger
+- natural-transformation
+- mtl
 
 library:
   source-dirs: src

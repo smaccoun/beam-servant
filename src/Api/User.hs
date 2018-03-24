@@ -1,5 +1,6 @@
 module Api.User where
 
+import App
 import AppPrelude
 import Servant
 import Data.Text
@@ -16,7 +17,7 @@ type UserAPI =
 userAPI :: Proxy User
 userAPI = Proxy
 
-userServer :: Server UserAPI
+userServer :: ServerT UserAPI AppM
 userServer = return (User "Bob" "Smith")
 
 

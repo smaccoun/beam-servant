@@ -4,4 +4,4 @@ import Lib
 import Foundation
 
 main :: IO ()
-main = startApp
+main = getArgs >>= startApp

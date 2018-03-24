@@ -5,35 +5,63 @@ module Lib
     ( startApp
     ) where
 
-import Network.Wai
-import qualified Network.Wai.Handler.Warp as Warp
-import Servant
 import Servant.API
+import qualified System.Log.FastLogger as FL
+import qualified Servant                              as S
+import           Control.Natural                      ((:~>) (NT))
+import           Control.Monad.Trans.Reader (runReaderT)
+import Control.Monad.Except (catchError)
 import Data.Aeson
+import qualified Network.Wai                          as Wai
+import qualified Network.Wai.Handler.Warp             as Warp
 
 import AppPrelude
+import Foundation.Compat.Text
+import App
 import qualified Data.Text as T
 
 import Api.User
 
 
 type API =
-         Get '[JSON] T.Text
-    :<|> UserAPI
+         UserAPI
 
 api :: Proxy API
 api = Proxy
 
-server :: Server API
-server = return "Hello World"
-    :<|> userServer
+server :: S.ServerT API AppM
+server = userServer
 
+startApp :: [String] -> IO ()
+startApp args = do
+    env  <- lookupEnvDefault "SERVANT_ENV" Development
+    port <- lookupEnvDefault "SERVANT_PORT" 8080
 
-startApp :: IO ()
-startApp = do
-    Warp.run 8080 app
+    logTo <- case listToMaybe args of
+      Just filename -> return $ File (toText filename)
+      Nothing -> lookupEnvDefault "SERVANT_LOG" STDOut
 
-app :: Application
-app =
-    serve api server
+    logger  <- makeLogger logTo
+    let initialLogMsg = intercalate " " ["Listening on port", show port, "at level", show env, "and logging to", show logTo, "with args", intercalate "," args,"\n"]
+    FL.pushLogStr logger $ FL.toLogStr (toText initialLogMsg )
+    Warp.run 8080 $ app (Config logger)
+
+app :: App.Config -> Wai.Application
+app config = do
+    let api = S.Proxy :: S.Proxy API
+    S.serve api $ S.enter (NT $ runHandler config) server
+
+runHandler :: Config -> AppM a -> S.Handler a
+runHandler config handler =
+  catchError (nt config handler) errorHandler
+  where
+    errorHandler :: S.ServantErr -> S.Handler a
+    errorHandler err = errorHandler' err (S.errHTTPCode err)
+
+    errorHandler' :: S.ServantErr -> Int -> S.Handler a
+    errorHandler' err code =
+      S.throwError err
+
+nt :: App.Config -> AppM a -> S.Handler a
+nt s x = runReaderT x s
 

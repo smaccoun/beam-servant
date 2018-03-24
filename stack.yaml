@@ -42,6 +42,7 @@ packages:
 extra-deps:
 - servant-0.11
 - servant-server-0.11
+- foundation-edge-0.0.3
 
 
 flags: {}
