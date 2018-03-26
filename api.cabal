@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e1d0ab5901217e3127a5451b2bbf7fa8df642b11bffa1e8f5767e8c4047d5f53
+-- hash: 562b60fff643c3480be7a1068ecb45e97cd4b0d24712d8afecdd2e867432f4ed
 
 name:           api
 version:        0.1.0.0
@@ -39,6 +39,8 @@ library
     , foundation-edge
     , mtl
     , natural-transformation
+    , selda
+    , selda-postgresql
     , servant
     , servant-server
     , text
@@ -75,6 +77,8 @@ executable api-exe
     , foundation-edge
     , mtl
     , natural-transformation
+    , selda
+    , selda-postgresql
     , servant
     , servant-server
     , text
@@ -106,6 +110,8 @@ test-suite api-test
     , foundation-edge
     , mtl
     , natural-transformation
+    , selda
+    , selda-postgresql
     , servant
     , servant-server
     , text

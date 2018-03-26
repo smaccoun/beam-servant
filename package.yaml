@@ -52,6 +52,8 @@ dependencies:
 - wai-cors
 - wai-extra
 - data-default
+- selda
+- selda-postgresql
 
 library:
   source-dirs: src

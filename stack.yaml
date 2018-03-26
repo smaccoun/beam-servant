@@ -43,6 +43,8 @@ extra-deps:
 - servant-0.11
 - servant-server-0.11
 - foundation-edge-0.0.3
+- selda-0.1.12.1
+- selda-postgresql-0.1.7.2
 
 
 flags: {}
