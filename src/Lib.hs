@@ -23,6 +23,7 @@ import Foundation.Compat.Text
 import App
 import qualified Data.Text as T
 
+import AppConfig
 import Api.User
 
 
@@ -73,28 +74,4 @@ runHandler config handler =
 
 nt :: App.Config -> AppM a -> S.Handler a
 nt s x = runReaderT x s
-
-makeMiddleware :: FL.LoggerSet -> Environment -> IO Wai.Middleware
-makeMiddleware logger env =
-          combineMiddleware corsified
-        $ MidRL.mkRequestLogger
-        $ def { MidRL.destination = MidRL.Logger logger }
-
-corsified :: Wai.Middleware
-corsified = cors (const $ Just appCorsResourcePolicy)
-
-combineMiddleware :: Wai.Middleware -> IO Wai.Middleware -> IO Wai.Middleware
-combineMiddleware a = fmap (. a)
-
-appCorsResourcePolicy :: CorsResourcePolicy
-appCorsResourcePolicy = CorsResourcePolicy {
-    corsOrigins        = Nothing
-  , corsMethods        = ["OPTIONS", "GET", "PUT", "POST", "PATCH", "DELETE"]
-  , corsRequestHeaders = ["Authorization", "Content-Type"]
-  , corsExposedHeaders = Nothing
-  , corsMaxAge         = Nothing
-  , corsVaryOrigin     = False
-  , corsRequireOrigin  = False
-  , corsIgnoreFailures = False
-}
 
