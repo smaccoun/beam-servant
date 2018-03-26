@@ -18,6 +18,7 @@ import qualified Network.Wai.Handler.Warp             as Warp
 
 import AppPrelude
 import App
+import Prelude (read)
 import qualified Data.Text as T
 
 makeMiddleware :: FL.LoggerSet -> Environment -> IO Wai.Middleware
@@ -68,7 +69,7 @@ getDBConnectionInfo _ = do
   return $
     DBConfig
       {dbHost      = dbHost'
-      ,dbPort      = 5432
+      ,dbPort      = read (T.unpack dbPort')
       ,dbDatabase  = dbDatabase'
       ,dbSchema    = Just dbSchema'
       ,dbUsername  = dbUsername'
