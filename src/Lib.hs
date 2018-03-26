@@ -19,7 +19,6 @@ import qualified Network.Wai                          as Wai
 import qualified Network.Wai.Handler.Warp             as Warp
 
 import AppPrelude
-import Foundation.Compat.Text
 import App
 import qualified Data.Text as T
 
@@ -39,19 +38,21 @@ server =
        return "hello world"
   :<|> userServer
 
-startApp :: [String] -> IO ()
-startApp args = do
+startApp :: [[Char]] -> IO ()
+startApp charArgs = do
+    let args = fmap T.pack charArgs
     env  <- lookupEnvDefault "SERVANT_ENV" Development
     port <- lookupEnvDefault "SERVANT_PORT" 8080
 
     logTo <- case listToMaybe args of
-      Just filename -> return $ File (toText filename)
+      Just filename -> return $ File filename
       Nothing -> lookupEnvDefault "SERVANT_LOG" STDOut
 
     logger  <- makeLogger logTo
     midware   <- makeMiddleware logger env
-    let initialLogMsg = intercalate " " ["Listening on port", show port, "at level", show env, "and logging to", show logTo, "with args", intercalate "," args,"\n"]
-    FL.pushLogStr logger $ FL.toLogStr (toText initialLogMsg )
+    dbConfig <- getDBConnectionInfo  env
+    let initialLogMsg = intercalate " " ["Listening on port", show port, "at level", show env, "and logging to", show logTo, "with args", T.unpack (T.unwords args), "\n"]
+    FL.pushLogStr logger $ FL.toLogStr initialLogMsg
     Warp.run port
       $ midware
       $ app (Config logger)

@@ -1,7 +1,7 @@
 module Main where
 
 import Lib
-import Foundation
+import Protolude
 
 main :: IO ()
 main = getArgs >>= startApp

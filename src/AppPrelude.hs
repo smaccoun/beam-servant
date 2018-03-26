@@ -1,7 +1,7 @@
 module AppPrelude (
-    module Foundation
+    module Protolude
   , module AppPrelude
   ) where
 
-import Foundation
+import Protolude
 

@@ -19,13 +19,6 @@ data Environment
   | Production
   deriving (Show, Eq, Read)
 
-data DBEnv
-  = SERVANT_PG_PWD
-  | SERVANT_PG_HOST
-  | SERVANT_PG_USER
-  | SERVANT_PG_DB
-  deriving (Show, Read)
-
 data LogTo
   = STDOut
   | STDErr
@@ -41,7 +34,7 @@ type AppM = ReaderT Config Servant.Handler
 
 addToLogger :: Text -> AppM ()
 addToLogger message =
-  ask >>= \cfg -> liftIO $ pushLogStrLn (getLogger cfg) (toLogStr message)
+  AppPrelude.ask >>= \cfg -> liftIO $ pushLogStrLn (getLogger cfg) (toLogStr message)
 
 makeLogger :: LogTo -> IO LoggerSet
 makeLogger logTo = case logTo of
@@ -67,4 +60,4 @@ lookupEnvOrError var = do
   env <- lookupEnv . unpack $ var
   case env of
     Just e  -> return $ pack e
-    Nothing -> return $ "Could not read environment variable: " <> var
+    Nothing -> panic $ "Could not read environment variable: " <> var

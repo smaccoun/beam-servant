@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a728030f6b9801a351f30a9237226e0047c6bb9850f84199b48b50f337293843
+-- hash: 03772e7ba1bfe24098cf989463ce17798530cbb6d7e01bcf66293edcda0114af
 
 name:           api
 version:        0.1.0.0
@@ -35,10 +35,9 @@ library
     , base >=4.7 && <5
     , data-default
     , fast-logger
-    , foundation
-    , foundation-edge
     , mtl
     , natural-transformation
+    , protolude
     , selda
     , selda-postgresql
     , servant
@@ -74,10 +73,9 @@ executable api-exe
     , base >=4.7 && <5
     , data-default
     , fast-logger
-    , foundation
-    , foundation-edge
     , mtl
     , natural-transformation
+    , protolude
     , selda
     , selda-postgresql
     , servant
@@ -107,10 +105,9 @@ test-suite api-test
     , base >=4.7 && <5
     , data-default
     , fast-logger
-    , foundation
-    , foundation-edge
     , mtl
     , natural-transformation
+    , protolude
     , selda
     , selda-postgresql
     , servant

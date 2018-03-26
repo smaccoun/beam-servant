@@ -17,7 +17,6 @@ import qualified Network.Wai                          as Wai
 import qualified Network.Wai.Handler.Warp             as Warp
 
 import AppPrelude
-import Foundation.Compat.Text
 import App
 import qualified Data.Text as T
 
@@ -44,3 +43,34 @@ appCorsResourcePolicy = CorsResourcePolicy {
   , corsRequireOrigin  = False
   , corsIgnoreFailures = False
 }
+
+
+data DBConfig =
+  DBConfig
+    {dbHost     :: T.Text
+    ,dbPort     :: Int
+    ,dbDatabase :: T.Text
+    ,dbSchema   :: Maybe T.Text
+    ,dbUsername :: T.Text
+    ,dbPassword :: T.Text
+    }
+
+
+getDBConnectionInfo :: Environment -> IO DBConfig
+getDBConnectionInfo _ = do
+  dbHost'      <- lookupEnvOrError "DB_HOST"
+  dbPort'      <- lookupEnvOrError "DB_PORT"
+  dbDatabase'  <- lookupEnvOrError "DB_DATABASE"
+  dbSchema'    <- lookupEnvOrError "DB_SCHEMA"
+  dbUsername'  <- lookupEnvOrError "DB_USERNAME"
+  dbPassword'  <- lookupEnvOrError "DB_PASSWORD"
+
+  return $
+    DBConfig
+      {dbHost      = dbHost'
+      ,dbPort      = 5432
+      ,dbDatabase  = dbDatabase'
+      ,dbSchema    = Just dbSchema'
+      ,dbUsername  = dbUsername'
+      ,dbPassword  = dbPassword'
+      }
