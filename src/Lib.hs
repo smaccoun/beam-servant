@@ -1,30 +1,30 @@
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds     #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Lib
     ( startApp
     ) where
 
-import Servant.API
-import Data.Default
-import qualified System.Log.FastLogger as FL
-import qualified Servant                              as S
+import           Control.Monad.Except                 (catchError)
+import           Control.Monad.Trans.Reader           (runReaderT)
 import           Control.Natural                      ((:~>) (NT))
-import           Control.Monad.Trans.Reader (runReaderT)
-import Control.Monad.Except (catchError)
-import Data.Aeson
-import           Network.Wai.Middleware.Cors
-import qualified Network.Wai.Middleware.RequestLogger as MidRL
+import           Data.Aeson
+import           Data.Default
 import qualified Network.Wai                          as Wai
 import qualified Network.Wai.Handler.Warp             as Warp
+import           Network.Wai.Middleware.Cors
+import qualified Network.Wai.Middleware.RequestLogger as MidRL
+import qualified Servant                              as S
+import           Servant.API
+import qualified System.Log.FastLogger                as FL
 
-import AppPrelude
-import App
-import qualified Data.Text as T
+import           App
+import           AppPrelude
+import qualified Data.Text                            as T
 
-import Config.AppConfig
-import Config.SeldaConfig
-import Api.User
+import           Api.User
+import           Config.AppConfig
+import           Config.SeldaConfig
 
 
 type API =
@@ -47,7 +47,7 @@ startApp charArgs = do
 
     logTo <- case listToMaybe args of
       Just filename -> return $ File filename
-      Nothing -> lookupEnvDefault "SERVANT_LOG" STDOut
+      Nothing       -> lookupEnvDefault "SERVANT_LOG" STDOut
 
     logger  <- makeLogger logTo
     midware   <- makeMiddleware logger env
