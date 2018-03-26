@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeOperators #-}
 
-module AppConfig where
+module Config.AppConfig where
 
 import Servant.API
 import Data.Default

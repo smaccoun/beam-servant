@@ -22,7 +22,8 @@ import AppPrelude
 import App
 import qualified Data.Text as T
 
-import AppConfig
+import Config.AppConfig
+import Config.SeldaConfig
 import Api.User
 
 
@@ -51,7 +52,8 @@ startApp charArgs = do
     logger  <- makeLogger logTo
     midware   <- makeMiddleware logger env
     dbConfig <- getDBConnectionInfo  env
-    let initialLogMsg = intercalate " " ["Listening on port", show port, "at level", show env, "and logging to", show logTo, "with args", T.unpack (T.unwords args), "\n"]
+    let seldaConfig = dbConfigToSeldaPGConfig dbConfig
+    let initialLogMsg = intercalate " " $ ["Listening on port", show port, "at level", show env, "and logging to", show logTo, "with args", T.unpack (T.unwords args), "\n"]
     FL.pushLogStr logger $ FL.toLogStr initialLogMsg
     Warp.run port
       $ midware

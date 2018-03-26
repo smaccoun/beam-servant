@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 03772e7ba1bfe24098cf989463ce17798530cbb6d7e01bcf66293edcda0114af
+-- hash: e86fa25a67be8eda56102000ea11d1567b7d98814d9c1e33fe388465cdebe820
 
 name:           api
 version:        0.1.0.0
@@ -52,8 +52,9 @@ library
   exposed-modules:
       Api.User
       App
-      AppConfig
       AppPrelude
+      Config.AppConfig
+      Config.SeldaConfig
       Lib
       Models.User
   other-modules:
