@@ -1,12 +1,4 @@
-FROM haskell:8
-
-# install database dependencies
-RUN ["apt-get", "update"]
-RUN ["apt-get", "-y", "install", "libpq-dev"]
-RUN ["apt-get", "-y", "install", "pkg-config"]
-RUN ["apt-get", "-y", "install", "libpcre3", "libpcre3-dev"]
-RUN ["apt-get", "-y", "install", "build-essential"]
-
+FROM  smaccoun/haskstar-haskell:0.1
 
 # Copy everything to docker ecosystem
 WORKDIR /app/
