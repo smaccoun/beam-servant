@@ -5,13 +5,15 @@ import           AppPrelude                 hiding (traceIO)
 import           Control.Monad.IO.Class     (liftIO)
 import           Control.Monad.Trans.Reader (ReaderT, ask)
 import           Data.Maybe                 (fromMaybe)
+import           Data.Pool
 import           Data.Text                  (pack, unpack)
+import           Data.Text                  (Text)
+import           Database.PostgreSQL.LibPQ  (Connection, finish, connectdb)
 import qualified Servant
 import           System.Environment         (lookupEnv)
 import           System.Log.FastLogger      (LoggerSet, pushLogStrLn, toLogStr)
-import qualified System.Log.FastLogger as FL
-import           Text.Read                  (readMaybe, Read)
-import Data.Text (Text)
+import qualified System.Log.FastLogger      as FL
+import           Text.Read                  (Read, readMaybe)
 
 data Environment
   = Test
@@ -26,7 +28,8 @@ data LogTo
   deriving (Show, Eq, Read)
 
 data Config = Config
-  { getLogger                 :: LoggerSet
+  { getLogger :: LoggerSet
+  , getPool   :: Pool Connection
   }
 
 type AppM = ReaderT Config Servant.Handler
@@ -61,3 +64,9 @@ lookupEnvOrError var = do
   case env of
     Just e  -> return $ pack e
     Nothing -> panic $ "Could not read environment variable: " <> var
+
+mkPool :: ByteString -> IO (Pool Connection)
+mkPool connString =
+  createPool start finish 10 (0.5) 10
+    where
+      start = connectdb connString

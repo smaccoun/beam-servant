@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e184733ff2b56f972d8a509b7ed7f9cf2b7f3787fb78d33018cc32790911f986
+-- hash: 056aa4a8d04770cd95386577ac231d9d75aabddf845678035b2140861e1d3e82
 
 name:           api
 version:        0.1.0.0
@@ -37,7 +37,9 @@ library
     , fast-logger
     , mtl
     , natural-transformation
+    , postgresql-libpq
     , protolude
+    , resource-pool
     , selda
     , selda-postgresql
     , servant
@@ -52,7 +54,6 @@ library
   exposed-modules:
       Api.User
       App
-      AppConfig
       AppPrelude
       Config.AppConfig
       Config.SeldaConfig
@@ -77,7 +78,9 @@ executable api-exe
     , fast-logger
     , mtl
     , natural-transformation
+    , postgresql-libpq
     , protolude
+    , resource-pool
     , selda
     , selda-postgresql
     , servant
@@ -109,7 +112,9 @@ test-suite api-test
     , fast-logger
     , mtl
     , natural-transformation
+    , postgresql-libpq
     , protolude
+    , resource-pool
     , selda
     , selda-postgresql
     , servant

@@ -53,6 +53,8 @@ dependencies:
 - data-default
 - selda
 - selda-postgresql
+- postgresql-libpq
+- resource-pool
 
 library:
   source-dirs: src
