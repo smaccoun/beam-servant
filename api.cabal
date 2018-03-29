@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3c9bffebd2999e20de9e41324eaeee1a613f64c0b016bd795b7ae6ce0af63578
+-- hash: b9ab146151c4bdb84e210ee2499bc66285abe2613a903d71496f15ebc389085a
 
 name:           api
 version:        0.1.0.0
@@ -33,6 +33,9 @@ library
       aeson
     , attoparsec
     , base >=4.7 && <5
+    , beam-core
+    , beam-migrate
+    , beam-postgres
     , data-default
     , fast-logger
     , mtl
@@ -40,8 +43,6 @@ library
     , postgresql-simple
     , protolude
     , resource-pool
-    , selda
-    , selda-postgresql
     , servant
     , servant-server
     , text
@@ -56,7 +57,6 @@ library
       App
       AppPrelude
       Config.AppConfig
-      Config.SeldaConfig
       Lib
       Models.User
   other-modules:
@@ -74,6 +74,9 @@ executable api-exe
     , api
     , attoparsec
     , base >=4.7 && <5
+    , beam-core
+    , beam-migrate
+    , beam-postgres
     , data-default
     , fast-logger
     , mtl
@@ -81,8 +84,6 @@ executable api-exe
     , postgresql-simple
     , protolude
     , resource-pool
-    , selda
-    , selda-postgresql
     , servant
     , servant-server
     , text
@@ -108,6 +109,9 @@ test-suite api-test
     , api
     , attoparsec
     , base >=4.7 && <5
+    , beam-core
+    , beam-migrate
+    , beam-postgres
     , data-default
     , fast-logger
     , mtl
@@ -115,8 +119,6 @@ test-suite api-test
     , postgresql-simple
     , protolude
     , resource-pool
-    , selda
-    , selda-postgresql
     , servant
     , servant-server
     , text

@@ -45,7 +45,6 @@ makeLogger logTo = case logTo of
         STDErr        -> FL.newStderrLoggerSet FL.defaultBufSize
         File filename -> FL.newFileLoggerSet FL.defaultBufSize $ unpack filename
 
-
 mkPool :: PGS.ConnectInfo -> IO (Pool PGS.Connection)
 mkPool con =
   createPool start PGS.close 10 (0.5) 10

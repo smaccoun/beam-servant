@@ -25,6 +25,7 @@ import qualified Data.Text                            as T
 
 import           Api.User
 import           Config.AppConfig
+import Database.Beam
 
 type API =
        Get '[JSON] T.Text

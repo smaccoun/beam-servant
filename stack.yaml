@@ -15,7 +15,7 @@
 # resolver:
 #  name: custom-snapshot
 #  location: "./custom-snapshot.yaml"
-resolver: lts-8.23
+resolver: lts-9.4
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -38,14 +38,19 @@ packages:
 # will not be run. This is useful for tweaking upstream packages.
 packages:
 - .
+- location:
+    git: https://github.com/tathougies/beam.git
+    commit: 03f1091b0e0e05a76ec622e454e0c95a7195fb25
+  extra-dep: true
+  subdirs:
+    - beam-core
+    - beam-migrate
+    - beam-postgres
 
 extra-deps:
 - servant-0.11
 - servant-server-0.11
 - foundation-edge-0.0.3
-- selda-0.1.12.1
-- selda-postgresql-0.1.7.2
-
 
 flags: {}
 
