@@ -3,7 +3,7 @@ module App where
 import           AppPrelude                 hiding (traceIO)
 
 import           Control.Monad.IO.Class     (liftIO)
-import           Control.Monad.Trans.Reader (ReaderT, ask)
+import           Control.Monad.Trans.Reader (ReaderT)
 import           Data.Maybe                 (fromMaybe)
 import           Data.Pool
 import           Data.Text                  (pack, unpack)
@@ -44,6 +44,14 @@ makeLogger logTo = case logTo of
         STDOut        -> FL.newStdoutLoggerSet FL.defaultBufSize
         STDErr        -> FL.newStderrLoggerSet FL.defaultBufSize
         File filename -> FL.newFileLoggerSet FL.defaultBufSize $ unpack filename
+
+getConnFromPool :: Pool PGS.Connection -> AppM PGS.Connection
+getConnFromPool pool = withResource pool return
+
+
+getConn :: AppM PGS.Connection
+getConn = ask >>= getConnFromPool . getPool
+
 
 mkPool :: PGS.ConnectInfo -> IO (Pool PGS.Connection)
 mkPool con =
