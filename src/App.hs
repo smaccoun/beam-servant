@@ -8,7 +8,7 @@ import           Data.Maybe                 (fromMaybe)
 import           Data.Pool
 import           Data.Text                  (pack, unpack)
 import           Data.Text                  (Text)
-import           Database.PostgreSQL.LibPQ  (Connection, finish, connectdb)
+import qualified Database.PostgreSQL.Simple as PGS
 import qualified Servant
 import           System.Environment         (lookupEnv)
 import           System.Log.FastLogger      (LoggerSet, pushLogStrLn, toLogStr)
@@ -29,7 +29,7 @@ data LogTo
 
 data Config = Config
   { getLogger :: LoggerSet
-  , getPool   :: Pool Connection
+  , getPool   :: Pool PGS.Connection
   }
 
 type AppM = ReaderT Config Servant.Handler
@@ -44,6 +44,18 @@ makeLogger logTo = case logTo of
         STDOut        -> FL.newStdoutLoggerSet FL.defaultBufSize
         STDErr        -> FL.newStderrLoggerSet FL.defaultBufSize
         File filename -> FL.newFileLoggerSet FL.defaultBufSize $ unpack filename
+
+
+mkPool :: PGS.ConnectInfo -> IO (Pool PGS.Connection)
+mkPool con =
+  createPool start PGS.close 10 (0.5) 10
+    where
+      start = PGS.connect con
+
+envPool :: Environment -> Int
+envPool Test        = 1
+envPool Development = 1
+envPool Production  = 8
 
 
 lookupEnvStrDefault :: Text -> Text -> IO Text
@@ -64,9 +76,3 @@ lookupEnvOrError var = do
   case env of
     Just e  -> return $ pack e
     Nothing -> panic $ "Could not read environment variable: " <> var
-
-mkPool :: ByteString -> IO (Pool Connection)
-mkPool connString =
-  createPool start finish 10 (0.5) 10
-    where
-      start = connectdb connString

@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 056aa4a8d04770cd95386577ac231d9d75aabddf845678035b2140861e1d3e82
+-- hash: 3c9bffebd2999e20de9e41324eaeee1a613f64c0b016bd795b7ae6ce0af63578
 
 name:           api
 version:        0.1.0.0
@@ -37,7 +37,7 @@ library
     , fast-logger
     , mtl
     , natural-transformation
-    , postgresql-libpq
+    , postgresql-simple
     , protolude
     , resource-pool
     , selda
@@ -78,7 +78,7 @@ executable api-exe
     , fast-logger
     , mtl
     , natural-transformation
-    , postgresql-libpq
+    , postgresql-simple
     , protolude
     , resource-pool
     , selda
@@ -112,7 +112,7 @@ test-suite api-test
     , fast-logger
     , mtl
     , natural-transformation
-    , postgresql-libpq
+    , postgresql-simple
     , protolude
     , resource-pool
     , selda

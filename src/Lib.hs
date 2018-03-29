@@ -11,7 +11,6 @@ import           Control.Natural                      ((:~>) (NT))
 import           Data.Aeson
 import           Data.Default
 import           Data.Pool
-import           Database.PostgreSQL.LibPQ            (Connection)
 import qualified Network.Wai                          as Wai
 import qualified Network.Wai.Handler.Warp             as Warp
 import           Network.Wai.Middleware.Cors
@@ -26,8 +25,6 @@ import qualified Data.Text                            as T
 
 import           Api.User
 import           Config.AppConfig
-import           Config.SeldaConfig
-import           Database.Selda.PostgreSQL            (pgConnString)
 
 type API =
        Get '[JSON] T.Text
@@ -53,9 +50,8 @@ startApp charArgs = do
 
     logger  <- makeLogger logTo
     dbConfig <- getDBConnectionInfo  env
+    pool <- mkPool $ connInfoToPG dbConfig
     midware   <- makeMiddleware logger env
-    let pgConfig = dbConfigToSeldaPGConfig dbConfig
-    pool <- mkPool $ pgConnString pgConfig
     let initialLogMsg = intercalate " " $ ["Listening on port", show port, "at level", show env, "and logging to", show logTo, "with args", T.unpack (T.unwords args), "\n"]
     FL.pushLogStr logger $ FL.toLogStr initialLogMsg
     Warp.run port

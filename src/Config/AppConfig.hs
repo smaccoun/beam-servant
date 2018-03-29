@@ -1,25 +1,26 @@
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds     #-}
 {-# LANGUAGE TypeOperators #-}
 
 module Config.AppConfig where
 
-import Servant.API
-import Data.Default
-import qualified System.Log.FastLogger as FL
-import qualified Servant                              as S
+import           Control.Monad.Except                 (catchError)
+import           Control.Monad.Trans.Reader           (runReaderT)
 import           Control.Natural                      ((:~>) (NT))
-import           Control.Monad.Trans.Reader (runReaderT)
-import Control.Monad.Except (catchError)
-import Data.Aeson
-import           Network.Wai.Middleware.Cors
-import qualified Network.Wai.Middleware.RequestLogger as MidRL
+import           Data.Aeson
+import           Data.Default
 import qualified Network.Wai                          as Wai
 import qualified Network.Wai.Handler.Warp             as Warp
+import           Network.Wai.Middleware.Cors
+import qualified Network.Wai.Middleware.RequestLogger as MidRL
+import qualified Servant                              as S
+import           Servant.API
+import qualified System.Log.FastLogger                as FL
 
-import AppPrelude
-import App
-import Prelude (read)
-import qualified Data.Text as T
+import           App
+import           AppPrelude
+import qualified Data.Text                            as T
+import qualified Database.PostgreSQL.Simple           as PGS
+import           Prelude                              (read)
 
 makeMiddleware :: FL.LoggerSet -> Environment -> IO Wai.Middleware
 makeMiddleware logger env =
@@ -75,3 +76,12 @@ getDBConnectionInfo _ = do
       ,dbUsername  = dbUsername'
       ,dbPassword  = dbPassword'
       }
+
+
+connInfoToPG :: DBConfig -> PGS.ConnectInfo
+connInfoToPG connInfo = PGS.defaultConnectInfo
+                        { PGS.connectHost = T.unpack . dbHost $ connInfo
+                        , PGS.connectUser = T.unpack . dbUsername $ connInfo
+                        , PGS.connectPassword = T.unpack . dbPassword $ connInfo
+                        , PGS.connectDatabase = T.unpack . dbDatabase $ connInfo
+                        }
