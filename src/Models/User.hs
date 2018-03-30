@@ -11,7 +11,6 @@ module Models.User where
 
 import           AppPrelude
 import           Data.Aeson
-import           Data.Text
 import           Database.Beam
 import           Database.Beam.Postgres
 import           GHC.Generics           (Generic)
@@ -31,8 +30,6 @@ instance Table UserT where
 
 instance Beamable (PrimaryKey UserT)
 deriving instance ToJSON User
-
-
 
 data MyAppDb f =
   MyAppDb

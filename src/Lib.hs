@@ -8,13 +8,8 @@ module Lib
 import           Control.Monad.Except                 (catchError)
 import           Control.Monad.Trans.Reader           (runReaderT)
 import           Control.Natural                      ((:~>) (NT))
-import           Data.Aeson
-import           Data.Default
-import           Data.Pool
 import qualified Network.Wai                          as Wai
 import qualified Network.Wai.Handler.Warp             as Warp
-import           Network.Wai.Middleware.Cors
-import qualified Network.Wai.Middleware.RequestLogger as MidRL
 import qualified Servant                              as S
 import           Servant.API
 import qualified System.Log.FastLogger                as FL
@@ -25,7 +20,6 @@ import qualified Data.Text                            as T
 
 import           Api.User
 import           Config.AppConfig
-import Database.Beam
 
 type API =
        Get '[JSON] T.Text
@@ -61,7 +55,6 @@ startApp charArgs = do
 
 app :: App.Config -> Wai.Application
 app config = do
-    let api = S.Proxy :: S.Proxy API
     S.serve api $ S.enter (NT $ runHandler config) server
 
 runHandler :: Config -> AppM a -> S.Handler a
@@ -72,7 +65,7 @@ runHandler config handler =
     errorHandler err = errorHandler' err (S.errHTTPCode err)
 
     errorHandler' :: S.ServantErr -> Int -> S.Handler a
-    errorHandler' err code =
+    errorHandler' err _ =
       S.throwError err
 
 nt :: App.Config -> AppM a -> S.Handler a

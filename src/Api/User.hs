@@ -21,7 +21,6 @@ userAPI = Proxy
 userServer :: ServerT UserAPI AppM
 userServer = getUsers
 
-
 usersQ =
   runQuery query
   where
@@ -31,6 +30,7 @@ getUsers :: AppM [User]
 getUsers = do
   users <- usersQ
   return users
+
 
 
 
