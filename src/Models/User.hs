@@ -31,13 +31,3 @@ instance Table UserT where
 instance Beamable (PrimaryKey UserT)
 deriving instance ToJSON User
 
-data MyAppDb f =
-  MyAppDb
-    { _users :: f (TableEntity UserT)
-    } deriving Generic
-
-instance Database be MyAppDb
-
-appDb :: DatabaseSettings be MyAppDb
-appDb = defaultDbSettings
-

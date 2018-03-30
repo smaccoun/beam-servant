@@ -4,10 +4,9 @@ import App
 import AppPrelude
 import Servant
 import DB.Transaction
-import Data.Text
-import Data.Aeson
 import Models.User
 import Database.Beam
+import DBSchema
 
 type UserAPI =
     "users"
@@ -21,14 +20,9 @@ userAPI = Proxy
 userServer :: ServerT UserAPI AppM
 userServer = getUsers
 
-usersQ =
-  runQuery query
-  where
-    query = runSelectReturningList $ select (all_ (_users appDb))
-
 getUsers :: AppM [User]
 getUsers = do
-  users <- usersQ
+  users <- runQuery $ runSelectReturningList $ select (all_ (_users appDb))
   return users
 
 

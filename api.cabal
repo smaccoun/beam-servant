@@ -60,6 +60,7 @@ library
       Lib
       DB.Transaction
       Models.User
+      DBSchema
   other-modules:
       Paths_api
   default-language: Haskell2010
