@@ -3,6 +3,7 @@ module Api.User where
 import App
 import AppPrelude
 import Servant
+import DB.Transaction
 import Data.Text
 import Data.Aeson
 import Models.User
@@ -21,15 +22,14 @@ userServer :: ServerT UserAPI AppM
 userServer = getUsers
 
 
-usersQ conn = do
-  withDatabase conn $ do
-    users <- runSelectReturningList $ select (all_ (_users appDb))
-    return users
+usersQ =
+  runQuery query
+  where
+    query = runSelectReturningList $ select (all_ (_users appDb))
 
 getUsers :: AppM [User]
 getUsers = do
-  conn <- getConn
-  users <- liftIO $ usersQ conn
+  users <- usersQ
   return users
 
 

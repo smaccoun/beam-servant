@@ -58,6 +58,7 @@ library
       AppPrelude
       Config.AppConfig
       Lib
+      DB.Transaction
       Models.User
   other-modules:
       Paths_api
