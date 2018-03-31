@@ -33,11 +33,13 @@ library
       aeson
     , attoparsec
     , base >=4.7 && <5
+    , bytestring
     , beam-core
     , beam-migrate
     , beam-postgres
     , data-default
     , fast-logger
+    , jose
     , mtl
     , natural-transformation
     , postgresql-simple
@@ -45,6 +47,8 @@ library
     , resource-pool
     , servant
     , servant-server
+    , servant-auth
+    , servant-auth-server
     , text
     , transformers
     , wai

@@ -3,17 +3,11 @@
 
 module Config.AppConfig where
 
-import           Control.Monad.Except                 (catchError)
-import           Control.Monad.Trans.Reader           (runReaderT)
-import           Control.Natural                      ((:~>) (NT))
-import           Data.Aeson
 import           Data.Default
 import qualified Network.Wai                          as Wai
 import qualified Network.Wai.Handler.Warp             as Warp
 import           Network.Wai.Middleware.Cors
 import qualified Network.Wai.Middleware.RequestLogger as MidRL
-import qualified Servant                              as S
-import           Servant.API
 import qualified System.Log.FastLogger                as FL
 
 import           App
@@ -23,7 +17,7 @@ import qualified Database.PostgreSQL.Simple           as PGS
 import           Prelude                              (read)
 
 makeMiddleware :: FL.LoggerSet -> Environment -> IO Wai.Middleware
-makeMiddleware logger env =
+makeMiddleware logger _ =
           combineMiddleware corsified
         $ MidRL.mkRequestLogger
         $ def { MidRL.destination = MidRL.Logger logger }

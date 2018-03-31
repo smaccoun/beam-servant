@@ -12,7 +12,7 @@ import qualified Network.Wai                          as Wai
 import qualified Network.Wai.Handler.Warp             as Warp
 import qualified Servant                              as S
 import qualified System.Log.FastLogger                as FL
-
+import Servant.Auth.Server (generateKey, defaultJWTSettings, defaultCookieSettings)
 import           App
 import           AppPrelude
 import qualified Data.Text                            as T
@@ -34,16 +34,19 @@ startApp charArgs = do
     logger  <- makeLogger logTo
     dbConfig <- getDBConnectionInfo  env
     pool <- mkPool $ connInfoToPG dbConfig
+    jwk <- generateKey
     midware   <- makeMiddleware logger env
     let initialLogMsg = intercalate " " $ ["Listening on port", show port, "at level", show env, "and logging to", show logTo, "with args", T.unpack (T.unwords args), "\n"]
     FL.pushLogStr logger $ FL.toLogStr initialLogMsg
     Warp.run port
       $ midware
-      $ app (Config logger pool)
+      $ app (Config logger pool jwk)
 
 app :: App.Config -> Wai.Application
-app config = do
-    S.serve api $ S.enter (NT $ runHandler config) server
+app config@(Config _ _ authKey) = do
+    let jwtCfg = defaultJWTSettings authKey
+        cfg = defaultCookieSettings S.:. jwtCfg S.:. S.EmptyContext
+    S.serveWithContext api cfg $ S.enter (NT $ runHandler config) (server jwtCfg)
 
 runHandler :: Config -> AppM a -> S.Handler a
 runHandler config handler =

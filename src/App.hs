@@ -14,6 +14,7 @@ import           System.Environment         (lookupEnv)
 import           System.Log.FastLogger      (LoggerSet, pushLogStrLn, toLogStr)
 import qualified System.Log.FastLogger      as FL
 import           Text.Read                  (Read, readMaybe)
+import Crypto.JOSE.JWK (JWK)
 
 data Environment
   = Test
@@ -30,6 +31,7 @@ data LogTo
 data Config = Config
   { getLogger :: LoggerSet
   , getPool   :: Pool PGS.Connection
+  , getAuthKey :: JWK
   }
 
 type AppM = ReaderT Config Servant.Handler

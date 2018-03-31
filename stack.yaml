@@ -21,6 +21,8 @@ extra-deps:
 - servant-0.11
 - servant-server-0.11
 - foundation-edge-0.0.3
+- servant-auth-0.3.1.0
+- servant-auth-server-0.3.2.0
 
 flags: {}
 

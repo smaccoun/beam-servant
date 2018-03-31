@@ -12,7 +12,6 @@ module Models.User where
 import           AppPrelude
 import           Data.Aeson
 import           Database.Beam
-import           Database.Beam.Postgres
 import           GHC.Generics           (Generic)
 
 type User = UserT Identity
@@ -30,4 +29,5 @@ instance Table UserT where
 
 instance Beamable (PrimaryKey UserT)
 deriving instance ToJSON User
+deriving instance FromJSON User
 

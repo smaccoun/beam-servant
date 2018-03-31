@@ -6,6 +6,7 @@ import Servant
 import DB.Transaction
 import Models.User
 import Database.Beam
+import Database.Beam.Postgres
 import DBSchema
 
 type UserAPI =
