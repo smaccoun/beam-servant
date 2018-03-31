@@ -26,6 +26,11 @@ getUsers = do
   users <- runQuery $ runSelectReturningList $ select (all_ (_users appDb))
   return users
 
+getUserByEmail :: Text -> AppM [User]
+getUserByEmail email' = do
+  users <- runQuery $ runSelectReturningList $ select (all_ (_users appDb))
+  return users
+
 
 
 

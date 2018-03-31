@@ -7,25 +7,20 @@ import Api.Login
 import Models.User
 import Servant
 import Data.Text (Text)
-import Data.Aeson
 import Servant.Auth.Server
 import Servant.Auth.Server.SetCookieOrphan ()
 
 ---------------------------------------------------------------
 type Protected
    = "email" :> Get '[JSON] Text
+   :<|> UserAPI
 
 protected :: AuthResult Login -> ServerT Protected AppM
-protected (Authenticated login) = return (username login)
-protected Servant.Auth.Server.BadPassword = do
-  print "Bad Password"
-  throwAll err401
-protected Servant.Auth.Server.NoSuchUser = do
-  print "NO SUCH USER"
-  throwAll err401
-protected Indefinite = do
-  print "Indefinite"
-  throwAll err401
+protected (Authenticated login) =
+       return (username login)
+  :<|> userServer
+
+protected _ = throwAll err401
 
 type Unprotected =
        Get '[JSON] Text

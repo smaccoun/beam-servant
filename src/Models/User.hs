@@ -11,6 +11,7 @@ module Models.User where
 
 import           AppPrelude
 import           Data.Aeson
+import Data.UUID (UUID)
 import           Database.Beam
 import           GHC.Generics           (Generic)
 
@@ -18,7 +19,8 @@ type User = UserT Identity
 
 data UserT f
     = User
-    { _userEmail    :: Columnar f Text
+    { _userId :: Columnar f UUID
+    , _userEmail    :: Columnar f Text
     , _userPassword :: Columnar f Text }
     deriving (Generic)
 

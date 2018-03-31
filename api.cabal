@@ -51,6 +51,7 @@ library
     , servant-auth-server
     , text
     , transformers
+    , uuid
     , wai
     , wai-cors
     , wai-extra
