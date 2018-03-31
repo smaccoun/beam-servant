@@ -11,27 +11,15 @@ import           Control.Natural                      ((:~>) (NT))
 import qualified Network.Wai                          as Wai
 import qualified Network.Wai.Handler.Warp             as Warp
 import qualified Servant                              as S
-import           Servant.API
 import qualified System.Log.FastLogger                as FL
 
 import           App
 import           AppPrelude
 import qualified Data.Text                            as T
 
-import           Api.User
+import Api.API
 import           Config.AppConfig
 
-type API =
-       Get '[JSON] T.Text
-  :<|> UserAPI
-
-api :: Proxy API
-api = Proxy
-
-server :: S.ServerT API AppM
-server =
-       return "hello world"
-  :<|> userServer
 
 startApp :: [[Char]] -> IO ()
 startApp charArgs = do

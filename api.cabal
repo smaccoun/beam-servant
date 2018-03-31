@@ -54,6 +54,7 @@ library
     , word8
   exposed-modules:
       Api.User
+      Api.API
       App
       AppPrelude
       Config.AppConfig
