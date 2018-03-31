@@ -49,6 +49,9 @@ library
     , servant-server
     , servant-auth
     , servant-auth-server
+    , servant-swagger
+    , servant-auth-swagger
+    , swagger2
     , text
     , transformers
     , uuid
