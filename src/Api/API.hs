@@ -15,9 +15,11 @@ type Protected
    = "email" :> Get '[JSON] Text
    :<|> UserAPI
 
-protected :: AuthResult Login -> ServerT Protected AppM
-protected (Authenticated login) =
-       return (username login)
+   
+
+protected :: AuthResult User -> ServerT Protected AppM
+protected (Authenticated (User _ _userEmail _)) =
+       return _userEmail
   :<|> userServer
 
 protected _ = throwAll err401
@@ -34,7 +36,7 @@ unprotected jwts =
        return "hello world"
   :<|> loginServer jwts
 
-type API auths = (Auth auths Login :> Protected) :<|> Unprotected
+type API auths = (Auth auths User :> Protected) :<|> Unprotected
 
 api :: Proxy (API '[JWT])
 api = Proxy
@@ -44,3 +46,7 @@ server :: JWTSettings -> ServerT (API auths) AppM
 server jwts =
        protected
   :<|> unprotected jwts
+
+
+
+  

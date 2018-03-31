@@ -26,10 +26,11 @@ data UserT f
 
 instance Beamable UserT
 instance Table UserT where
-  data PrimaryKey UserT f = UserId (Columnar f Text) deriving Generic
-  primaryKey = UserId . _userEmail
+  data PrimaryKey UserT f = UserId (Columnar f UUID) deriving Generic
+  primaryKey = UserId . _userId
 
 instance Beamable (PrimaryKey UserT)
+deriving instance Show User
 deriving instance ToJSON User
 deriving instance FromJSON User
 
