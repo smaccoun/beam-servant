@@ -59,6 +59,7 @@ library
   exposed-modules:
       Api.User
       Api.API
+      Api.Login
       App
       AppPrelude
       Config.AppConfig
