@@ -50,6 +50,7 @@ library
     , servant-auth
     , servant-auth-server
     , servant-swagger
+    , servant-swagger-ui
     , servant-auth-swagger
     , swagger2
     , text

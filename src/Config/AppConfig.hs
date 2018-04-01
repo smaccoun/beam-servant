@@ -5,7 +5,6 @@ module Config.AppConfig where
 
 import           Data.Default
 import qualified Network.Wai                          as Wai
-import qualified Network.Wai.Handler.Warp             as Warp
 import           Network.Wai.Middleware.Cors
 import qualified Network.Wai.Middleware.RequestLogger as MidRL
 import qualified System.Log.FastLogger                as FL

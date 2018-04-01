@@ -9,10 +9,12 @@ import           Control.Monad.Except                 (catchError)
 import           Control.Monad.Trans.Reader           (runReaderT)
 import           Control.Natural                      ((:~>) (NT))
 import qualified Network.Wai                          as Wai
+import qualified Servant.Swagger.UI as SUI
 import qualified Network.Wai.Handler.Warp             as Warp
-import qualified Servant                              as S
+import Servant                              as S
+import Servant ((:<|>))
 import qualified System.Log.FastLogger                as FL
-import Servant.Auth.Server (generateKey, defaultJWTSettings, defaultCookieSettings)
+import Servant.Auth.Server (generateKey, defaultJWTSettings, defaultCookieSettings, JWTSettings, JWT)
 import           App
 import           AppPrelude
 import qualified Data.Text                            as T
@@ -46,10 +48,27 @@ app :: App.Config -> Wai.Application
 app config@(Config _ _ authKey) = do
     let jwtCfg = defaultJWTSettings authKey
         cfg = defaultCookieSettings S.:. jwtCfg S.:. S.EmptyContext
-    S.serveWithContext api cfg $ S.enter (NT $ runHandler config) (server jwtCfg)
+        apiWithDocs = (Proxy :: Proxy ApiWithDocs)
+    S.serveWithContext apiWithDocs cfg (serverWithDocs config jwtCfg)
 
-runHandler :: Config -> AppM a -> S.Handler a
-runHandler config handler =
+appServer :: App.Config -> JWTSettings ->  S.Server (API auths)
+appServer config jwtConfig =
+  S.enter (NT $ runCustomHandler config) (serverAPI jwtConfig)
+
+type ApiWithDocs =
+       API '[JWT]
+  :<|> SwaggerAPI
+
+type SwaggerAPI = SUI.SwaggerSchemaUI "swagger-ui" "swagger.json"
+
+serverWithDocs :: App.Config -> JWTSettings ->  S.Server ApiWithDocs
+serverWithDocs config jwtConfig =
+       appServer config jwtConfig
+  :<|> SUI.swaggerSchemaUIServer swaggerUnprotected
+
+
+runCustomHandler :: Config -> AppM a -> S.Handler a
+runCustomHandler config handler =
   catchError (nt config handler) errorHandler
   where
     errorHandler :: S.ServantErr -> S.Handler a

@@ -40,22 +40,18 @@ unprotected jwts =
 type API auths =
        (Auth auths User :> Protected)
   :<|> Unprotected
-  :<|> SwaggerAPI
 
 api :: Proxy (API '[JWT])
 api = Proxy
 
 
-server :: JWTSettings -> ServerT (API auths) AppM
-server jwts =
+serverAPI :: JWTSettings -> ServerT (API auths) AppM
+serverAPI jwts =
        protected
   :<|> unprotected jwts
-  :<|> pure swaggerUnprotected
-
 
 
 -- SWAGGER
-type SwaggerAPI = "swagger.json" :> Get '[JSON] Swagger
 
 swaggerUnprotected :: Swagger
 swaggerUnprotected = toSwagger unprotectedProxy
