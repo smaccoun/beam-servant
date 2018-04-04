@@ -36,7 +36,3 @@ getUserByEmail email' = do
   case userResult of
     Just user -> return user
     Nothing -> panic $ "Should only have one user with email" <> email'
-
-
-
-

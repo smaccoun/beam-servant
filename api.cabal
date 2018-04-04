@@ -52,6 +52,7 @@ library
     , servant-swagger
     , servant-swagger-ui
     , servant-auth-swagger
+    , scrypt
     , swagger2
     , text
     , transformers

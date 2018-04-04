@@ -15,7 +15,7 @@ import Data.UUID (UUID)
 import           Database.Beam
 import           GHC.Generics           (Generic)
 
-type User = UserT Identity
+
 
 data UserT f
     = User
@@ -23,6 +23,8 @@ data UserT f
     , _userEmail    :: Columnar f Text
     , _userPassword :: Columnar f Text }
     deriving (Generic)
+
+type User = UserT Identity
 
 instance Beamable UserT
 instance Table UserT where
@@ -33,4 +35,3 @@ instance Beamable (PrimaryKey UserT)
 deriving instance Show User
 deriving instance ToJSON User
 deriving instance FromJSON User
-
