@@ -35,7 +35,7 @@ data Config = Config
   }
 
 type AppM = ReaderT Config Servant.Handler
-
+type PGConn = Pool PGS.Connection
 
 addToLogger :: Text -> AppM ()
 addToLogger message =
@@ -48,7 +48,10 @@ makeLogger logTo = case logTo of
         File filename -> FL.newFileLoggerSet FL.defaultBufSize $ unpack filename
 
 getConnFromPool :: Pool PGS.Connection -> AppM PGS.Connection
-getConnFromPool pool = withResource pool return
+getConnFromPool pool = liftIO $ getIOConnFromPool pool
+
+getIOConnFromPool :: Pool PGS.Connection -> IO PGS.Connection
+getIOConnFromPool pool = withResource pool return
 
 
 getConn :: AppM PGS.Connection

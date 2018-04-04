@@ -29,20 +29,33 @@ startApp charArgs = do
     env  <- lookupEnvDefault "SERVANT_ENV" Development
     port <- lookupEnvDefault "SERVANT_PORT" 8080
 
-    logTo <- case listToMaybe args of
-      Just filename -> return $ File filename
-      Nothing       -> lookupEnvDefault "SERVANT_LOG" STDOut
+    (config, logTo) <- setAppConfig env args
+    let logger = getLogger config
 
-    logger  <- makeLogger logTo
-    dbConfig <- getDBConnectionInfo  env
-    pool <- mkPool $ connInfoToPG dbConfig
-    jwk <- generateKey
-    midware   <- makeMiddleware logger env
-    let initialLogMsg = intercalate " " $ ["Listening on port", show port, "at level", show env, "and logging to", show logTo, "with args", T.unpack (T.unwords args), "\n"]
+    midware <- makeMiddleware logger env
+    let initialLogMsg = intercalate " " $ ["Listening on port", show port, "at level", show env, "and logging to", (show logTo), "with args", T.unpack (T.unwords args), "\n"]
     FL.pushLogStr logger $ FL.toLogStr initialLogMsg
     Warp.run port
       $ midware
-      $ app (Config logger pool jwk)
+      $ app config
+
+setAppConfig :: Environment -> [Text] -> IO (App.Config, LogTo)
+setAppConfig env args = do
+    pool <- getDBConnection env
+    logTo <- case listToMaybe args of
+      Just filename -> return $ File filename
+      Nothing       -> lookupEnvDefault "SERVANT_LOG" STDOut
+    logger  <- makeLogger logTo
+    jwk <- generateKey
+
+    return (Config logger pool jwk, logTo)
+
+
+getDBConnection :: Environment -> IO PGConn
+getDBConnection env = do
+    dbConfig <- getDBConnectionInfo  env
+    mkPool $ connInfoToPG dbConfig
+
 
 app :: App.Config -> Wai.Application
 app config@(Config _ _ authKey) = do

@@ -25,12 +25,12 @@ userServer = getUsers
 
 getUsers :: AppM [User]
 getUsers = do
-  users <- runQuery $ runSelectReturningList $ select (all_ (_users appDb))
+  users <- runQueryM $ runSelectReturningList $ select (all_ (_users appDb))
   return users
 
 getUserByEmail :: Text -> AppM User
 getUserByEmail email' = do
-  userResult <- runQuery $ runSelectReturningOne $
+  userResult <- runQueryM $ runSelectReturningOne $
     select $
     do  users <- all_ (_users appDb)
         guard_ (_userEmail users ==. val_ email')
@@ -40,10 +40,10 @@ getUserByEmail email' = do
     Nothing -> panic $ "Should only have one user with email" <> email'
 
 
-createUser :: Text -> Text -> AppM ()
-createUser userName unencryptedPassword = do
+createUser :: PGConn -> Text -> Text -> IO ()
+createUser conn userName unencryptedPassword = do
   encryptedPassword <- liftIO $ S.encryptPassIO S.defaultParams (S.Pass $ encodeUtf8 unencryptedPassword)
-  runQuery $ runInsert (insertStmt encryptedPassword)
+  runQuery conn $ runInsert (insertStmt encryptedPassword)
 
   where
     hashedTextPass :: S.EncryptedPass -> Text
