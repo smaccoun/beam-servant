@@ -15,14 +15,12 @@ import Data.UUID (UUID)
 import           Database.Beam
 import           GHC.Generics           (Generic)
 
-
-
 data UserT f
     = User
-    { _userId :: Columnar f UUID
+    { _userId       :: Columnar f UUID
     , _userEmail    :: Columnar f Text
-    , _userPassword :: Columnar f Text }
-    deriving (Generic)
+    , _userPassword :: Columnar f Text
+    } deriving (Generic)
 
 type User = UserT Identity
 

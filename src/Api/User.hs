@@ -6,8 +6,10 @@ import Servant
 import DB.Transaction
 import Models.User
 import Database.Beam
+import Data.Text.Encoding (encodeUtf8)
 import Database.Beam.Postgres
 import DBSchema
+import qualified Crypto.Scrypt as S
 
 type UserAPI =
     "users"
@@ -36,3 +38,16 @@ getUserByEmail email' = do
   case userResult of
     Just user -> return user
     Nothing -> panic $ "Should only have one user with email" <> email'
+
+
+createUser :: Text -> Text -> AppM ()
+createUser userName unencryptedPassword = do
+  encryptedPassword <- liftIO $ S.encryptPassIO S.defaultParams (S.Pass $ encodeUtf8 unencryptedPassword)
+  runQuery $ runInsert (insertStmt encryptedPassword)
+
+  where
+    hashedTextPass :: S.EncryptedPass -> Text
+    hashedTextPass encryptedPassword = S.getEncryptedPass encryptedPassword & decodeUtf8
+
+    insertStmt encryptedPassword = insert (_users appDb) $
+        insertExpressions [ User default_ (val_ userName) (val_ (hashedTextPass encryptedPassword))]
