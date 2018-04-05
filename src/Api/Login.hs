@@ -1,17 +1,17 @@
 module Api.Login where
 
-import App
-import AppPrelude
-import Api.User (getUserByEmail)
-import Models.User (User)
-import Data.Text (Text)
-import Data.Text.Encoding (encodeUtf8)
-import Models.User
-import Data.Aeson
-import Servant.Auth.Server
-import Servant
+import           Api.User             (getUserByEmail)
+import           App
+import           AppPrelude
+import qualified Crypto.Scrypt        as S
+import           Data.Aeson
 import qualified Data.ByteString.Lazy as BSL
-import qualified Crypto.Scrypt as S
+import           Data.Text            (Text)
+import           Data.Text.Encoding   (encodeUtf8)
+import           Models.User          (User)
+import           Models.User
+import           Servant
+import           Servant.Auth.Server
 
 data Login = Login { email :: Text , password :: Text }
    deriving (Eq, Show, Read, Generic)
@@ -33,7 +33,7 @@ loginServer jwtCfg (Login email loginPassword) = do
     print $ (show user :: Text)
     eitherJWT <- liftIO $ makeJWT user jwtCfg Nothing
     case eitherJWT of
-      Left e -> panic $ show e
+      Left e    -> panic $ show e
       Right jwt -> return $ decodeUtf8 $ BSL.toStrict jwt
   else
      return "Bad Password"

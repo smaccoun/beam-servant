@@ -1,15 +1,15 @@
 module Api.User where
 
-import App
-import AppPrelude
-import Servant
-import DB.Transaction
-import Models.User
-import Database.Beam
-import Data.Text.Encoding (encodeUtf8)
-import Database.Beam.Postgres
-import DBSchema
-import qualified Crypto.Scrypt as S
+import           App
+import           AppPrelude
+import qualified Crypto.Scrypt          as S
+import           Data.Text.Encoding     (encodeUtf8)
+import           Database.Beam
+import           Database.Beam.Postgres
+import           DB.Transaction
+import           DBSchema
+import           Models.User
+import           Servant
 
 type UserAPI =
     "users"
@@ -37,7 +37,7 @@ getUserByEmail email' = do
         pure users
   case userResult of
     Just user -> return user
-    Nothing -> panic $ "Should only have one user with email" <> email'
+    Nothing   -> panic $ "Should only have one user with email" <> email'
 
 
 createUser :: PGConn -> Text -> Text -> IO ()

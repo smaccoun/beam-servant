@@ -1,17 +1,17 @@
 module Api.API where
 
-import App
-import AppPrelude
-import Api.User
-import Api.Login
-import Models.User
-import Servant
-import Servant.Auth.Swagger
-import Servant.Swagger
+import           Api.Login
+import           Api.User
+import           App
+import           AppPrelude
 import           Data.Swagger
-import Data.Text (Text)
-import Servant.Auth.Server
-import Servant.Auth.Server.SetCookieOrphan ()
+import           Data.Text                           (Text)
+import           Models.User
+import           Servant
+import           Servant.Auth.Server
+import           Servant.Auth.Server.SetCookieOrphan ()
+import           Servant.Auth.Swagger
+import           Servant.Swagger
 
 ---------------------------------------------------------------
 type Protected

@@ -3,19 +3,19 @@
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE OverloadedStrings    #-}
 {-# LANGUAGE StandaloneDeriving   #-}
+{-# LANGUAGE TemplateHaskell      #-}
 {-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 module Models.User where
 
 import           AppPrelude
+import           Control.Lens  hiding (element)
 import           Data.Aeson
-import Data.UUID (UUID)
+import           Data.UUID     (UUID)
 import           Database.Beam
-import           GHC.Generics           (Generic)
-import Control.Lens hiding (element)
+import           GHC.Generics  (Generic)
 
 type UserID = UUID
 

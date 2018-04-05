@@ -1,9 +1,9 @@
-{-# LANGUAGE DeriveGeneric        #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module DBSchema where
 
 import           Database.Beam
-import Models.User
+import           Models.User
 
 data MyAppDb f =
   MyAppDb

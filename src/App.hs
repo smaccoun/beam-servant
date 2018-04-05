@@ -4,6 +4,7 @@ import           AppPrelude                 hiding (traceIO)
 
 import           Control.Monad.IO.Class     (liftIO)
 import           Control.Monad.Trans.Reader (ReaderT)
+import           Crypto.JOSE.JWK            (JWK)
 import           Data.Maybe                 (fromMaybe)
 import           Data.Pool
 import           Data.Text                  (pack, unpack)
@@ -14,7 +15,6 @@ import           System.Environment         (lookupEnv)
 import           System.Log.FastLogger      (LoggerSet, pushLogStrLn, toLogStr)
 import qualified System.Log.FastLogger      as FL
 import           Text.Read                  (Read, readMaybe)
-import Crypto.JOSE.JWK (JWK)
 
 data Environment
   = Test
@@ -29,8 +29,8 @@ data LogTo
   deriving (Show, Eq, Read)
 
 data Config = Config
-  { getLogger :: LoggerSet
-  , getPool   :: Pool PGS.Connection
+  { getLogger  :: LoggerSet
+  , getPool    :: Pool PGS.Connection
   , getAuthKey :: JWK
   }
 

@@ -5,24 +5,26 @@ module Lib
     ( startApp
     ) where
 
-import           Control.Monad.Except                 (catchError)
-import           Control.Monad.Trans.Reader           (runReaderT)
-import           Control.Natural                      ((:~>) (NT))
-import qualified Network.Wai                          as Wai
-import qualified Data.ByteString.Lazy as LBS
-import qualified Servant.Swagger.UI as SUI
-import qualified Network.Wai.Handler.Warp             as Warp
-import Servant                              as S
-import Servant ((:<|>))
-import qualified System.Log.FastLogger                as FL
-import qualified Crypto.JOSE as Jose
-import qualified Data.Aeson as A
-import Servant.Auth.Server (defaultJWTSettings, defaultCookieSettings, JWTSettings, JWT)
 import           App
 import           AppPrelude
-import qualified Data.Text                            as T
+import           Control.Monad.Except       (catchError)
+import           Control.Monad.Trans.Reader (runReaderT)
+import           Control.Natural            ((:~>) (NT))
+import qualified Crypto.JOSE                as Jose
+import qualified Data.Aeson                 as A
+import qualified Data.ByteString.Lazy       as LBS
+import qualified Data.Text                  as T
+import qualified Network.Wai                as Wai
+import qualified Network.Wai.Handler.Warp   as Warp
+import           Servant                    as S
+import           Servant                    ((:<|>))
+import           Servant.Auth.Server        (JWT, JWTSettings,
+                                             defaultCookieSettings,
+                                             defaultJWTSettings)
+import qualified Servant.Swagger.UI         as SUI
+import qualified System.Log.FastLogger      as FL
 
-import Api.API
+import           Api.API
 import           Config.AppConfig
 
 
