@@ -3,6 +3,7 @@ dist
 dist-*
 cabal-dev
 .env
+JWK.json
 *.o
 *.hi
 *.chi

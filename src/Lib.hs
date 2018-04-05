@@ -14,6 +14,9 @@ import qualified Network.Wai.Handler.Warp             as Warp
 import Servant                              as S
 import Servant ((:<|>))
 import qualified System.Log.FastLogger                as FL
+import qualified Data.ByteString.Lazy as B
+import qualified Data.Text.Encoding as TE
+import qualified Data.Aeson as A
 import Servant.Auth.Server (generateKey, defaultJWTSettings, defaultCookieSettings, JWTSettings, JWT)
 import           App
 import           AppPrelude
@@ -46,10 +49,12 @@ setAppConfig env args = do
       Just filename -> return $ File filename
       Nothing       -> lookupEnvDefault "SERVANT_LOG" STDOut
     logger  <- makeLogger logTo
-    jwk <- generateKey
+
+    jwkJson <- B.readFile "JWK.json"
+    let jwk = fromMaybe (panic "BAD JWK") (A.decode jwkJson)
+
 
     return (Config logger pool jwk, logTo)
-
 
 getDBConnection :: Environment -> IO PGConn
 getDBConnection env = do

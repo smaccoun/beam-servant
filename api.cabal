@@ -93,6 +93,7 @@ executable api-exe
     , beam-postgres
     , data-default
     , fast-logger
+    , jose
     , mtl
     , natural-transformation
     , postgresql-simple
