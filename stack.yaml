@@ -1,7 +1,7 @@
 resolver: lts-9.4
 
 ghc-options:
-  api: -Wall -O0 -fwarn-tabs -fno-warn-orphans
+  api: -Wall -Werror -O0 -fwarn-tabs -fno-warn-orphans
 
 packages:
    extra-dep: true

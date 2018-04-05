@@ -17,7 +17,6 @@ import           Data.UUID                            (UUID)
 import           Database.Beam
 import           Database.Beam.Backend.SQL.SQL92
 import           Database.Beam.Postgres
-import           Database.Beam.Postgres.Syntax
 import           Database.PostgreSQL.Simple.FromField
 import           GHC.Generics                         (Generic)
 import           Models.Credentials                   (Email (..))

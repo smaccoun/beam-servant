@@ -30,7 +30,7 @@ type Protected
 
 protected :: AuthResult UserResponse -> ServerT Protected AppM
 protected (Authenticated user) =
-  userServer
+  userServer user
 
 protected _ = throwAll err401
 

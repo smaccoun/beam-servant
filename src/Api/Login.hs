@@ -9,9 +9,9 @@ import qualified Data.ByteString.Lazy as BSL
 import           Data.Text            (Text)
 import           Data.Text.Encoding   (encodeUtf8)
 import           Database.Tables.User (User, userPassword)
-import           Models.Credentials   (Email (..), Password (..))
+import           Models.Credentials   (Password (..))
 import           Models.Login
-import           Models.User          (UserResponse, userApiFromUserDB)
+import           Models.User          (userApiFromUserDB)
 import           Servant
 import           Servant.Auth.Server
 
