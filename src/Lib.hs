@@ -14,7 +14,6 @@ import qualified Network.Wai.Handler.Warp             as Warp
 import Servant                              as S
 import Servant ((:<|>))
 import qualified System.Log.FastLogger                as FL
-import qualified Data.ByteString.Lazy as B
 import qualified Data.Text.Encoding as TE
 import qualified Data.Aeson as A
 import Servant.Auth.Server (generateKey, defaultJWTSettings, defaultCookieSettings, JWTSettings, JWT)
@@ -50,7 +49,7 @@ setAppConfig env args = do
       Nothing       -> lookupEnvDefault "SERVANT_LOG" STDOut
     logger  <- makeLogger logTo
 
-    jwkJson <- B.readFile "JWK.json"
+    jwkJson <- lookupEnvOrError "AUTH_JWK"
     let jwk = fromMaybe (panic "BAD JWK") (A.decode jwkJson)
 
 
