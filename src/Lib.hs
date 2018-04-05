@@ -9,14 +9,15 @@ import           Control.Monad.Except                 (catchError)
 import           Control.Monad.Trans.Reader           (runReaderT)
 import           Control.Natural                      ((:~>) (NT))
 import qualified Network.Wai                          as Wai
+import qualified Data.ByteString.Lazy as LBS
 import qualified Servant.Swagger.UI as SUI
 import qualified Network.Wai.Handler.Warp             as Warp
 import Servant                              as S
 import Servant ((:<|>))
 import qualified System.Log.FastLogger                as FL
-import qualified Data.Text.Encoding as TE
+import qualified Crypto.JOSE as Jose
 import qualified Data.Aeson as A
-import Servant.Auth.Server (generateKey, defaultJWTSettings, defaultCookieSettings, JWTSettings, JWT)
+import Servant.Auth.Server (defaultJWTSettings, defaultCookieSettings, JWTSettings, JWT)
 import           App
 import           AppPrelude
 import qualified Data.Text                            as T
@@ -49,8 +50,9 @@ setAppConfig env args = do
       Nothing       -> lookupEnvDefault "SERVANT_LOG" STDOut
     logger  <- makeLogger logTo
 
-    jwkJson <- lookupEnvOrError "AUTH_JWK"
-    let jwk = fromMaybe (panic "BAD JWK") (A.decode jwkJson)
+    jwkJsonString <- fmap (LBS.fromStrict . encodeUtf8) $ lookupEnvOrError "AUTH_JWK"
+    let jwkJson = (A.decode jwkJsonString :: Maybe Jose.JWK)
+        jwk = fromMaybe (panic "BAD JWK") jwkJson
 
 
     return (Config logger pool jwk, logTo)
