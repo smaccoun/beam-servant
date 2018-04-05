@@ -6,6 +6,7 @@
 {-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Models.User where
 
@@ -14,15 +15,21 @@ import           Data.Aeson
 import Data.UUID (UUID)
 import           Database.Beam
 import           GHC.Generics           (Generic)
+import Control.Lens hiding (element)
+
+type UserID = UUID
 
 data UserT f
     = User
-    { _userId       :: Columnar f UUID
+    { _userId       :: Columnar f UserID
     , _userEmail    :: Columnar f Text
     , _userPassword :: Columnar f Text
     } deriving (Generic)
 
+
 type User = UserT Identity
+
+makeLenses ''UserT
 
 instance Beamable UserT
 instance Table UserT where
