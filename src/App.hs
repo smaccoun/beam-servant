@@ -35,7 +35,7 @@ data Config = Config
   }
 
 type AppM = ReaderT Config Servant.Handler
-type PGConn = Pool PGS.Connection
+type PGPool = Pool PGS.Connection
 
 addToLogger :: Text -> AppM ()
 addToLogger message =

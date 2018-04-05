@@ -11,11 +11,17 @@
 module Database.Tables.User where
 
 import           AppPrelude
-import           Control.Lens  hiding (element)
-import           Data.Aeson
-import           Data.UUID     (UUID)
+import           Control.Lens                         hiding (element)
+import qualified Crypto.Scrypt                        as S
+import           Data.UUID                            (UUID)
 import           Database.Beam
-import           GHC.Generics  (Generic)
+import           Database.Beam.Backend.SQL.SQL92
+import           Database.Beam.Postgres
+import           Database.Beam.Postgres.Syntax
+import           Database.PostgreSQL.Simple.FromField
+import           GHC.Generics                         (Generic)
+import           Models.Credentials                   (Email (..))
+import           Prelude                              (String)
 
 type UserID = UUID
 
@@ -23,14 +29,14 @@ data UserT f
     = User
     { _userId       :: Columnar f UserID
     , _userEmail    :: Columnar f Text
-    , _userPassword :: Columnar f Text
+    , _userPassword :: Columnar f S.EncryptedPass
     } deriving (Generic)
-
 
 type User = UserT Identity
 
 makeLenses ''UserT
 
+deriving instance Generic S.EncryptedPass
 instance Beamable UserT
 instance Table UserT where
   data PrimaryKey UserT f = UserId (Columnar f UUID) deriving Generic
@@ -38,5 +44,16 @@ instance Table UserT where
 
 instance Beamable (PrimaryKey UserT)
 deriving instance Show User
-deriving instance ToJSON User
-deriving instance FromJSON User
+instance FromField S.EncryptedPass where
+  fromField field mb_bytestring = S.EncryptedPass <$> fromField field mb_bytestring
+
+instance FromField Email where
+  fromField field mb_bytestring = Email <$> fromField field mb_bytestring
+deriving instance FromBackendRow Postgres S.EncryptedPass
+deriving instance FromBackendRow Postgres Email
+
+instance HasSqlValueSyntax be Prelude.String => HasSqlValueSyntax be Email where
+  sqlValueSyntax (Email email) = autoSqlValueSyntax email
+
+instance HasSqlValueSyntax be Prelude.String => HasSqlValueSyntax be S.EncryptedPass where
+  sqlValueSyntax = autoSqlValueSyntax

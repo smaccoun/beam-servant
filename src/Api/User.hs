@@ -2,6 +2,7 @@ module Api.User where
 
 import           App
 import           AppPrelude
+import           Control.Lens           hiding (element)
 import qualified Crypto.Scrypt          as S
 import           Data.Text.Encoding     (encodeUtf8)
 import           Database.Beam
@@ -9,12 +10,14 @@ import           Database.Beam.Postgres
 import           Database.Schema
 import           Database.Tables.User
 import           Database.Transaction
+import           Models.Credentials     (Email (..), Password (..))
+import           Models.User
 import           Servant
 
 type UserAPI =
     "users"
         :> (
-            Get '[JSON] [User]
+            Get '[JSON] [UserResponse]
         )
 
 userAPI :: Proxy User
@@ -23,31 +26,28 @@ userAPI = Proxy
 userServer :: ServerT UserAPI AppM
 userServer = getUsers
 
-getUsers :: AppM [User]
+getUsers :: AppM [UserResponse]
 getUsers = do
-  users <- runQueryM $ runSelectReturningList $ select (all_ (_users appDb))
-  return users
+  usersDB <- runQueryM $ select (all_ (_users appDb))
+  return $ map userApiFromUserDB usersDB
 
-getUserByEmail :: Text -> AppM User
-getUserByEmail email' = do
-  userResult <- runQueryM $ runSelectReturningOne $
+getUserByEmail :: Email -> AppM User
+getUserByEmail (Email email') = do
+  Config{..} <- ask
+  userResult <- liftIO $ runQuerySingle getPool $
     select $
     do  users <- all_ (_users appDb)
-        guard_ (_userEmail users ==. val_ email')
+        guard_ (users ^. userEmail ==. val_ email')
         pure users
-  case userResult of
-    Just user -> return user
-    Nothing   -> panic $ "Should only have one user with email" <> email'
+  return $ userResult
 
 
-createUser :: PGConn -> Text -> Text -> IO ()
-createUser conn userName unencryptedPassword = do
+
+createUser :: PGPool -> Email -> Password -> IO ()
+createUser conn (Email email') (Password unencryptedPassword) = do
   encryptedPassword <- liftIO $ S.encryptPassIO S.defaultParams (S.Pass $ encodeUtf8 unencryptedPassword)
-  runQuery conn $ runInsert (insertStmt encryptedPassword)
+  runSql conn $ runInsert (insertStmt encryptedPassword)
 
   where
-    hashedTextPass :: S.EncryptedPass -> Text
-    hashedTextPass encryptedPassword = S.getEncryptedPass encryptedPassword & decodeUtf8
-
-    insertStmt encryptedPassword = insert (_users appDb) $
-        insertExpressions [ User default_ (val_ userName) (val_ (hashedTextPass encryptedPassword))]
+    insertStmt encryptedPassword = insert (appDb ^. users) $
+        insertExpressions [ User default_ (val_ email') (val_ encryptedPassword)]

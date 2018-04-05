@@ -1,15 +1,13 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TemplateHaskell            #-}
+
 module Models.Login where
 
 import           AppPrelude
 import           Data.Aeson
-import           Data.Text            (Text)
-import           Database.Tables.User (User)
-import           Servant.Auth.Server
+import           Models.Credentials
 
-data Login = Login { email :: Text , password :: Text }
+data Login = Login { email :: Email , password :: Password }
    deriving (Eq, Show, Read, Generic)
 
-
 instance FromJSON Login
-instance ToJWT User
-instance FromJWT User

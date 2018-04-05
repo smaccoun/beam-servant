@@ -1,13 +1,24 @@
+{-# LANGUAGE DeriveAnyClass       #-}
+{-# LANGUAGE DeriveGeneric        #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE OverloadedStrings    #-}
+{-# LANGUAGE StandaloneDeriving   #-}
+{-# LANGUAGE TemplateHaskell      #-}
+{-# LANGUAGE TypeFamilies         #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
+
 module Api.API where
 
 import           Api.Login
 import           Api.User
 import           App
 import           AppPrelude
-import           Data.Swagger
+import           Data.Swagger                        (Swagger, ToSchema)
 import           Data.Text                           (Text)
-import           Database.Tables.User
+import           Models.Credentials                  (Email, Password)
 import           Models.Login
+import           Models.User                         (UserResponse (..))
 import           Servant
 import           Servant.Auth.Server
 import           Servant.Auth.Server.SetCookieOrphan ()
@@ -15,13 +26,11 @@ import           Servant.Swagger
 
 ---------------------------------------------------------------
 type Protected
-   = "email" :> Get '[JSON] Text
-   :<|> UserAPI
+   = UserAPI
 
-protected :: AuthResult User -> ServerT Protected AppM
-protected (Authenticated (User _ _userEmail _)) =
-       return _userEmail
-  :<|> userServer
+protected :: AuthResult UserResponse -> ServerT Protected AppM
+protected (Authenticated user) =
+  userServer
 
 protected _ = throwAll err401
 
@@ -38,7 +47,7 @@ unprotected jwts =
   :<|> loginServer jwts
 
 type API auths =
-       (Auth auths User :> Protected)
+       (Auth auths UserResponse :> Protected)
   :<|> Unprotected
 
 api :: Proxy (API '[JWT])
@@ -57,3 +66,5 @@ swaggerUnprotected :: Swagger
 swaggerUnprotected = toSwagger unprotectedProxy
 
 instance ToSchema Login
+instance ToSchema Email
+instance ToSchema Password

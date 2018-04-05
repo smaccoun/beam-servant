@@ -72,6 +72,8 @@ library
       Config.AppConfig
       Lib
       Models.Login
+      Models.User
+      Models.Credentials
       Database.Transaction
       Database.Tables.User
       Database.Schema

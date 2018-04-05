@@ -59,7 +59,7 @@ setAppConfig env args = do
 
     return (Config logger pool jwk, logTo)
 
-getDBConnection :: Environment -> IO PGConn
+getDBConnection :: Environment -> IO PGPool
 getDBConnection env = do
     dbConfig <- getDBConnectionInfo  env
     mkPool $ connInfoToPG dbConfig
