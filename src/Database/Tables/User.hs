@@ -8,7 +8,7 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Models.User where
+module Database.Tables.User where
 
 import           AppPrelude
 import           Control.Lens  hiding (element)

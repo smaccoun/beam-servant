@@ -6,9 +6,9 @@ import qualified Crypto.Scrypt          as S
 import           Data.Text.Encoding     (encodeUtf8)
 import           Database.Beam
 import           Database.Beam.Postgres
-import           DB.Transaction
-import           DBSchema
-import           Models.User
+import           Database.Schema
+import           Database.Tables.User
+import           Database.Transaction
 import           Servant
 
 type UserAPI =

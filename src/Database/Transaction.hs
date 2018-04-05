@@ -1,6 +1,6 @@
 {-# LANGUAGE ConstraintKinds #-}
 
-module DB.Transaction where
+module Database.Transaction where
 
 import           App
 import           AppPrelude

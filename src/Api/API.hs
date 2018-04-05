@@ -6,11 +6,11 @@ import           App
 import           AppPrelude
 import           Data.Swagger
 import           Data.Text                           (Text)
-import           Models.User
+import           Database.Tables.User
+import           Models.Login
 import           Servant
 import           Servant.Auth.Server
 import           Servant.Auth.Server.SetCookieOrphan ()
-import           Servant.Auth.Swagger
 import           Servant.Swagger
 
 ---------------------------------------------------------------

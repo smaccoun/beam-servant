@@ -1,14 +1,18 @@
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric   #-}
+{-# LANGUAGE TemplateHaskell #-}
 
-module DBSchema where
+module Database.Schema where
 
+import           Control.Lens         hiding (element)
 import           Database.Beam
-import           Models.User
+import           Database.Tables.User
 
 data MyAppDb f =
   MyAppDb
     { _users :: f (TableEntity UserT)
     } deriving Generic
+
+makeLenses ''MyAppDb
 
 instance Database be MyAppDb
 
