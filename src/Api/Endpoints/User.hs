@@ -1,4 +1,4 @@
-module Api.User where
+module Api.Endpoints.User where
 
 import           App
 import           AppPrelude

@@ -10,8 +10,8 @@
 
 module Api.API where
 
-import           Api.Login
-import           Api.User
+import           Api.Endpoints.Login
+import           Api.Endpoints.User
 import           App
 import           AppPrelude
 import           Data.Swagger                        (Swagger, ToSchema)

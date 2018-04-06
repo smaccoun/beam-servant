@@ -64,9 +64,10 @@ library
     , warp
     , word8
   exposed-modules:
-      Api.User
+      Api.Endpoints.User
+      Api.Endpoints.Login
       Api.API
-      Api.Login
+      Api.Resource
       App
       AppPrelude
       Config.AppConfig
