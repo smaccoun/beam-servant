@@ -1,44 +1,17 @@
 {-# LANGUAGE DataKinds     #-}
 {-# LANGUAGE TypeOperators #-}
 
-module Config.AppConfig where
-
-import           Data.Default
-import qualified Network.Wai                          as Wai
-import           Network.Wai.Middleware.Cors
-import qualified Network.Wai.Middleware.RequestLogger as MidRL
-import qualified System.Log.FastLogger                as FL
+module Config.AppConfig (
+       module Config.AppConfig,
+       module Config.ServerConfig
+     ) where
 
 import           App
 import           AppPrelude
-import qualified Data.Text                            as T
-import qualified Database.PostgreSQL.Simple           as PGS
-import           Prelude                              (read)
-
-makeMiddleware :: FL.LoggerSet -> Environment -> IO Wai.Middleware
-makeMiddleware logger _ =
-          combineMiddleware corsified
-        $ MidRL.mkRequestLogger
-        $ def { MidRL.destination = MidRL.Logger logger }
-
-corsified :: Wai.Middleware
-corsified = cors (const $ Just appCorsResourcePolicy)
-
-combineMiddleware :: Wai.Middleware -> IO Wai.Middleware -> IO Wai.Middleware
-combineMiddleware a = fmap (. a)
-
-appCorsResourcePolicy :: CorsResourcePolicy
-appCorsResourcePolicy = CorsResourcePolicy {
-    corsOrigins        = Nothing
-  , corsMethods        = ["OPTIONS", "GET", "PUT", "POST", "PATCH", "DELETE"]
-  , corsRequestHeaders = ["Authorization", "Content-Type"]
-  , corsExposedHeaders = Nothing
-  , corsMaxAge         = Nothing
-  , corsVaryOrigin     = False
-  , corsRequireOrigin  = False
-  , corsIgnoreFailures = False
-}
-
+import           Config.ServerConfig
+import qualified Data.Text                  as T
+import qualified Database.PostgreSQL.Simple as PGS
+import           Prelude                    (read)
 
 data DBConfig =
   DBConfig
