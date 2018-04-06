@@ -16,14 +16,15 @@ import           Servant
 type UserAPI =
     "users"
         :> (
-            Get '[JSON] [UserResponse]
-        )
+                 Get '[JSON] [UserResponse]
+            :<|> Capture "id" UserID :> Get '[JSON] UserResponse
+          )
 
 userAPI :: Proxy User
 userAPI = Proxy
 
 userServer :: UserResponse -> ServerT UserAPI AppM
-userServer _ = getUsers
+userServer _ = getUsers :<|> getUser
 
 userTable :: DatabaseEntity be Schema.MyAppDb (TableEntity UserT)
 userTable = Schema.appDb ^. Schema.users
@@ -32,6 +33,14 @@ getUsers :: AppM [UserResponse]
 getUsers = do
   usersDB <- runQueryM $ select (all_ userTable)
   return $ map userApiFromUserDB usersDB
+
+getUser :: UserID -> AppM UserResponse
+getUser userId' = do
+  userResult <- runQuerySingleM $ select $
+    do users <- (all_ userTable)
+       guard_ (users ^. userId ==. val_ userId')
+       pure users
+  return $ userApiFromUserDB userResult
 
 getUserByEmail :: Email -> AppM User
 getUserByEmail (Email email') = do

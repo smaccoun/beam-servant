@@ -42,3 +42,8 @@ runQuerySingle pool query' = do
     []    -> panic "No results found"
     [x]   -> return x
     (_:_) -> panic "More than one result found"
+
+runQuerySingleM :: SqlFlavorConstraint cmd be m a => AppQ cmd a -> AppM a
+runQuerySingleM query' = do
+  Config{..} <- ask
+  liftIO $ runQuerySingle getPool query'
