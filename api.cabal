@@ -71,6 +71,7 @@ library
       AppPrelude
       Config.AppConfig
       Config.ServerConfig
+      Config.DBConfig
       Lib
       Models.Login
       Models.User
