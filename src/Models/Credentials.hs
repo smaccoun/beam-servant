@@ -6,9 +6,8 @@ module Models.Credentials where
 
 import           AppPrelude
 import           Control.Lens
-import qualified Crypto.Scrypt as S
 import           Data.Aeson
-import           Data.Text     (Text)
+import           Data.Text    (Text)
 
 newtype Email =
   Email {_unEmail :: Text}
