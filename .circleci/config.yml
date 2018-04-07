@@ -5,21 +5,6 @@ jobs:
     docker:
       - image: fpco/stack-build:lts-9.4
 
-
-    - setup_remote_docker:   # (2)
-          docker_layer_caching: true # (3)
-
-    # use a primary image that already has Docker (recommended)
-    # or install it during a build like we do here
-    - run:
-        name: Install Docker client
-        command: |
-          set -x
-          VER="17.03.0-ce"
-          curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
-          tar -xz -C /tmp -f /tmp/docker-$VER.tgz
-          mv /tmp/docker/* /usr/bin
-
     steps:
       - restore_cache:
           key: stack-cache
@@ -30,6 +15,14 @@ jobs:
             docker build -t   smaccoun/haskstar-haskell:$TAG .
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push smaccoun/haskstar-haskell:$TAG
+
+      - run:
+          name: deploy
+          no_output_timeout: 120m
+          command: |
+            ./deploy-staging.sh $CIRCLE_SHA1
+
+
 
 
 workflows:
