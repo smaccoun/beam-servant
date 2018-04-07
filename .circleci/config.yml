@@ -6,11 +6,14 @@ jobs:
       - image: fpco/stack-build:lts-9.4
 
     steps:
+      - checkout
+
       - run:
           name: deploy
           no_output_timeout: 120m
           command: |
-            ./deploy.sh $CIRCLE_SHA1
+            docker build --rm=false - t "$DOCKER_DIR" -f Dockerfile .
+            docker push  "$DOCKER_DIR"
 
 
 
