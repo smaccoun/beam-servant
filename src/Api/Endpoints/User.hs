@@ -1,5 +1,6 @@
 module Api.Endpoints.User where
 
+import           Api.Resource
 import           App
 import           AppPrelude
 import           Control.Lens         hiding (element)
@@ -13,12 +14,7 @@ import           Models.Credentials   (Email (..), Password (..))
 import           Models.User
 import           Servant
 
-type UserAPI =
-    "users"
-        :> (
-                 Get '[JSON] [UserResponse]
-            :<|> Capture "id" UserID :> Get '[JSON] UserResponse
-          )
+type UserAPI = RResourceAPI "users" UserResponse UserID
 
 userAPI :: Proxy User
 userAPI = Proxy

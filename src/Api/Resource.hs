@@ -8,12 +8,24 @@ module Api.Resource where
 import           GHC.TypeLits
 import           Servant
 
-{- Create/Read API -}
-type CRResourceAPI (resourceName :: Symbol) a i = resourceName :>
-  (                         Get '[JSON] [a]
+
+{- Read API -}
+type RResourceAPI (resourceName :: Symbol) a i = resourceName :>
+  (    Get '[JSON] [a]
   :<|> Capture "id" i    :> Get '[JSON] a
-  :<|> ReqBody '[JSON] a :> Post '[JSON] NoContent
   )
+
+cResourceServer
+  :: Handler [a]
+  -> (i -> Handler a)
+  -> Server (RResourceAPI name a i)
+cResourceServer listAs getA =
+  listAs :<|> getA
+
+{- Create/Read API -}
+type CRResourceAPI (resourceName :: Symbol) a i =
+       RResourceAPI resourceName a i
+  :<|> ReqBody '[JSON] a :> Post '[JSON] NoContent
 
 crResourceServer
   :: Handler [a]
@@ -21,4 +33,4 @@ crResourceServer
   -> (a -> Handler NoContent)
   -> Server (CRResourceAPI name a i)
 crResourceServer listAs getA postA =
-  listAs :<|> getA :<|> postA
+  (cResourceServer listAs getA) :<|> postA
