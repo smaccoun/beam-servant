@@ -6,16 +6,6 @@ jobs:
       - image: fpco/stack-build:lts-9.4
 
     steps:
-      - restore_cache:
-          key: stack-cache
-      - run:
-          name: build docker
-          command: |
-            TAG=0.1.$CIRCLE_BUILD_NUM
-            docker build -t   smaccoun/haskstar-haskell:$TAG .
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker push smaccoun/haskstar-haskell:$TAG
-
       - run:
           name: deploy
           no_output_timeout: 120m
