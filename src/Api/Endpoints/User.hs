@@ -20,7 +20,7 @@ userAPI :: Proxy User
 userAPI = Proxy
 
 userServer :: UserResponse -> ServerT UserAPI AppM
-userServer _ = getUsers :<|> getUser
+userServer _ = rResourceServer getUsers getUser
 
 userTable :: DatabaseEntity be Schema.MyAppDb (TableEntity UserT)
 userTable = Schema.appDb ^. Schema.users
