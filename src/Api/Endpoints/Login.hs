@@ -1,6 +1,6 @@
-module Api.Login where
+module Api.Endpoints.Login where
 
-import           Api.User             (getUserByEmail)
+import           Api.Endpoints.User   (getUserByEmail)
 import           App
 import           AppPrelude
 import           Control.Lens
