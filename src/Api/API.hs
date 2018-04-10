@@ -11,6 +11,7 @@
 module Api.API where
 
 import           Api.Endpoints.Login
+import Api.Endpoints.BlogPost
 import           Api.Endpoints.User
 import           App
 import           AppPrelude
@@ -26,11 +27,13 @@ import           Servant.Swagger
 
 ---------------------------------------------------------------
 type Protected
-   = UserAPI
+   =    UserAPI
+   :<|> BlogPostAPI
 
 protected :: AuthResult UserResponse -> ServerT Protected AppM
 protected (Authenticated user) =
-  userServer user
+       userServer user
+  :<|> blogPostServer user
 
 protected _ = throwAll err401
 

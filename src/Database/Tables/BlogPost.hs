@@ -15,8 +15,6 @@ import           Control.Lens       hiding (element)
 import           Data.UUID          (UUID)
 import           Database.Beam
 import           GHC.Generics       (Generic)
-import           Models.Credentials (Email (..))
-import           Prelude            (String)
 
 type BlogPostID = UUID
 
@@ -36,5 +34,5 @@ instance Table BlogPostT where
   data PrimaryKey BlogPostT f = BlogPostID (Columnar f UUID) deriving Generic
   primaryKey = BlogPostID . _blogPostId
 
-instance Beamable (PrimaryKey UserT)
+instance Beamable (PrimaryKey BlogPostT)
 deriving instance Show BlogPost

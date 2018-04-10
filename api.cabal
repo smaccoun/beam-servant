@@ -66,6 +66,7 @@ library
   exposed-modules:
       Api.Endpoints.User
       Api.Endpoints.Login
+      Api.Endpoints.BlogPost
       Api.API
       Api.Resource
       App
@@ -79,6 +80,7 @@ library
       Models.Credentials
       Database.Transaction
       Database.Tables.User
+      Database.Tables.BlogPost
       Database.Schema
   other-modules:
       Paths_api
