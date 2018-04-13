@@ -18,14 +18,8 @@ import           Models.User          (userApiFromUserDB)
 import           Servant
 import           Servant.Auth.Server
 
-
 data LoginResponse =
-    LoginSuccess LoginInfoSuccessResponse
-  | LoginFailure Text
-  deriving (Generic, ToJSON)
-
-data LoginInfoSuccessResponse =
-  LoginInfoSuccesResponse
+  LoginResponse
     {jwtToken :: Text
     ,userId   :: UserID
     } deriving (Generic, ToJSON)
@@ -53,12 +47,12 @@ loginUserPassword jwtCfg (Login loginEmail loginPassword) = do
     case eitherJWT of
       Left e    -> panic $ show e
       Right jwt -> return $
-        LoginSuccess $ LoginInfoSuccesResponse
+        LoginResponse
           {jwtToken = decodeUtf8 $ BSL.toStrict jwt
           ,userId = user ^. UT.userId
           }
   else
-     throwError err500 {errBody = "Bad Password"}
+     throwError err500 {errBody = "Incorrect Password"}
 
 hasCorrectPassword :: User -> Password -> Bool
 hasCorrectPassword user (Password password) =
