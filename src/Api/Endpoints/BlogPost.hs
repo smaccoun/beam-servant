@@ -13,12 +13,12 @@ import           Models.User
 import           Servant
 
 
-type BlogPostAPI = RResourceAPI "blogPost" BlogPost BlogPostID
+type BlogPostAPI = CRResourceAPI "blogPost" BlogPost BlogPostID
 
 instance ToJSON BlogPost
 
 blogPostServer :: UserResponse -> ServerT BlogPostAPI AppM
-blogPostServer _ = rResourceServer getBlogPosts getBlogPost
+blogPostServer _ = crResourceServer getBlogPosts getBlogPost createBlogPost
 
 getBlogPosts :: AppM [BlogPost]
 getBlogPosts = do
@@ -35,9 +35,10 @@ getBlogPost blogPostId' = do
   return $ blogPostResult
 
 
-createBlogPost :: BlogPost -> AppM ()
-createBlogPost blogPost =
-  runSqlM $ runInsert insertStmt
+createBlogPost :: BlogPost -> AppM NoContent
+createBlogPost blogPost = do
+  _ <- runSqlM $ runInsert insertStmt
+  return NoContent
 
   where
     insertStmt = insert blogPostTable $

@@ -11,10 +11,11 @@
 module Database.Tables.BlogPost where
 
 import           AppPrelude
-import           Control.Lens       hiding (element)
-import           Data.UUID          (UUID)
+import           Control.Lens  hiding (element)
+import           Data.Aeson
+import           Data.UUID     (UUID, nil)
 import           Database.Beam
-import           GHC.Generics       (Generic)
+import           GHC.Generics  (Generic)
 
 type BlogPostID = UUID
 
@@ -36,3 +37,11 @@ instance Table BlogPostT where
 
 instance Beamable (PrimaryKey BlogPostT)
 deriving instance Show BlogPost
+
+
+instance FromJSON BlogPost where
+  parseJSON = withObject "blogPost" $ \o -> do
+    _title <- o .: "title"
+    _content <- o .: "content"
+    let _blogPostId = nil
+    return BlogPost{..}
