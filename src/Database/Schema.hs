@@ -3,6 +3,7 @@
 
 module Database.Schema where
 
+import           AppPrelude
 import           Control.Lens             hiding (element)
 import           Database.Beam
 import           Database.Tables.BlogPost
@@ -21,7 +22,9 @@ instance Database be MyAppDb
 appDb :: DatabaseSettings be MyAppDb
 appDb = defaultDbSettings `withDbModification`
             dbModification {
-              _blogPosts = modifyTable (\_ -> "blog_posts") tableModification
+              _blogPosts = modifyTable (\_ -> "blog_posts") $ tableModification {
+                  _blogPostId = "blog_post_id"
+                                                                                }
             }
 
 
