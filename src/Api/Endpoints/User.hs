@@ -34,7 +34,6 @@ getUser userId' = do
 
 getUserByEmail :: Email -> AppM User
 getUserByEmail (Email email') = do
-  Config{..} <- ask
   userResult <- runQuerySingleM $
     select $
     do  users <- all_ (userTable)
