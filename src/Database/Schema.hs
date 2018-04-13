@@ -19,7 +19,10 @@ makeLenses ''MyAppDb
 instance Database be MyAppDb
 
 appDb :: DatabaseSettings be MyAppDb
-appDb = defaultDbSettings
+appDb = defaultDbSettings `withDbModification`
+            dbModification {
+              _blogPosts = modifyTable (\_ -> "blog_posts") tableModification
+            }
 
 
 {- CONVENIENCE TABLE ACCESS -}
