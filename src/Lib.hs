@@ -100,4 +100,4 @@ runCustomHandler config handler =
       S.throwError err
 
 nt :: App.Config -> AppM a -> S.Handler a
-nt s x = runReaderT x s
+nt s (AppM x) = runReaderT x s

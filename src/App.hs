@@ -1,3 +1,5 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module App where
 
 import           AppPrelude                 hiding (traceIO)
@@ -34,7 +36,18 @@ data Config = Config
   , getAuthKey :: JWK
   }
 
-type AppM = ReaderT Config Servant.Handler
+newtype AppM a =
+  AppM
+  {runAppM :: ReaderT Config Servant.Handler a
+  } deriving
+    (Functor
+    , Applicative
+    , Monad
+    , MonadIO
+    , MonadReader Config
+    , MonadError Servant.ServantErr
+    )
+
 type PGPool = Pool PGS.Connection
 
 addToLogger :: Text -> AppM ()

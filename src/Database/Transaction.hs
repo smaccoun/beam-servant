@@ -10,6 +10,7 @@ import           Database.Beam.Backend
 import           Database.Beam.Backend.SQL.SQL92
 import           Database.Beam.Query
 import qualified Database.PostgreSQL.Simple      as PGS
+import Servant
 
 type MonadQuery syntax be m = MonadBeam syntax be PGS.Connection m
 type AppQ cmd a = SqlSelect (Sql92SelectSyntax cmd) a
@@ -35,15 +36,26 @@ runQueryM query' = do
   liftIO $ runQuery getPool query'
 
 
-runQuerySingle :: SqlFlavorConstraint cmd be m a => PGPool -> AppQ cmd a -> IO a
+data QuerySingleError = NoResultsFound | MoreThanOneResultFound
+
+runQuerySingle :: SqlFlavorConstraint cmd be m a => PGPool -> AppQ cmd a -> IO (Either QuerySingleError a)
 runQuerySingle pool query' = do
   result <- runQuery pool query'
-  case result of
-    []    -> panic "No results found"
-    [x]   -> return x
-    (_:_) -> panic "More than one result found"
+  return $ handleResult result
+  where
+    handleResult result =
+      case result of
+        []    -> Left NoResultsFound
+        [x]   -> Right x
+        (_:_) -> Left MoreThanOneResultFound
 
 runQuerySingleM :: SqlFlavorConstraint cmd be m a => AppQ cmd a -> AppM a
 runQuerySingleM query' = do
   Config{..} <- ask
-  liftIO $ runQuerySingle getPool query'
+  result <- liftIO $ runQuerySingle getPool query'
+  case result of
+    Right r -> return r
+    Left e ->
+      case e of
+        NoResultsFound -> throwError err422 {errBody = "No value matches those credentials"}
+        MoreThanOneResultFound -> throwError err500 {errBody = "Data error. More than one result returned"}

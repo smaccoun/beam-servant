@@ -35,7 +35,7 @@ getUser userId' = do
 getUserByEmail :: Email -> AppM User
 getUserByEmail (Email email') = do
   Config{..} <- ask
-  userResult <- liftIO $ runQuerySingle getPool $
+  userResult <- runQuerySingleM $
     select $
     do  users <- all_ (userTable)
         guard_ (users ^. userEmail ==. val_ email')
