@@ -20,7 +20,6 @@ instance ToJSON BlogPost
 blogPostServer :: UserResponse -> ServerT BlogPostAPI AppM
 blogPostServer _ = rResourceServer getBlogPosts getBlogPost
 
-
 getBlogPosts :: AppM [BlogPost]
 getBlogPosts = do
   result <- runQueryM $ select (all_ blogPostTable)
@@ -35,3 +34,11 @@ getBlogPost blogPostId' = do
         pure blogPost
   return $ blogPostResult
 
+
+createBlogPost :: BlogPost -> AppM ()
+createBlogPost blogPost =
+  runSqlM $ runInsert insertStmt
+
+  where
+    insertStmt = insert blogPostTable $
+        insertExpressions [ BlogPost default_ (val_ $ blogPost ^. title) (val_ $ blogPost ^. content)]
