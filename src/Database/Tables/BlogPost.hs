@@ -13,6 +13,7 @@ module Database.Tables.BlogPost where
 import           AppPrelude
 import           Control.Lens  hiding (element)
 import           Data.Aeson
+import Data.Aeson.TH
 import           Data.UUID     (UUID, nil)
 import           Database.Beam
 import           GHC.Generics  (Generic)
@@ -38,6 +39,9 @@ instance Table BlogPostT where
 instance Beamable (PrimaryKey BlogPostT)
 deriving instance Show BlogPost
 
+
+instance ToJSON BlogPost where
+    toJSON = genericToJSON defaultOptions{fieldLabelModifier = drop 1}
 
 instance FromJSON BlogPost where
   parseJSON = withObject "blogPost" $ \o -> do

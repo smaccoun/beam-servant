@@ -4,7 +4,6 @@ import           Api.Resource
 import           App
 import           AppPrelude
 import           Control.Lens             hiding (element)
-import           Data.Aeson               (ToJSON)
 import           Database.Beam
 import           Database.Schema
 import           Database.Tables.BlogPost
@@ -14,8 +13,6 @@ import           Servant
 
 
 type BlogPostAPI = CRResourceAPI "blogPost" BlogPost BlogPostID
-
-instance ToJSON BlogPost
 
 blogPostServer :: UserResponse -> ServerT BlogPostAPI AppM
 blogPostServer _ = crResourceServer getBlogPosts getBlogPost createBlogPost

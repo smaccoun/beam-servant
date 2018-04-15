@@ -1,5 +1,5 @@
 module AppPrelude (
-    module Protolude
+     module Protolude
   ) where
 
 import           Protolude
