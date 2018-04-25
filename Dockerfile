@@ -1,4 +1,4 @@
-FROM  fpco/stack-build:lts-9.4
+FROM  fpco/stack-build:lts-11.2
 
 # install database dependencies
 RUN ["apt-get", "update"]
