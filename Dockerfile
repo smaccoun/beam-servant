@@ -25,6 +25,6 @@ RUN apt-get update && apt-get install -y \
   libgmp-dev
 # NOTICE THIS LINE
 COPY --from=build /opt/build/.stack-work/install/x86_64-linux/lts-11.2/8.2.2/bin .
-CMD ["/opt/myapp/myapp"]
+CMD ["/opt/myapp/api-exe"]
 
 EXPOSE 8080
