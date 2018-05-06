@@ -15,11 +15,11 @@ import qualified Data.ByteString.Lazy       as LBS
 import qualified Data.Text                  as T
 import qualified Network.Wai                as Wai
 import qualified Network.Wai.Handler.Warp   as Warp
+import           Prelude                    (String)
 import           Servant                    as S
 import           Servant                    ((:<|>))
-import           Servant.Auth.Server        (JWT, JWTSettings,
-                                             defaultCookieSettings,
-                                             CookieSettings(..),
+import           Servant.Auth.Server        (CookieSettings (..), JWT,
+                                             JWTSettings, defaultCookieSettings,
                                              defaultJWTSettings)
 import qualified Servant.Swagger.UI         as SUI
 import qualified System.Log.FastLogger      as FL
@@ -64,9 +64,12 @@ setAppConfig env args = do
     logger  <- makeLogger logTo
 
     jwkJsonString <- fmap (LBS.fromStrict . encodeUtf8) $ lookupEnvOrError "AUTH_JWK"
-    let jwkJson = (A.decode jwkJsonString :: Maybe Jose.JWK)
-        jwk = fromMaybe (panic "BAD JWK") jwkJson
-
+    putStrLn jwkJsonString
+    let eitherJWKJson = (A.eitherDecode jwkJsonString :: Either String Jose.JWK)
+        jwk =
+          case eitherJWKJson of
+            Right j -> j
+            Left e  -> panic $ "BAD JWK: " <> T.pack e
 
     return (Config logger pool jwk, logTo)
 
