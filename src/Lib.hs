@@ -69,7 +69,7 @@ setAppConfig env args = do
         jwk =
           case eitherJWKJson of
             Right j -> j
-            Left e  -> panic $ "BAD JWK: " <> T.pack e
+            Left e  -> panic $ "BAD JWK: " <> T.pack e <> ". From reading: " <> (decodeUtf8 $ LBS.toStrict jwkJsonString)
 
     return (Config logger pool jwk, logTo)
 
