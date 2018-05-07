@@ -9,24 +9,23 @@ import           App
 import           AppPrelude
 import           Control.Monad.Except       (catchError)
 import           Control.Monad.Trans.Reader (runReaderT)
-import           Control.Natural            ((:~>) (NT))
 import qualified Crypto.JOSE                as Jose
 import qualified Data.Aeson                 as A
 import qualified Data.ByteString.Lazy       as LBS
 import qualified Data.Text                  as T
 import qualified Network.Wai                as Wai
 import qualified Network.Wai.Handler.Warp   as Warp
+import           Prelude                    (String)
 import           Servant                    as S
 import           Servant                    ((:<|>))
-import           Servant.Auth.Server        (JWT, JWTSettings,
-                                             defaultCookieSettings,
+import           Servant.Auth.Server        (CookieSettings (..), JWT,
+                                             JWTSettings, defaultCookieSettings,
                                              defaultJWTSettings)
 import qualified Servant.Swagger.UI         as SUI
 import qualified System.Log.FastLogger      as FL
 
 import           Api.API
 import           Config.AppConfig
-
 
 startApp :: [[Char]] -> IO ()
 startApp charArgs = do
@@ -38,11 +37,23 @@ startApp charArgs = do
     let logger = getLogger config
 
     midware <- makeMiddleware logger env
-    let initialLogMsg = intercalate " " $ ["Listening on port", show port, "at level", show env, "and logging to", (show logTo), "with args", T.unpack (T.unwords args), "\n"]
-    FL.pushLogStr logger $ FL.toLogStr initialLogMsg
+    FL.pushLogStr logger $ FL.toLogStr $ logInitialMetaInfo port env logTo args
     Warp.run port
       $ midware
       $ app config
+
+
+logInitialMetaInfo :: (Show a, Show a1, Show a2) =>
+                      a2 -> a1 -> a -> [Text] -> [Char]
+logInitialMetaInfo port env logTo args =
+  intercalate " " $
+      ["Listening on port", show port
+      , "at level", show env
+      , "and logging to", (show logTo)
+      , "with args", T.unpack (T.unwords args)
+      , "\n"
+      ]
+
 
 setAppConfig :: Environment -> [Text] -> IO (App.Config, LogTo)
 setAppConfig env args = do
@@ -53,9 +64,12 @@ setAppConfig env args = do
     logger  <- makeLogger logTo
 
     jwkJsonString <- fmap (LBS.fromStrict . encodeUtf8) $ lookupEnvOrError "AUTH_JWK"
-    let jwkJson = (A.decode jwkJsonString :: Maybe Jose.JWK)
-        jwk = fromMaybe (panic "BAD JWK") jwkJson
-
+    putStrLn jwkJsonString
+    let eitherJWKJson = (A.eitherDecode jwkJsonString :: Either String Jose.JWK)
+        jwk =
+          case eitherJWKJson of
+            Right j -> j
+            Left e  -> panic $ "BAD JWK: " <> T.pack e <> ". From reading: " <> (decodeUtf8 $ LBS.toStrict jwkJsonString)
 
     return (Config logger pool jwk, logTo)
 
@@ -74,7 +88,9 @@ app config@(Config _ _ authKey) = do
 
 appServer :: App.Config -> JWTSettings ->  S.Server (API auths)
 appServer config jwtConfig =
-  S.enter (NT $ runCustomHandler config) (serverAPI jwtConfig)
+  let c = Proxy :: Proxy '[CookieSettings, JWTSettings]
+  in
+  hoistServerWithContext api c (runCustomHandler config) (serverAPI jwtConfig)
 
 type ApiWithDocs =
        API '[JWT]

@@ -13,7 +13,6 @@ module Database.Tables.BlogPost where
 import           AppPrelude
 import           Control.Lens  hiding (element)
 import           Data.Aeson
-import Data.Aeson.TH
 import           Data.UUID     (UUID, nil)
 import           Database.Beam
 import           GHC.Generics  (Generic)

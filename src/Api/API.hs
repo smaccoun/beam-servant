@@ -38,7 +38,7 @@ protected (Authenticated user) =
 protected _ = throwAll err401
 
 type Unprotected =
-       Get '[JSON] Text
+       "health" :> Get '[JSON] Text
   :<|> LoginAPI
 
 unprotectedProxy :: Proxy Unprotected
@@ -46,7 +46,7 @@ unprotectedProxy = Proxy
 
 unprotected :: JWTSettings -> ServerT Unprotected AppM
 unprotected jwts =
-       return "hello world"
+       return "Okay"
   :<|> loginServer jwts
 
 type API auths =
@@ -69,6 +69,6 @@ swaggerUnprotected :: Swagger
 swaggerUnprotected = toSwagger unprotectedProxy
 
 instance ToSchema Login
-instance ToSchema LoginResponse
 instance ToSchema Email
+instance ToSchema LoginResponse
 instance ToSchema Password
