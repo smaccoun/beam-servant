@@ -12,15 +12,14 @@ import           Models.User
 import           Servant
 
 
-type BlogPostAPI = CRResourceAPI "blogPost" BlogPost BlogPostID
+type BlogPostViewAPI = RResourceAPI "blogPost" BlogPost BlogPostID
 
-blogPostServer :: UserResponse -> ServerT BlogPostAPI AppM
-blogPostServer _ = crResourceServer getBlogPosts getBlogPost createBlogPost
+blogPostViewServer :: ServerT BlogPostViewAPI AppM
+blogPostViewServer = rResourceServer getBlogPosts getBlogPost
 
 getBlogPosts :: AppM [BlogPost]
 getBlogPosts = do
-  result <- runQueryM $ select (all_ blogPostTable)
-  return result
+  runQueryM $ select (all_ blogPostTable)
 
 getBlogPost :: BlogPostID -> AppM BlogPost
 getBlogPost blogPostId' = do
@@ -32,11 +31,20 @@ getBlogPost blogPostId' = do
   return $ blogPostResult
 
 
+type BlogPostMutateAPI = "blogPost" :>
+  ( ReqBody '[JSON] BlogPost :> Post '[JSON] NoContent
+  )
+
+blogPostMutateServer ::
+      UserResponse
+  -> ServerT BlogPostMutateAPI AppM
+blogPostMutateServer _ =
+  createBlogPost
+
 createBlogPost :: BlogPost -> AppM NoContent
 createBlogPost blogPost = do
   _ <- runSqlM $ runInsert insertStmt
   return NoContent
-
   where
     insertStmt = insert blogPostTable $
         insertExpressions [ BlogPost default_ (val_ $ blogPost ^. title) (val_ $ blogPost ^. content)]

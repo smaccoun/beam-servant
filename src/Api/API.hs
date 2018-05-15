@@ -10,13 +10,14 @@
 
 module Api.API where
 
+import           Api.Endpoints.BlogPost
 import           Api.Endpoints.Login
-import Api.Endpoints.BlogPost
 import           Api.Endpoints.User
 import           App
 import           AppPrelude
 import           Data.Swagger                        (Swagger, ToSchema)
 import           Data.Text                           (Text)
+import           Database.Tables.BlogPost            (BlogPost)
 import           Models.Credentials                  (Email, Password)
 import           Models.Login
 import           Models.User                         (UserResponse (..))
@@ -28,18 +29,19 @@ import           Servant.Swagger
 ---------------------------------------------------------------
 type Protected
    =    UserAPI
-   :<|> BlogPostAPI
+   :<|> BlogPostMutateAPI
 
 protected :: AuthResult UserResponse -> ServerT Protected AppM
 protected (Authenticated user) =
        userServer user
-  :<|> blogPostServer user
+  :<|> blogPostMutateServer user
 
 protected _ = throwAll err401
 
 type Unprotected =
        "health" :> Get '[JSON] Text
   :<|> LoginAPI
+  :<|> BlogPostViewAPI
 
 unprotectedProxy :: Proxy Unprotected
 unprotectedProxy = Proxy
@@ -48,6 +50,7 @@ unprotected :: JWTSettings -> ServerT Unprotected AppM
 unprotected jwts =
        return "Okay"
   :<|> loginServer jwts
+  :<|> blogPostViewServer
 
 type API auths =
        (Auth auths UserResponse :> Protected)
@@ -72,3 +75,4 @@ instance ToSchema Login
 instance ToSchema Email
 instance ToSchema LoginResponse
 instance ToSchema Password
+instance ToSchema BlogPost
