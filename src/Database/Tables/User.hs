@@ -13,6 +13,7 @@ module Database.Tables.User where
 import           AppPrelude
 import           Control.Lens                         hiding (element)
 import qualified Crypto.Scrypt                        as S
+import           Data.Time.Clock                      (UTCTime)
 import           Data.UUID                            (UUID)
 import           Database.Beam
 import           Database.Beam.Backend.SQL.SQL92
@@ -29,6 +30,8 @@ data UserT f
     { _userId       :: Columnar f UserID
     , _userEmail    :: Columnar f Text
     , _userPassword :: Columnar f S.EncryptedPass
+    , _createdAt    :: Columnar f UTCTime
+    , _updatedAt    :: Columnar f UTCTime
     } deriving (Generic)
 
 type User = UserT Identity
