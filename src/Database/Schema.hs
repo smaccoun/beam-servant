@@ -12,7 +12,7 @@ import           Database.Tables.User
 data MyAppDb f =
   MyAppDb
     { _users     :: f (TableEntity UserT)
-    , _blogPosts :: f (TableEntity BlogPostT)
+    , _blog_posts :: f (TableEntity BlogPostT)
     } deriving Generic
 
 makeLenses ''MyAppDb
@@ -20,12 +20,7 @@ makeLenses ''MyAppDb
 instance Database be MyAppDb
 
 appDb :: DatabaseSettings be MyAppDb
-appDb = defaultDbSettings `withDbModification`
-            dbModification {
-              _blogPosts = modifyTable (\_ -> "blog_posts") $ tableModification {
-                  _blogPostId = "blog_post_id"
-                                                                                }
-            }
+appDb = defaultDbSettings
 
 
 {- CONVENIENCE TABLE ACCESS -}
@@ -34,4 +29,4 @@ userTable :: DatabaseEntity be MyAppDb (TableEntity UserT)
 userTable = appDb ^. users
 
 blogPostTable :: DatabaseEntity be MyAppDb (TableEntity BlogPostT)
-blogPostTable = appDb ^. blogPosts
+blogPostTable = appDb ^. blog_posts

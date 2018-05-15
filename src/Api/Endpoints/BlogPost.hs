@@ -23,14 +23,14 @@ blogPostViewServer = rResourceServer getBlogPosts getBlogPost
 
 getBlogPosts :: AppM [BlogPost]
 getBlogPosts = do
-  runQueryM $ select (all_ blogPostTable)
+  runSqlDebugM $ runSelectReturningList $ select (all_ blogPostTable)
 
 getBlogPost :: BlogPostID -> AppM BlogPost
 getBlogPost blogPostId' = do
   blogPostResult <- runQuerySingleM $
     select $
     do  blogPost <- (all_ blogPostTable)
-        guard_ (blogPost ^. blogPostId ==. val_ blogPostId')
+        guard_ (blog_post_id blogPost ==. val_ blogPostId')
         pure blogPost
   return $ blogPostResult
 
@@ -67,6 +67,6 @@ createBlogPost bpr = do
               default_
               (val_ $ bpr ^. title')
               (val_ $ bpr ^. content')
-              (val_ now)
               default_
+              (val_ now)
           ]

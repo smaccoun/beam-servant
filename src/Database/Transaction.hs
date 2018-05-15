@@ -21,10 +21,20 @@ runSql pool query' = do
   conn <- getIOConnFromPool pool
   withDatabase conn query'
 
+runSqlDebug :: MonadQuery syntax be m => PGPool -> m a -> IO a
+runSqlDebug pool query' = do
+  conn <- getIOConnFromPool pool
+  withDatabaseDebug putStrLn conn query'
+
 runSqlM :: MonadQuery syntax be m => m a -> AppM a
 runSqlM query' = do
   Config{..} <- ask
   liftIO $ runSql getPool query'
+
+runSqlDebugM :: MonadQuery syntax be m => m a -> AppM a
+runSqlDebugM query' = do
+  Config{..} <- ask
+  liftIO $ runSqlDebug getPool query'
 
 runQuery :: SqlFlavorConstraint cmd be m a => PGPool -> AppQ cmd a -> IO [a]
 runQuery pool query' = do
