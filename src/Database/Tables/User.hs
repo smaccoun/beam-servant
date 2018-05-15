@@ -30,8 +30,8 @@ data UserT f
     { _userId       :: Columnar f UserID
     , _userEmail    :: Columnar f Text
     , _userPassword :: Columnar f S.EncryptedPass
-    , _createdAt    :: Columnar f UTCTime
-    , _updatedAt    :: Columnar f UTCTime
+    , _created_at    :: Columnar f UTCTime
+    , _updated_at    :: Columnar f UTCTime
     } deriving (Generic)
 
 type User = UserT Identity
