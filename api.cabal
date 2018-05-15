@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0d3cad66ecc18da6a33caa3382e19ff6e939d5a95e47431dbb697a2aa4b3da08
+-- hash: baa4d690c30adafb8ac1e866cd8c8381d035914aacbc6093862247467836bc58
 
 name:           api
 version:        0.1.0.0
@@ -56,6 +56,7 @@ library
     , servant-swagger-ui
     , swagger2
     , text
+    , time
     , transformers
     , uuid
     , wai
@@ -118,6 +119,7 @@ executable api-exe
     , servant-swagger-ui
     , swagger2
     , text
+    , time
     , transformers
     , uuid
     , wai
@@ -164,6 +166,7 @@ test-suite api-test
     , servant-swagger-ui
     , swagger2
     , text
+    , time
     , transformers
     , uuid
     , wai
