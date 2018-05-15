@@ -1,21 +1,22 @@
-{-# LANGUAGE DeriveAnyClass       #-}
-{-# LANGUAGE DeriveGeneric        #-}
-{-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE OverloadedStrings    #-}
-{-# LANGUAGE StandaloneDeriving   #-}
-{-# LANGUAGE TemplateHaskell      #-}
-{-# LANGUAGE TypeFamilies         #-}
-{-# LANGUAGE TypeSynonymInstances #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE DeriveAnyClass        #-}
+{-# LANGUAGE DeriveGeneric         #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE StandaloneDeriving    #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE TypeSynonymInstances  #-}
+{-# LANGUAGE UndecidableInstances  #-}
 
 module Database.Tables.BlogPost where
 
 import           AppPrelude
-import           Control.Lens  hiding (element)
+import           Control.Lens    hiding (element)
 import           Data.Aeson
-import           Data.UUID     (UUID, nil)
+import           Data.Time.Clock
+import           Data.UUID       (UUID)
 import           Database.Beam
-import           GHC.Generics  (Generic)
+import           GHC.Generics    (Generic)
 
 type BlogPostID = UUID
 
@@ -24,6 +25,8 @@ data BlogPostT f
     { _blogPostId :: Columnar f BlogPostID
     , _title      :: Columnar f Text
     , _content    :: Columnar f Text
+    , _updatedAt  :: Columnar f UTCTime
+    , _createdAt  :: Columnar f UTCTime
     } deriving (Generic)
 
 type BlogPost = BlogPostT Identity
@@ -42,9 +45,3 @@ deriving instance Show BlogPost
 instance ToJSON BlogPost where
     toJSON = genericToJSON defaultOptions{fieldLabelModifier = drop 1}
 
-instance FromJSON BlogPost where
-  parseJSON = withObject "blogPost" $ \o -> do
-    _title <- o .: "title"
-    _content <- o .: "content"
-    let _blogPostId = nil
-    return BlogPost{..}

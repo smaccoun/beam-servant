@@ -1,3 +1,9 @@
+-- This file has been generated from package.yaml by hpack version 0.20.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 36bde0acec5581e99d852be5c70563814df6e453e00e53b30b82273bfa492735
+
 name:           api
 version:        0.1.0.0
 description:    Please see the README on Github at <https://github.com/smaccoun/api#readme>
