@@ -11,8 +11,9 @@
 module Database.Tables.User where
 
 import           AppPrelude
-import           Control.Lens                         hiding (element)
+import           Control.Lens                         hiding (element, (.=))
 import qualified Crypto.Scrypt                        as S
+import           Data.Aeson
 import           Data.Time.Clock                      (UTCTime)
 import           Data.UUID                            (UUID)
 import           Database.Beam
@@ -26,17 +27,25 @@ import           Prelude                              (String)
 type UserID = UUID
 
 data UserT f
-    = User
-    { _userId       :: Columnar f UserID
-    , _userEmail    :: Columnar f Text
-    , _userPassword :: Columnar f S.EncryptedPass
-    , _created_at    :: Columnar f UTCTime
-    , _updated_at    :: Columnar f UTCTime
+    = UserT
+    { _userId        :: Columnar f UserID
+    , _user          :: UserBase f
+    , _userCreatedAt :: Columnar f UTCTime
+    , _userUpdatedAt :: Columnar f UTCTime
     } deriving (Generic)
 
-type User = UserT Identity
+data UserBase f =
+  User
+   {_email    :: Columnar f Text
+   ,_password :: Columnar f S.EncryptedPass
+   } deriving (Generic)
+
+instance Beamable UserBase
+type User = UserBase Identity
+type UserEntity = UserT Identity
 
 makeLenses ''UserT
+makeLenses ''UserBase
 
 deriving instance Generic S.EncryptedPass
 instance Beamable UserT
@@ -55,7 +64,13 @@ deriving instance FromBackendRow Postgres S.EncryptedPass
 deriving instance FromBackendRow Postgres Email
 
 instance HasSqlValueSyntax be Prelude.String => HasSqlValueSyntax be Email where
-  sqlValueSyntax (Email email) = autoSqlValueSyntax email
+  sqlValueSyntax (Email e) = autoSqlValueSyntax e
 
 instance HasSqlValueSyntax be Prelude.String => HasSqlValueSyntax be S.EncryptedPass where
   sqlValueSyntax = autoSqlValueSyntax
+
+instance ToJSON User where
+  toJSON User{..} = object
+    ["email" .= _email ]
+
+instance ToJSON UserEntity

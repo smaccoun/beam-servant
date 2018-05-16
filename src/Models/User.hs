@@ -13,7 +13,8 @@ module Models.User where
 import           AppPrelude
 import           Control.Lens         hiding (element)
 import           Data.Aeson
-import qualified Database.Tables.User as UT (UserID, UserT, userEmail, userId)
+import qualified Database.Tables.User as UT (UserID, UserT (..), user,
+                                             email, userId)
 import           GHC.Generics         (Generic)
 import           Models.Credentials   (Email (..))
 import           Servant.Auth.Server
@@ -36,5 +37,5 @@ userApiFromUserDB :: UT.UserT Identity -> UserResponse
 userApiFromUserDB userT =
   UserResponse
     {_id = userT ^. UT.userId
-    ,_email = Email $ userT ^. UT.userEmail
+    ,_email = Email $ userT ^. UT.user ^. UT.email
     }

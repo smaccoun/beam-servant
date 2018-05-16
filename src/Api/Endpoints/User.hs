@@ -12,34 +12,34 @@ import           Database.Schema      (userTable)
 import           Database.Tables.User
 import           Database.Transaction
 import           Models.Credentials   (Email (..), Password (..))
-import           Models.User
+import           Models.User          (UserResponse)
 import           Servant
 
-type UserAPI = RResourceAPI "users" UserResponse UserID
+type UserAPI = RResourceAPI "users" UserEntity UserID
 
 userServer :: UserResponse -> ServerT UserAPI AppM
 userServer _ = rResourceServer getUsers getUser
 
-getUsers :: AppM [UserResponse]
+getUsers :: AppM [UserEntity]
 getUsers = do
   usersDB <- runQueryM $ select (all_ userTable)
-  return $ map userApiFromUserDB usersDB
+  return $ usersDB
 
-getUser :: UserID -> AppM UserResponse
+getUser :: UserID -> AppM UserEntity
 getUser userId' = do
   userResult <- runQuerySingleM $ select $
     do users <- (all_ userTable)
        guard_ (users ^. userId ==. val_ userId')
        pure users
-  return $ userApiFromUserDB userResult
+  return $ userResult
 
-getUserByEmail :: Email -> AppM User
+getUserByEmail :: Email -> AppM UserEntity
 getUserByEmail (Email email') = do
   Config{..} <- ask
   userResult <- liftIO $ runQuerySingle getPool $
     select $
     do  users <- all_ (userTable)
-        guard_ (users ^. userEmail ==. val_ email')
+        guard_ (users ^. user ^. email ==. val_ email')
         pure users
   return $ userResult
 
@@ -52,10 +52,9 @@ createUser conn (Email email') (Password unencryptedPassword) = do
   where
     insertStmt encryptedPassword now = insert userTable $
         insertExpressions
-          [ User
+          [ UserT
               default_
-              (val_ email')
-              (val_ encryptedPassword)
+              (User (val_ email') (val_ encryptedPassword))
               default_
               (val_ now)
           ]
