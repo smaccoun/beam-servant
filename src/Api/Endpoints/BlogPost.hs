@@ -9,45 +9,39 @@ import           Control.Lens             hiding (element)
 import           Data.Aeson
 import           Data.Time.Clock          (getCurrentTime)
 import           Database.Beam
+import           Database.MasterEntity  (AppEntity (..), appId)
 import           Database.Schema
+import           Data.UUID              (UUID)
 import           Database.Tables.BlogPost
 import           Database.Transaction
 import           Models.User
 import           Servant
 
 
-type BlogPostViewAPI = RResourceAPI "blogPost" BlogPost BlogPostID
+type BlogPostViewAPI = RResourceAPI "blogPost" BlogPostEntity UUID
 
 blogPostViewServer :: ServerT BlogPostViewAPI AppM
 blogPostViewServer = rResourceServer getBlogPosts getBlogPost
 
-getBlogPosts :: AppM [BlogPost]
+getBlogPosts :: AppM [BlogPostEntity]
 getBlogPosts = do
-  runSqlDebugM $ runSelectReturningList $ select (all_ blogPostTable)
+  runQueryM $ select (all_ blogPostTable)
 
-getBlogPost :: BlogPostID -> AppM BlogPost
+getBlogPost :: UUID -> AppM BlogPostEntity
 getBlogPost blogPostId' = do
-  blogPostResult <- runQuerySingleM $
+  blogPostResult <- runQuerySingle $
     select $
     do  blogPost <- (all_ blogPostTable)
-        guard_ (blog_post_id blogPost ==. val_ blogPostId')
+        guard_ (blogPost ^. appId ==. val_ blogPostId')
         pure blogPost
   return $ blogPostResult
 
 
 type BlogPostMutateAPI = "blogPost" :>
-  ( ReqBody '[JSON] BlogPostRequest :> Post '[JSON] NoContent
+  ( ReqBody '[JSON] BlogPost :> Post '[JSON] NoContent
   )
 
-data BlogPostRequest
-    = BlogPostRequest
-    { _title'   :: Text
-    , _content' :: Text
-    } deriving (Generic)
-
-makeLenses ''BlogPostRequest
-
-instance FromJSON BlogPostRequest
+instance FromJSON BlogPost
 
 blogPostMutateServer ::
       UserResponse
@@ -55,18 +49,17 @@ blogPostMutateServer ::
 blogPostMutateServer _ =
   createBlogPost
 
-createBlogPost :: BlogPostRequest -> AppM NoContent
+createBlogPost :: BlogPost -> AppM NoContent
 createBlogPost bpr = do
   now <- liftIO getCurrentTime
-  _ <- runSqlM $ runInsert $ insertStmt now
+  _ <- runInsertM $ insertStmt now
   return NoContent
   where
     insertStmt now = insert blogPostTable $
         insertExpressions
-          [ BlogPost
+          [ AppEntity
               default_
-              (val_ $ bpr ^. title')
-              (val_ $ bpr ^. content')
+              (BlogPostBaseT (val_ $ title bpr) (val_ $ content bpr))
               default_
               (val_ now)
           ]

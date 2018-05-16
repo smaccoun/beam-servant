@@ -11,16 +11,18 @@
 module Models.User where
 
 import           AppPrelude
-import           Control.Lens         hiding (element)
+import           Control.Lens          hiding (element)
 import           Data.Aeson
-import qualified Database.Tables.User as UT (UserID, UserT, userEmail, userId)
-import           GHC.Generics         (Generic)
-import           Models.Credentials   (Email (..))
+import           Data.UUID             (UUID)
+import           Database.MasterEntity (appId, table)
+import qualified Database.Tables.User  as UT (UserT, email)
+import           GHC.Generics          (Generic)
+import           Models.Credentials    (Email (..))
 import           Servant.Auth.Server
 
 data UserResponse
     = UserResponse
-    { _id    :: UT.UserID
+    { _id    :: UUID
     , _email :: Email
     } deriving (Generic)
 
@@ -35,6 +37,6 @@ instance FromJWT UserResponse
 userApiFromUserDB :: UT.UserT Identity -> UserResponse
 userApiFromUserDB userT =
   UserResponse
-    {_id = userT ^. UT.userId
-    ,_email = Email $ userT ^. UT.userEmail
+    {_id = userT ^. appId
+    ,_email = Email $ userT ^. table ^. UT.email
     }

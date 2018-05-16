@@ -17,7 +17,7 @@ import           App
 import           AppPrelude
 import           Data.Swagger                        (Swagger, ToSchema)
 import           Data.Text                           (Text)
-import           Database.Tables.BlogPost            (BlogPost)
+import           Database.Tables.BlogPost            (BlogPostEntity, BlogPost)
 import           Models.Credentials                  (Email, Password)
 import           Models.Login
 import           Models.User                         (UserResponse (..))
@@ -75,4 +75,5 @@ instance ToSchema Login
 instance ToSchema Email
 instance ToSchema LoginResponse
 instance ToSchema Password
+instance ToSchema BlogPostEntity
 instance ToSchema BlogPost

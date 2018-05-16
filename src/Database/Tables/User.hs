@@ -11,40 +11,34 @@
 module Database.Tables.User where
 
 import           AppPrelude
-import           Control.Lens                         hiding (element)
+import           Control.Lens                         hiding (element, (.=))
 import qualified Crypto.Scrypt                        as S
-import           Data.Time.Clock                      (UTCTime)
-import           Data.UUID                            (UUID)
+import           Data.Aeson
 import           Database.Beam
 import           Database.Beam.Backend.SQL.SQL92
 import           Database.Beam.Postgres
+import           Database.MasterEntity
 import           Database.PostgreSQL.Simple.FromField
 import           GHC.Generics                         (Generic)
 import           Models.Credentials                   (Email (..))
 import           Prelude                              (String)
 
-type UserID = UUID
+type UserT = AppEntity UserBase
 
-data UserT f
-    = User
-    { _userId       :: Columnar f UserID
-    , _userEmail    :: Columnar f Text
-    , _userPassword :: Columnar f S.EncryptedPass
-    , _createdAt    :: Columnar f UTCTime
-    , _updatedAt    :: Columnar f UTCTime
-    } deriving (Generic)
+data UserBase f =
+  User
+   {_email    :: C f Text
+   ,_password :: C f S.EncryptedPass
+   } deriving (Generic)
 
-type User = UserT Identity
+instance Beamable UserBase
+type User = UserBase Identity
+type UserEntity = UserT Identity
 
-makeLenses ''UserT
+makeLenses ''UserBase
 
 deriving instance Generic S.EncryptedPass
-instance Beamable UserT
-instance Table UserT where
-  data PrimaryKey UserT f = UserId (Columnar f UUID) deriving Generic
-  primaryKey = UserId . _userId
 
-instance Beamable (PrimaryKey UserT)
 deriving instance Show User
 instance FromField S.EncryptedPass where
   fromField field mb_bytestring = S.EncryptedPass <$> fromField field mb_bytestring
@@ -55,7 +49,13 @@ deriving instance FromBackendRow Postgres S.EncryptedPass
 deriving instance FromBackendRow Postgres Email
 
 instance HasSqlValueSyntax be Prelude.String => HasSqlValueSyntax be Email where
-  sqlValueSyntax (Email email) = autoSqlValueSyntax email
+  sqlValueSyntax (Email e) = autoSqlValueSyntax e
 
 instance HasSqlValueSyntax be Prelude.String => HasSqlValueSyntax be S.EncryptedPass where
   sqlValueSyntax = autoSqlValueSyntax
+
+instance ToJSON User where
+  toJSON User{..} = object
+    ["email" .= _email ]
+
+instance ToJSON (AppEntity UserBase Identity)

@@ -1,45 +1,33 @@
-{-# LANGUAGE DeriveAnyClass        #-}
-{-# LANGUAGE DeriveGeneric         #-}
-{-# LANGUAGE FlexibleInstances     #-}
-{-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE StandaloneDeriving    #-}
-{-# LANGUAGE TemplateHaskell       #-}
-{-# LANGUAGE TypeFamilies          #-}
-{-# LANGUAGE TypeSynonymInstances  #-}
-{-# LANGUAGE UndecidableInstances  #-}
+{-# LANGUAGE DeriveAnyClass       #-}
+{-# LANGUAGE DeriveGeneric        #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE OverloadedStrings    #-}
+{-# LANGUAGE StandaloneDeriving   #-}
+{-# LANGUAGE TemplateHaskell      #-}
+{-# LANGUAGE TypeFamilies         #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module Database.Tables.BlogPost where
 
 import           AppPrelude
 import           Data.Aeson
-import           Data.Time.Clock
-import           Data.UUID       (UUID)
 import           Database.Beam
-import           GHC.Generics    (Generic)
+import           Database.MasterEntity
+import           GHC.Generics          (Generic)
 
-type BlogPostID = UUID
+type BlogPostT = AppEntity BlogPostBaseT
 
-data BlogPostT f
-    = BlogPost
-    { blog_post_id :: Columnar f BlogPostID
-    , title      :: Columnar f Text
-    , content    :: Columnar f Text
-    , updated_at  :: Columnar f UTCTime
-    , created_at  :: Columnar f UTCTime
+data BlogPostBaseT f
+    = BlogPostBaseT
+    { title   :: Columnar f Text
+    , content :: Columnar f Text
     } deriving (Generic)
 
-type BlogPost = BlogPostT Identity
+instance Beamable BlogPostBaseT
 
+type BlogPost = BlogPostBaseT Identity
+type BlogPostEntity = BlogPostT Identity
 
-instance Beamable BlogPostT
-instance Table BlogPostT where
-  data PrimaryKey BlogPostT f = BlogPostID (Columnar f UUID) deriving Generic
-  primaryKey = BlogPostID . blog_post_id
-
-instance Beamable (PrimaryKey BlogPostT)
-deriving instance Show BlogPost
-
-
-instance ToJSON BlogPost where
-    toJSON = genericToJSON defaultOptions{fieldLabelModifier = drop 1}
+instance ToJSON BlogPost
+instance ToJSON BlogPostEntity
 
