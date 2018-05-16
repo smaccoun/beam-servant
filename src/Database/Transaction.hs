@@ -38,3 +38,10 @@ runQuerySingle query' = do
     [x]   -> return x
     (_:_) -> panic "More than one result found"
 
+
+runInsertM :: (MonadIO m, MonadReader Config m) =>
+              SqlInsert PgInsertSyntax -> m ()
+runInsertM insertStmt = do
+  Config{..} <- ask
+  liftIO $ runSql getPool (runInsert insertStmt)
+

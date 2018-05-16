@@ -4,9 +4,12 @@
 module Database.Schema where
 
 import           AppPrelude
-import           Control.Lens         hiding (element)
+import           Control.Lens                hiding (element)
+import           Data.Text
 import           Database.Beam
+import           Database.Beam.Schema.Tables (renamingFields)
 import           Database.Tables.User
+import           Text.Regex
 
 data MyAppDb f =
   MyAppDb
@@ -18,17 +21,7 @@ makeLenses ''MyAppDb
 instance Database be MyAppDb
 
 appDb :: DatabaseSettings be MyAppDb
-appDb = defaultDbSettings `withDbModification`
-            dbModification {
-              _users = modifyTable (\a -> a) $
-                        tableModification {
-                          _user =
-                            tableModification
-                               { _email = fieldNamed "email"
-                               , _password = fieldNamed "password"
-                                }
-                        }
-            }
+appDb = defaultDbSettings `withDbModification` renamingFields (\f -> (subRegex (mkRegex ".*\\__") (unpack f) "") & pack)
 
 
 {- CONVENIENCE TABLE ACCESS -}

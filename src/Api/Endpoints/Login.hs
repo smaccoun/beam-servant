@@ -2,27 +2,28 @@
 
 module Api.Endpoints.Login where
 
-import           Api.Endpoints.User   (getUserByEmail)
+import           Api.Endpoints.User    (getUserByEmail)
 import           App
 import           AppPrelude
 import           Control.Lens
-import qualified Crypto.Scrypt        as S
+import qualified Crypto.Scrypt         as S
 import           Data.Aeson
-import qualified Data.ByteString.Lazy as BSL
-import           Data.Text            (Text)
-import           Data.Text.Encoding   (encodeUtf8)
-import           Database.Tables.User as UT (UserEntity, UserID, password, user,
-                                             userId)
-import           Models.Credentials   (Password (..))
+import qualified Data.ByteString.Lazy  as BSL
+import           Data.Text             (Text)
+import           Data.Text.Encoding    (encodeUtf8)
+import           Data.UUID             (UUID)
+import           Database.MasterEntity (appId, table)
+import           Database.Tables.User  as UT (UserEntity, password)
+import           Models.Credentials    (Password (..))
 import           Models.Login
-import           Models.User          (userApiFromUserDB)
+import           Models.User           (userApiFromUserDB)
 import           Servant
 import           Servant.Auth.Server
 
 data LoginResponse =
   LoginResponse
     {jwtToken :: Text
-    ,userId   :: UserID
+    ,userId   :: UUID
     } deriving (Generic, ToJSON)
 
 
@@ -49,11 +50,11 @@ loginUserPassword jwtCfg (Login loginEmail loginPassword) = do
       Right jwt -> return $
         LoginResponse
           {jwtToken = decodeUtf8 $ BSL.toStrict jwt
-          ,userId = userResult ^. UT.userId
+          ,userId = userResult ^. appId
           }
   else
      throwError err500 {errBody = "Incorrect Password"}
 
 hasCorrectPassword :: UserEntity -> Password -> Bool
 hasCorrectPassword userT (Password password') =
-  fst $  S.verifyPass S.defaultParams (S.Pass $ encodeUtf8 password') (userT ^. user ^. UT.password)
+  fst $  S.verifyPass S.defaultParams (S.Pass $ encodeUtf8 password') (userT ^. table ^. UT.password)

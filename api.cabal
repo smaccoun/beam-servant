@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: baa4d690c30adafb8ac1e866cd8c8381d035914aacbc6093862247467836bc58
+-- hash: d5a40dcde05794f4f4652effc71da86e4bfdd5ae4193a2b9791ecb64e8e6bd3b
 
 name:           api
 version:        0.1.0.0
@@ -45,6 +45,7 @@ library
     , natural-transformation
     , postgresql-simple
     , protolude
+    , regex-compat
     , resource-pool
     , scrypt
     , servant
@@ -74,6 +75,7 @@ library
       Config.AppConfig
       Config.DBConfig
       Config.ServerConfig
+      Database.MasterEntity
       Database.Schema
       Database.Tables.User
       Database.Transaction
@@ -108,6 +110,7 @@ executable api-exe
     , natural-transformation
     , postgresql-simple
     , protolude
+    , regex-compat
     , resource-pool
     , scrypt
     , servant
@@ -155,6 +158,7 @@ test-suite api-test
     , natural-transformation
     , postgresql-simple
     , protolude
+    , regex-compat
     , resource-pool
     , scrypt
     , servant

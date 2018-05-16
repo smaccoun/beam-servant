@@ -50,6 +50,7 @@ dependencies:
 - postgresql-simple
 - protolude
 - resource-pool
+- regex-compat
 - servant
 - servant-server
 - servant-auth
