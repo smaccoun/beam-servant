@@ -10,7 +10,7 @@ packages:
 - .
 - location:
     git: https://github.com/tathougies/beam.git
-    commit: 03f1091b0e0e05a76ec622e454e0c95a7195fb25
+    commit: 97532e3c87f355b9363395ddf30256186fa1435f
   extra-dep: true
   subdirs:
     - beam-core

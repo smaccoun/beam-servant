@@ -27,7 +27,7 @@ getUsers = do
 
 getUser :: UserID -> AppM UserEntity
 getUser userId' = do
-  userResult <- runQuerySingleM $ select $
+  userResult <- runQuerySingle $ select $
     do users <- (all_ userTable)
        guard_ (users ^. userId ==. val_ userId')
        pure users
@@ -36,7 +36,7 @@ getUser userId' = do
 getUserByEmail :: Email -> AppM UserEntity
 getUserByEmail (Email email') = do
   Config{..} <- ask
-  userResult <- liftIO $ runQuerySingle getPool $
+  userResult <- runQuerySingle $
     select $
     do  users <- all_ (userTable)
         guard_ (users ^. user ^. email ==. val_ email')
