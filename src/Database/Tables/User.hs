@@ -57,5 +57,3 @@ instance HasSqlValueSyntax be Prelude.String => HasSqlValueSyntax be S.Encrypted
 instance ToJSON User where
   toJSON User{..} = object
     ["email" .= _email ]
-
-instance ToJSON (AppEntity UserBase Identity)
