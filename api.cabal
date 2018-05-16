@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 76a21118b39c32857464f1387d006b1058d8d8b8e0fe12067521007c660c7a74
+-- hash: 7d9345933d223282a7afce6c3bed63e040750f734d6c561ccbab0ab28bacf573
 
 name:           api
 version:        0.1.0.0
@@ -59,6 +59,7 @@ library
     , text
     , time
     , transformers
+    , unordered-containers
     , uuid
     , wai
     , wai-cors
@@ -126,6 +127,7 @@ executable api-exe
     , text
     , time
     , transformers
+    , unordered-containers
     , uuid
     , wai
     , wai-cors
@@ -174,6 +176,7 @@ test-suite api-test
     , text
     , time
     , transformers
+    , unordered-containers
     , uuid
     , wai
     , wai-cors

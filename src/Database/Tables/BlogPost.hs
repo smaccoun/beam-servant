@@ -29,5 +29,4 @@ type BlogPost = BlogPostBaseT Identity
 type BlogPostEntity = BlogPostT Identity
 
 instance ToJSON BlogPost
-instance ToJSON BlogPostEntity
 

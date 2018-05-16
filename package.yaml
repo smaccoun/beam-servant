@@ -64,6 +64,7 @@ dependencies:
 - time
 - transformers
 - uuid
+- unordered-containers
 - wai
 - wai-cors
 - wai-extra
