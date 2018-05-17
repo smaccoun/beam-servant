@@ -33,11 +33,11 @@ getBlogPost blogPostId' = do
   getEntity blogPostTable blogPostId'
 
 type BlogPostMutateAPI = "blogPost" :>
-  ( ReqBody '[JSON] BlogPost :> Post '[JSON] NoContent
+  ( ReqBody '[JSON] BlogPost :> Post '[JSON] BlogPost
   :<|> (
           Capture "uuid" UUID
-        :> ReqBody '[JSON] BlogPost :> Patch '[JSON] ()
-       )
+        :> ReqBody '[JSON] BlogPost :> Patch '[JSON] BlogPostEntity
+        )
   )
 
 instance FromJSON BlogPost
@@ -49,11 +49,11 @@ blogPostMutateServer _ =
        createBlogPost
   :<|> updateBlogPost
 
-createBlogPost :: BlogPost -> AppM NoContent
+createBlogPost :: BlogPost -> AppM BlogPost
 createBlogPost bpr = do
   now <- liftIO getCurrentTime
   _ <- runInsertM $ insertStmt now
-  return NoContent
+  return bpr
   where
     insertStmt now = insert blogPostTable $
         insertExpressions
@@ -65,15 +65,17 @@ createBlogPost bpr = do
           ]
 
 
-updateBlogPost :: UUID -> BlogPost -> AppM ()
+updateBlogPost :: UUID -> BlogPost -> AppM BlogPostEntity
 updateBlogPost blogPostId' bpr = do
   runSqlM blogUpdateQ
   where
-    blogUpdateQ :: Pg ()
+    blogUpdateQ :: Pg BlogPostEntity
     blogUpdateQ = do
       Just bp <- runSelectReturningOne $
               lookup_ blogPostTable (MyAppKey blogPostId')
-      runUpdate $
+      _ <- runUpdate $
             save (blogPostTable)
                 (bp { _table = bpr })
+
+      return bp
 
