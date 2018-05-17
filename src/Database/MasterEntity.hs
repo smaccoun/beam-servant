@@ -11,14 +11,14 @@
 module Database.MasterEntity where
 
 import           AppPrelude
-import           Control.Lens        hiding (element, (.=))
-import           Data.Aeson          (ToJSON, Value (..))
-import qualified Data.Aeson          as A
-import qualified Data.HashMap.Strict as HMS
-import           Data.Time.Clock     (UTCTime)
-import           Data.UUID           (UUID)
+import           Control.Lens         hiding (element, (.=))
+import           Data.Aeson           (ToJSON, Value (..))
+import qualified Data.Aeson           as A
+import qualified Data.HashMap.Strict  as HMS
+import           Data.Time.Clock      (UTCTime)
+import           Data.UUID            (UUID)
 import           Database.Beam
-import           GHC.Generics        (Generic)
+import           GHC.Generics         (Generic)
 
 data AppEntity table f
     = AppEntity
@@ -52,3 +52,4 @@ instance (ToJSON (t Identity)) => ToJSON (AppEntity t Identity) where
             ]
       _ ->
         Null
+

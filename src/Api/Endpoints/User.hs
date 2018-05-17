@@ -10,7 +10,8 @@ import           Data.Time.Clock        (UTCTime, getCurrentTime)
 import           Data.UUID              (UUID)
 import           Database.Beam
 import           Database.Beam.Postgres (PgInsertSyntax)
-import           Database.MasterEntity  (AppEntity (..), appId, table)
+import           Database.MasterEntity  (AppEntity (..), table)
+import           Database.Crud
 import           Database.Schema        (userTable)
 import           Database.Tables.User
 import           Database.Transaction
@@ -25,16 +26,11 @@ userServer _ = rResourceServer getUsers getUser
 
 getUsers :: AppM [UserEntity]
 getUsers = do
-  usersDB <- runQueryM $ select (all_ userTable)
-  return $ usersDB
+  getEntities userTable
 
 getUser :: UUID -> AppM UserEntity
 getUser userId' = do
-  userResult <- runQuerySingle $ select $
-    do users <- (all_ userTable)
-       guard_ (users ^. appId ==. val_ userId')
-       pure users
-  return $ userResult
+  getEntity userTable userId'
 
 getUserByEmail :: Email -> AppM UserEntity
 getUserByEmail (Email email') = do
@@ -59,7 +55,15 @@ createUser (Email email') (Password unencryptedPassword) = do
         insertExpressions
           [ AppEntity
               default_
-              (User (val_ email') (val_ encryptedPassword))
+              (userInsert email' encryptedPassword)
               default_
               (val_ now)
           ]
+
+userInsert :: (SqlValable (Columnar f S.EncryptedPass),
+                SqlValable (Columnar f Text)) =>
+                 HaskellLiteralForQExpr (Columnar f Text)
+              -> HaskellLiteralForQExpr (Columnar f S.EncryptedPass)
+              -> UserBase f
+userInsert email' encryptedPassword =
+  (User (val_ email') (val_ encryptedPassword))
