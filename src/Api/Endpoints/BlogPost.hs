@@ -5,11 +5,11 @@ module Api.Endpoints.BlogPost where
 import           Api.Resource
 import           App
 import           AppPrelude
-import           Control.Lens             hiding (element)
 import           Data.Aeson
 import           Data.Time.Clock          (getCurrentTime)
 import           Database.Beam
-import           Database.MasterEntity  (AppEntity (..), appId)
+import           Database.Crud
+import           Database.MasterEntity  (AppEntity (..))
 import           Database.Schema
 import           Data.UUID              (UUID)
 import           Database.Tables.BlogPost
@@ -25,17 +25,11 @@ blogPostViewServer = rResourceServer getBlogPosts getBlogPost
 
 getBlogPosts :: AppM [BlogPostEntity]
 getBlogPosts = do
-  runQueryM $ select (all_ blogPostTable)
+  getEntities blogPostTable
 
 getBlogPost :: UUID -> AppM BlogPostEntity
 getBlogPost blogPostId' = do
-  blogPostResult <- runQuerySingle $
-    select $
-    do  blogPost <- (all_ blogPostTable)
-        guard_ (blogPost ^. appId ==. val_ blogPostId')
-        pure blogPost
-  return $ blogPostResult
-
+  getEntity blogPostTable blogPostId'
 
 type BlogPostMutateAPI = "blogPost" :>
   ( ReqBody '[JSON] BlogPost :> Post '[JSON] NoContent

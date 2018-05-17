@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 7d9345933d223282a7afce6c3bed63e040750f734d6c561ccbab0ab28bacf573
+-- hash: c3cff6106c69830fe3ebda387f9d8ca9bac000f5f247002c5f1f0fddc4ea79b3
 
 name:           api
 version:        0.1.0.0
@@ -77,6 +77,7 @@ library
       Config.AppConfig
       Config.DBConfig
       Config.ServerConfig
+      Database.Crud
       Database.MasterEntity
       Database.Schema
       Database.Tables.BlogPost
