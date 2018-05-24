@@ -20,13 +20,13 @@ import           Models.User            (UserResponse)
 import           Pagination
 import           Servant
 
-type UserAPI = RResourceAPI "users" UserEntity UUID
+type UserAPI = RResourceAPI "users" PaginatedResult UserEntity UUID
 
 userServer :: UserResponse -> ServerT UserAPI AppM
 userServer _ = do
   rResourceServer getUsers getUser
 
-getUsers :: (MonadIO m, MonadReader r m, HasDBConn r) => m [UserEntity]
+getUsers :: (MonadIO m, MonadReader r m, HasDBConn r) => m (PaginatedResult UserEntity)
 getUsers =
   getEntities (pagination DefaultLimit (Offset 0)) DefaultOrder userTable
 

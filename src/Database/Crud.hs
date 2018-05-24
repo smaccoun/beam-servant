@@ -28,10 +28,10 @@ import           Pagination                  (Pagination (..))
 data OrderArg = DefaultOrder | CustomOrder Text
 
 
-getCollectionMetadata :: (HasDBConn r, MonadReader r m, MonadIO m,
+queryTableCount :: (HasDBConn r, MonadReader r m, MonadIO m,
                           Table table, Database be db) =>
                           DatabaseEntity be db (TableEntity table) -> m Int
-getCollectionMetadata entityTable = do
+queryTableCount entityTable = do
   let totalCount = aggregate_ (\_ -> as_ @Int countAll_) (all_ entityTable)
   runQuerySingle $ select totalCount
 
@@ -48,12 +48,21 @@ getEntities :: ( Beamable inner
             => Pagination
             -> OrderArg
             -> DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity inner))
-            -> m [AppEntity inner Identity]
+            -> m (PaginatedResult (AppEntity inner Identity))
 getEntities pagination' orderArg t = do
-  runQueryM $ paginateQuery pagination'
-    $ orderBy_ (\e -> (desc_ (e ^. orderColumn)))
-    $ all_ t
+  tableCount' <- queryTableCount t
+  let paginationContext = getPaginationContext pagination' (TotalCount tableCount')
+  data' <- runQueryM $ paginateQuery pagination' baseQuery
+  return $
+    PaginatedResult
+      {__data = data'
+      ,__pagination = paginationContext
+      }
   where
+    baseQuery =
+      orderBy_ (\e -> (desc_ (e ^. orderColumn)))
+      $ all_ t
+
     orderColumn =
       case orderArg of
         DefaultOrder  -> updated_at

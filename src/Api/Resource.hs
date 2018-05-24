@@ -11,15 +11,15 @@ import           Servant
 
 
 {- Read API -}
-type RResourceAPI (resourceName :: Symbol) a i = resourceName :>
-  (    Get '[JSON] [a]
+type RResourceAPI (resourceName :: Symbol) c a i = resourceName :>
+  (    Get '[JSON] (c a)
   :<|> Capture "id" i    :> Get '[JSON] a
   )
 
 rResourceServer ::
-     m [a]
+     m (c a)
   -> (i -> m a)
-  -> ServerT (RResourceAPI name a i) m
+  -> ServerT (RResourceAPI name c a i) m
 rResourceServer listAs getA =
   listAs :<|> getA
 
