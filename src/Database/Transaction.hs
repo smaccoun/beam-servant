@@ -1,5 +1,4 @@
 {-# LANGUAGE ConstraintKinds       #-}
-{-# LANGUAGE PartialTypeSignatures #-}
 {-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE TypeFamilies          #-}
 
@@ -8,13 +7,9 @@ module Database.Transaction where
 import           App
 import           AppPrelude
 import           Control.Lens                  (view)
-import           Data.Optional
 import           Database.Beam.Backend
 import           Database.Beam.Postgres
-import           Database.Beam.Postgres.Syntax
 import           Database.Beam.Query
-import           Database.Beam.Query.Internal
-import           Pagination
 
 runSql ::
        DBConn
@@ -32,73 +27,18 @@ runSqlM query' = do
   liftIO $ runSql conn query'
 
 
-runQueryM :: (ThreadRewritable (QNested QueryInaccessible) a,
-      ProjectibleWithPredicate ValueContext PgExpressionSyntax a,
-      ProjectibleWithPredicate
-        ValueContext
-        PgExpressionSyntax
-        (WithRewrittenThread
-            (QNested QueryInaccessible) QueryInaccessible a),
-      ProjectibleWithPredicate AnyType PgExpressionSyntax a,
-      ProjectibleWithPredicate
-        AnyType
-        PgExpressionSyntax
-        (WithRewrittenThread
-            (QNested QueryInaccessible) QueryInaccessible a),
-      FromBackendRow
-        Postgres
-        (QExprToIdentity
-            (WithRewrittenThread
-              (QNested QueryInaccessible) QueryInaccessible a)),
-       MonadReader r m,
-       HasDBConn r,
-       MonadIO m
-             ) =>
-         Optional Limit
-      -> Q PgSelectSyntax db (QNested QueryInaccessible) a
-      -> m
-          [QExprToIdentity
-              (WithRewrittenThread
-                (QNested QueryInaccessible) QueryInaccessible a)]
-runQueryM optionalLimit query' = do
+runQueryM :: (FromBackendRow Postgres a, HasDBConn r,
+              MonadReader r m, MonadIO m) =>
+              SqlSelect PgSelectSyntax a -> m [a]
+runQueryM query' = do
   runSqlM $
-    runSelectReturningList $ select $
-      limit_ (fromOptionalLimit optionalLimit)
-        $ query'
-  where
-    fromOptionalLimit :: Optional Limit -> Integer
-    fromOptionalLimit Default                   = 10
-    fromOptionalLimit (Specific (Limit limit')) = limit'
+    runSelectReturningList query'
 
-runQuerySingle :: (FromBackendRow
-          Postgres
-          (QExprToIdentity
-            (WithRewrittenThread
-                (QNested QueryInaccessible) QueryInaccessible a)),
-        ProjectibleWithPredicate
-          AnyType
-          PgExpressionSyntax
-          (WithRewrittenThread
-            (QNested QueryInaccessible) QueryInaccessible a),
-        ProjectibleWithPredicate AnyType PgExpressionSyntax a,
-        ProjectibleWithPredicate
-          ValueContext
-          PgExpressionSyntax
-          (WithRewrittenThread
-            (QNested QueryInaccessible) QueryInaccessible a),
-        ProjectibleWithPredicate ValueContext PgExpressionSyntax a,
-        ThreadRewritable (QNested QueryInaccessible) a,
-       MonadReader r m,
-       HasDBConn r,
-       MonadIO m
-    ) =>
-         Q PgSelectSyntax db (QNested QueryInaccessible) a
-      -> m
-            (QExprToIdentity
-              (WithRewrittenThread
-                  (QNested QueryInaccessible) QueryInaccessible a))
+runQuerySingle :: (MonadIO m, MonadReader r m, HasDBConn r,
+                    FromBackendRow Postgres b) =>
+                  SqlSelect PgSelectSyntax b -> m b
 runQuerySingle query' = do
-  result <- runQueryM Default query'
+  result <- runQueryM query'
   case result of
     []    -> panic "No results found"
     [x]   -> return x

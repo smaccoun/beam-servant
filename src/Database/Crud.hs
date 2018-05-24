@@ -13,7 +13,6 @@ module Database.Crud where
 import           App
 import           AppPrelude
 import           Control.Lens                hiding (element)
-import           Data.Optional
 import           Data.UUID                   (UUID)
 import           Database.Beam
 import           Database.Beam.Backend.Types
@@ -22,7 +21,10 @@ import           Database.MasterEntity
 import           Database.Schema
 import           Database.Transaction
 import           GHC.Generics                (Generic)
+import           Pagination
 import           Pagination                  (Pagination (..))
+
+data OrderArg = DefaultOrder | CustomOrder Text
 
 getEntities :: ( Beamable inner
                , Typeable inner
@@ -35,12 +37,18 @@ getEntities :: ( Beamable inner
                , MonadIO m
                )
             => Pagination
+            -> OrderArg
             -> DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity inner))
             -> m [AppEntity inner Identity]
-getEntities (Pagination limit _) t = do
-  runQueryM (Specific limit)
-    $ orderBy_ (\e -> (desc_ (e ^. updated_at)))
+getEntities pagination' orderArg t = do
+  runQueryM $ paginateQuery pagination'
+    $ orderBy_ (\e -> (desc_ (e ^. orderColumn)))
     $ all_ t
+  where
+    orderColumn =
+      case orderArg of
+        DefaultOrder -> updated_at
+        CustomOrder _ -> updated_at
 
 
 getEntity :: ( Beamable inner
@@ -56,7 +64,7 @@ getEntity :: ( Beamable inner
             -> UUID
             -> m (AppEntity inner Identity)
 getEntity t uuid' = do
-  result <- runQuerySingle $
+  result <- runQuerySingle $ select $
     do allItems <- (all_ t)
        guard_ (allItems ^. appId ==. val_ uuid')
        pure allItems

@@ -28,7 +28,7 @@ userServer _ = do
 
 getUsers :: (MonadIO m, MonadReader r m, HasDBConn r) => m [UserEntity]
 getUsers =
-  getEntities (pagination DefaultLimit (Offset 0)) userTable
+  getEntities (pagination DefaultLimit (Offset 0)) DefaultOrder userTable
 
 getUser :: (MonadIO m, MonadReader r m, HasDBConn r) => UUID -> m UserEntity
 getUser userId' =
@@ -36,7 +36,7 @@ getUser userId' =
 
 getUserByEmail :: (MonadIO m, MonadReader r m, HasDBConn r) => Email -> m UserEntity
 getUserByEmail (Email email') = do
-  userResult <- runQuerySingle $
+  userResult <- runQuerySingle $ select $
     do  users <- all_ (userTable)
         guard_ (users ^. table ^. email ==. val_ email')
         pure users
