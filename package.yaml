@@ -47,6 +47,7 @@ dependencies:
 - lens
 - mtl
 - natural-transformation
+- optional-args
 - postgresql-simple
 - protolude
 - resource-pool

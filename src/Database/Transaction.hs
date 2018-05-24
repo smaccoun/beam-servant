@@ -7,6 +7,7 @@ module Database.Transaction where
 
 import           App
 import           AppPrelude
+import           Data.Optional
 import           Database.Beam.Backend
 import           Database.Beam.Postgres
 import           Database.Beam.Postgres.Syntax
@@ -47,20 +48,21 @@ runQueryM :: (ThreadRewritable (QNested QueryInaccessible) a,
        MonadReader Config m,
        MonadIO m
              ) =>
-         Maybe Limit
+         Optional Limit
       -> Q PgSelectSyntax db (QNested QueryInaccessible) a
       -> m
           [QExprToIdentity
               (WithRewrittenThread
                 (QNested QueryInaccessible) QueryInaccessible a)]
-runQueryM mbLimit query' = do
+runQueryM optionalLimit query' = do
   runSqlM $
     runSelectReturningList $ select $
-      limit_ getLimit
+      limit_ (fromOptionalLimit optionalLimit)
         $ query'
   where
-    getLimit =
-      unLimit $ fromMaybe defaultLimit mbLimit
+    fromOptionalLimit :: Optional Limit -> Integer
+    fromOptionalLimit Default          = 10
+    fromOptionalLimit (Specific (Limit limit')) = limit'
 
 defaultLimit :: Limit
 defaultLimit = Limit 10
@@ -94,7 +96,7 @@ runQuerySingle :: (FromBackendRow
               (WithRewrittenThread
                   (QNested QueryInaccessible) QueryInaccessible a))
 runQuerySingle query' = do
-  result <- runQueryM (Just $ Limit 2) query'
+  result <- runQueryM Default query'
   case result of
     []    -> panic "No results found"
     [x]   -> return x

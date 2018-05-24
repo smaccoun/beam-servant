@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2ac7ac06835e2afe00d25c6804d640e40be4f59cd31781f6f94480896d4b3766
+-- hash: f252351447d496df6d4518020be2214da40854c16ae6ac94890f6f7e021fb95e
 
 name:           api
 version:        0.1.0.0
@@ -43,6 +43,7 @@ library
     , lens
     , mtl
     , natural-transformation
+    , optional-args
     , postgresql-simple
     , protolude
     , regex-compat
@@ -110,6 +111,7 @@ executable api-exe
     , lens
     , mtl
     , natural-transformation
+    , optional-args
     , postgresql-simple
     , protolude
     , regex-compat
@@ -159,6 +161,7 @@ test-suite api-test
     , lens
     , mtl
     , natural-transformation
+    , optional-args
     , postgresql-simple
     , protolude
     , regex-compat

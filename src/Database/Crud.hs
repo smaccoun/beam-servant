@@ -12,18 +12,16 @@ module Database.Crud where
 
 import           App
 import           AppPrelude
-import           Control.Lens                                                      hiding
-                                                                                    (element)
-import           Data.UUID
-                                                                                    (UUID)
+import           Control.Lens                hiding (element)
+import           Data.Optional
+import           Data.UUID                   (UUID)
 import           Database.Beam
 import           Database.Beam.Backend.Types
 import           Database.Beam.Postgres
 import           Database.MasterEntity
 import           Database.Schema
 import           Database.Transaction
-import           GHC.Generics
-                                                                                    (Generic)
+import           GHC.Generics                (Generic)
 
 getEntities :: ( Beamable inner
                , Typeable inner
@@ -37,7 +35,7 @@ getEntities :: ( Beamable inner
             => DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity inner))
             -> m [AppEntity inner Identity]
 getEntities t = do
-  runQueryM Nothing
+  runQueryM Default
     $ orderBy_ (\e -> (desc_ (e ^. updated_at)))
     $ all_ t
 
