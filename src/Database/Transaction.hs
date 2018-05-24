@@ -38,11 +38,10 @@ runQuerySingle :: (MonadIO m, MonadReader r m, HasDBConn r,
                     FromBackendRow Postgres b) =>
                   SqlSelect PgSelectSyntax b -> m b
 runQuerySingle query' = do
-  result <- runQueryM query'
+  result <- runSqlM $ runSelectReturningOne query'
   case result of
-    []    -> panic "No results found"
-    [x]   -> return x
-    (_:_) -> panic "More than one result found"
+    Just x -> return x
+    Nothing -> panic "Should have found exactly one result"
 
 
 runInsertM :: (MonadIO m, MonadReader r m, HasDBConn r) =>

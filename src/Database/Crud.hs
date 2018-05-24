@@ -4,6 +4,7 @@
 {-# LANGUAGE OverloadedStrings    #-}
 {-# LANGUAGE StandaloneDeriving   #-}
 {-# LANGUAGE TemplateHaskell      #-}
+{-# LANGUAGE TypeApplications     #-}
 {-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
@@ -26,6 +27,14 @@ import           Pagination                  (Pagination (..))
 
 data OrderArg = DefaultOrder | CustomOrder Text
 
+
+getCollectionMetadata :: (HasDBConn r, MonadReader r m, MonadIO m,
+                          Table table, Database be db) =>
+                          DatabaseEntity be db (TableEntity table) -> m Int
+getCollectionMetadata entityTable = do
+  let totalCount = aggregate_ (\_ -> as_ @Int countAll_) (all_ entityTable)
+  runQuerySingle $ select totalCount
+
 getEntities :: ( Beamable inner
                , Typeable inner
                , Generic (inner Identity)
@@ -47,7 +56,7 @@ getEntities pagination' orderArg t = do
   where
     orderColumn =
       case orderArg of
-        DefaultOrder -> updated_at
+        DefaultOrder  -> updated_at
         CustomOrder _ -> updated_at
 
 
