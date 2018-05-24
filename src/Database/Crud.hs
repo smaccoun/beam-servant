@@ -29,7 +29,6 @@ getEntities :: ( Beamable inner
                , Typeable inner
                , Generic (inner Identity)
                , Generic (inner Exposed)
---               , FromBackendRowF Postgres inner
                , Database.Beam.Backend.Types.GFromBackendRow
                           Postgres (Rep (inner Exposed)) (Rep (inner Identity))
                , MonadReader Config m
@@ -38,16 +37,16 @@ getEntities :: ( Beamable inner
             => DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity inner))
             -> m [AppEntity inner Identity]
 getEntities t = do
-  runQueryM Nothing $ (all_ t)
+  runQueryM Nothing
+    $ orderBy_ (\e -> (desc_ (e ^. updated_at)))
+    $ all_ t
 
 
 getEntity :: ( Beamable inner
                , Typeable inner
                , Generic (inner Identity)
                , Generic (inner Exposed)
---               , FromBackendRowF Postgres inner
-               , Database.Beam.Backend.Types.GFromBackendRow
-                          Postgres (Rep (inner Exposed)) (Rep (inner Identity))
+               , GFromBackendRow Postgres (Rep (inner Exposed)) (Rep (inner Identity))
                , MonadReader Config m
                , MonadIO m
                )
