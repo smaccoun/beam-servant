@@ -38,7 +38,7 @@ getEntities :: ( Beamable inner
             => DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity inner))
             -> m [AppEntity inner Identity]
 getEntities t = do
-  runQueryM $ select (all_ t)
+  runQueryM Nothing $ (all_ t)
 
 
 getEntity :: ( Beamable inner
@@ -55,7 +55,7 @@ getEntity :: ( Beamable inner
             -> UUID
             -> m (AppEntity inner Identity)
 getEntity t uuid' = do
-  result <- runQuerySingle $ select $
+  result <- runQuerySingle $
     do allItems <- (all_ t)
        guard_ (allItems ^. appId ==. val_ uuid')
        pure allItems

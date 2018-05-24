@@ -34,9 +34,7 @@ getUser userId' = do
 
 getUserByEmail :: Email -> AppM UserEntity
 getUserByEmail (Email email') = do
-  Config{..} <- ask
   userResult <- runQuerySingle $
-    select $
     do  users <- all_ (userTable)
         guard_ (users ^. table ^. email ==. val_ email')
         pure users
