@@ -22,17 +22,18 @@ import           Servant
 type UserAPI = RResourceAPI "users" UserEntity UUID
 
 userServer :: UserResponse -> ServerT UserAPI AppM
-userServer _ = rResourceServer getUsers getUser
+userServer _ = do
+  rResourceServer getUsers getUser
 
-getUsers :: AppM [UserEntity]
-getUsers = do
+getUsers :: (MonadIO m, MonadReader r m, HasDBConn r) => m [UserEntity]
+getUsers =
   getEntities userTable
 
-getUser :: UUID -> AppM UserEntity
-getUser userId' = do
+getUser :: (MonadIO m, MonadReader r m, HasDBConn r) => UUID -> m UserEntity
+getUser userId' =
   getEntity userTable userId'
 
-getUserByEmail :: Email -> AppM UserEntity
+getUserByEmail :: (MonadIO m, MonadReader r m, HasDBConn r) => Email -> m UserEntity
 getUserByEmail (Email email') = do
   userResult <- runQuerySingle $
     do  users <- all_ (userTable)
@@ -40,7 +41,7 @@ getUserByEmail (Email email') = do
         pure users
   return $ userResult
 
-createUser :: (MonadIO m, MonadReader Config m) => Email -> Password -> m ()
+createUser :: (MonadIO m, MonadReader r m, HasDBConn r) => Email -> Password -> m ()
 createUser (Email email') (Password unencryptedPassword) = do
   now <- liftIO $ getCurrentTime
   encryptedPassword <- liftIO $ S.encryptPassIO S.defaultParams (S.Pass $ encodeUtf8 unencryptedPassword)
@@ -59,8 +60,8 @@ createUser (Email email') (Password unencryptedPassword) = do
           ]
 
 userInsert :: (SqlValable (Columnar f S.EncryptedPass),
-                SqlValable (Columnar f Text)) =>
-                 HaskellLiteralForQExpr (Columnar f Text)
+                SqlValable (Columnar f Text))
+              => HaskellLiteralForQExpr (Columnar f Text)
               -> HaskellLiteralForQExpr (Columnar f S.EncryptedPass)
               -> UserBase f
 userInsert email' encryptedPassword =

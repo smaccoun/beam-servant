@@ -7,6 +7,7 @@ module Database.Transaction where
 
 import           App
 import           AppPrelude
+import           Control.Lens                  (view)
 import           Data.Optional
 import           Database.Beam.Backend
 import           Database.Beam.Postgres
@@ -14,17 +15,20 @@ import           Database.Beam.Postgres.Syntax
 import           Database.Beam.Query
 import           Database.Beam.Query.Internal
 
-runSql :: PGPool -> Pg a -> IO a
+runSql ::
+       DBConn
+    -> Pg a
+    -> IO a
 runSql pool query' = do
-  conn <- getIOConnFromPool pool
+  conn <- getConnFromPool pool
   runBeamPostgres conn query'
 
-runSqlM :: (MonadReader Config m, MonadIO m) =>
-     Pg a
-  -> m a
+runSqlM :: (MonadIO m, MonadReader r m, HasDBConn r)
+    => Pg a
+    -> m a
 runSqlM query' = do
-  Config{..} <- ask
-  liftIO $ runSql getPool query'
+  conn <- view dBConn
+  liftIO $ runSql conn query'
 
 
 runQueryM :: (ThreadRewritable (QNested QueryInaccessible) a,
@@ -45,7 +49,8 @@ runQueryM :: (ThreadRewritable (QNested QueryInaccessible) a,
         (QExprToIdentity
             (WithRewrittenThread
               (QNested QueryInaccessible) QueryInaccessible a)),
-       MonadReader Config m,
+       MonadReader r m,
+       HasDBConn r,
        MonadIO m
              ) =>
          Optional Limit
@@ -61,7 +66,7 @@ runQueryM optionalLimit query' = do
         $ query'
   where
     fromOptionalLimit :: Optional Limit -> Integer
-    fromOptionalLimit Default          = 10
+    fromOptionalLimit Default                   = 10
     fromOptionalLimit (Specific (Limit limit')) = limit'
 
 defaultLimit :: Limit
@@ -87,7 +92,8 @@ runQuerySingle :: (FromBackendRow
             (QNested QueryInaccessible) QueryInaccessible a),
         ProjectibleWithPredicate ValueContext PgExpressionSyntax a,
         ThreadRewritable (QNested QueryInaccessible) a,
-       MonadReader Config m,
+       MonadReader r m,
+       HasDBConn r,
        MonadIO m
     ) =>
          Q PgSelectSyntax db (QNested QueryInaccessible) a
@@ -103,9 +109,8 @@ runQuerySingle query' = do
     (_:_) -> panic "More than one result found"
 
 
-runInsertM :: (MonadIO m, MonadReader Config m) =>
+runInsertM :: (MonadIO m, MonadReader r m, HasDBConn r) =>
               SqlInsert PgInsertSyntax -> m ()
 runInsertM insertStmt = do
-  Config{..} <- ask
-  liftIO $ runSql getPool (runInsert insertStmt)
+  runSqlM (runInsert insertStmt)
 

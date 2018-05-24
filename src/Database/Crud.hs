@@ -29,7 +29,8 @@ getEntities :: ( Beamable inner
                , Generic (inner Exposed)
                , Database.Beam.Backend.Types.GFromBackendRow
                           Postgres (Rep (inner Exposed)) (Rep (inner Identity))
-               , MonadReader Config m
+               , MonadReader r m
+               , HasDBConn r
                , MonadIO m
                )
             => DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity inner))
@@ -45,7 +46,8 @@ getEntity :: ( Beamable inner
                , Generic (inner Identity)
                , Generic (inner Exposed)
                , GFromBackendRow Postgres (Rep (inner Exposed)) (Rep (inner Identity))
-               , MonadReader Config m
+               , MonadReader r m
+               , HasDBConn r
                , MonadIO m
                )
             => DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity inner))

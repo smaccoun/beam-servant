@@ -1,10 +1,12 @@
-{-# LANGUAGE DataKinds     #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DataKinds       #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeOperators   #-}
 
 module Config.DBConfig where
 
 import           App
 import           AppPrelude
+import           Control.Lens.TH
 import qualified Data.Text                  as T
 import qualified Database.PostgreSQL.Simple as PGS
 import           Prelude                    (read)
@@ -18,6 +20,8 @@ data DBConfig =
     ,dbUsername :: T.Text
     ,dbPassword :: T.Text
     }
+
+makeClassy ''DBConfig
 
 
 getDBConnectionInfo :: Environment -> IO DBConfig

@@ -6,7 +6,7 @@
 module Api.Resource where
 
 import           App
-import           GHC.TypeLits
+import           AppPrelude
 import           Servant
 
 
@@ -16,12 +16,10 @@ type RResourceAPI (resourceName :: Symbol) a i = resourceName :>
   :<|> Capture "id" i    :> Get '[JSON] a
   )
 
-type RResourceServer name a i =
-     AppM [a]
-  -> (i -> AppM a)
-  -> ServerT (RResourceAPI name a i) AppM
-
-rResourceServer :: RResourceServer name a i
+rResourceServer ::
+     m [a]
+  -> (i -> m a)
+  -> ServerT (RResourceAPI name a i) m
 rResourceServer listAs getA =
   listAs :<|> getA
 
