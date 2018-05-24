@@ -14,6 +14,7 @@ import           Database.Beam.Postgres
 import           Database.Beam.Postgres.Syntax
 import           Database.Beam.Query
 import           Database.Beam.Query.Internal
+import           Pagination
 
 runSql ::
        DBConn
@@ -68,11 +69,6 @@ runQueryM optionalLimit query' = do
     fromOptionalLimit :: Optional Limit -> Integer
     fromOptionalLimit Default                   = 10
     fromOptionalLimit (Specific (Limit limit')) = limit'
-
-defaultLimit :: Limit
-defaultLimit = Limit 10
-
-newtype Limit = Limit {unLimit :: Integer}
 
 runQuerySingle :: (FromBackendRow
           Postgres

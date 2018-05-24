@@ -22,6 +22,7 @@ import           Database.MasterEntity
 import           Database.Schema
 import           Database.Transaction
 import           GHC.Generics                (Generic)
+import           Pagination                  (Pagination (..))
 
 getEntities :: ( Beamable inner
                , Typeable inner
@@ -33,10 +34,11 @@ getEntities :: ( Beamable inner
                , HasDBConn r
                , MonadIO m
                )
-            => DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity inner))
+            => Pagination
+            -> DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity inner))
             -> m [AppEntity inner Identity]
-getEntities t = do
-  runQueryM Default
+getEntities (Pagination limit _) t = do
+  runQueryM (Specific limit)
     $ orderBy_ (\e -> (desc_ (e ^. updated_at)))
     $ all_ t
 

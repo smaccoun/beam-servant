@@ -10,13 +10,14 @@ import           Data.Time.Clock        (UTCTime, getCurrentTime)
 import           Data.UUID              (UUID)
 import           Database.Beam
 import           Database.Beam.Postgres (PgInsertSyntax)
-import           Database.MasterEntity  (AppEntity (..), table)
 import           Database.Crud
+import           Database.MasterEntity  (AppEntity (..), table)
 import           Database.Schema        (userTable)
 import           Database.Tables.User
 import           Database.Transaction
 import           Models.Credentials     (Email (..), Password (..))
 import           Models.User            (UserResponse)
+import           Pagination
 import           Servant
 
 type UserAPI = RResourceAPI "users" UserEntity UUID
@@ -27,7 +28,7 @@ userServer _ = do
 
 getUsers :: (MonadIO m, MonadReader r m, HasDBConn r) => m [UserEntity]
 getUsers =
-  getEntities userTable
+  getEntities (pagination DefaultLimit (Offset 0)) userTable
 
 getUser :: (MonadIO m, MonadReader r m, HasDBConn r) => UUID -> m UserEntity
 getUser userId' =

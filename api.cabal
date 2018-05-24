@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f252351447d496df6d4518020be2214da40854c16ae6ac94890f6f7e021fb95e
+-- hash: 19c423c09db8b2fd96bdbd78954f6b069d4785c58bc3e556ef0cb72c828dda49
 
 name:           api
 version:        0.1.0.0
@@ -86,6 +86,7 @@ library
       Models.Credentials
       Models.Login
       Models.User
+      Pagination
   other-modules:
       Paths_api
   default-language: Haskell2010
