@@ -22,16 +22,11 @@ data Pagination =
     , pageOffset :: Offset
     }
 
-data LimitArg = DefaultLimit | CustomLimit Limit
-
-pagination :: LimitArg -> Offset -> Pagination
-pagination limitArg offset =
+pagination :: Maybe Limit -> Maybe Offset -> Pagination
+pagination mbLimit mbOffset =
   Pagination
-    {pageLimit =
-       case limitArg of
-         DefaultLimit       -> defaultLimit
-         CustomLimit limit' -> limit'
-    ,pageOffset = offset
+    {pageLimit = fromMaybe defaultLimit mbLimit
+    ,pageOffset = fromMaybe (Offset 0) mbOffset
     }
 
 data PaginatedResult entity = PaginatedResult
@@ -182,12 +177,15 @@ getPaginationContext (Pagination (Limit perPage) (Offset currentPage) ) (TotalCo
     count' = fromIntegral count
 
 
-type PaginatedGetAPI getReturn =
-       (  QueryParam "limit" Int
+type PaginatedGetAPI a =
+       (  PaginationParams
+       :> Get '[JSON] (PaginatedResult a)
+       )
+
+type PaginationParams =
+          QueryParam "limit" Int
        :> QueryParam "page" Int
        :> QueryParam "orderBy" Text
-       :> Get '[JSON] getReturn
-       )
 
 
 type RPaginatedResultAPI (resourceName :: Symbol) a i =

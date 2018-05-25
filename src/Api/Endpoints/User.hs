@@ -26,9 +26,13 @@ userServer :: UserResponse -> ServerT UserAPI AppM
 userServer _ = do
   rResourceServer getUsers getUser
 
-getUsers :: (MonadIO m, MonadReader r m, HasDBConn r) => m (PaginatedResult UserEntity)
-getUsers =
-  getEntities (pagination DefaultLimit (Offset 0)) DefaultOrder userTable
+getUsers :: (MonadIO m, MonadReader r m, HasDBConn r) =>
+         Maybe Integer ->
+         Maybe Integer ->
+         Maybe Text ->
+          m (PaginatedResult UserEntity)
+getUsers mbLimit mbPage _ =
+  getEntities (pagination (Limit <$> mbLimit) (Offset <$> mbPage)) DefaultOrder userTable
 
 getUser :: (MonadIO m, MonadReader r m, HasDBConn r) => UUID -> m UserEntity
 getUser userId' =
