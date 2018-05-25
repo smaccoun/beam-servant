@@ -43,6 +43,7 @@ dependencies:
 - beam-postgres
 - data-default
 - fast-logger
+- http-api-data
 - jose
 - lens
 - mtl

@@ -7,13 +7,14 @@ module Api.Resource where
 
 import           App
 import           AppPrelude
+import           Pagination
 import           Servant
 
 
 {- Read API -}
 type RResourceAPI (resourceName :: Symbol) c a i = resourceName :>
-  (    QueryParam "limit" Integer
-    :> QueryParam "page" Integer
+  (    QueryParam "limit" Limit
+    :> QueryParam "page" Offset
     :> QueryParam "orderBy" Text
     :> Get '[JSON] (c a)
 
@@ -21,7 +22,7 @@ type RResourceAPI (resourceName :: Symbol) c a i = resourceName :>
   )
 
 rResourceServer ::
-     (Maybe Integer -> Maybe Integer -> Maybe Text -> m (c a))
+     (Maybe Limit -> Maybe Offset -> Maybe Text -> m (c a))
   -> (i -> m a)
   -> ServerT (RResourceAPI name c a i) m
 rResourceServer listAs getA =

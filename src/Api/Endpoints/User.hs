@@ -27,12 +27,12 @@ userServer _ = do
   rResourceServer getUsers getUser
 
 getUsers :: (MonadIO m, MonadReader r m, HasDBConn r) =>
-         Maybe Integer ->
-         Maybe Integer ->
+         Maybe Limit ->
+         Maybe Offset ->
          Maybe Text ->
           m (PaginatedResult UserEntity)
 getUsers mbLimit mbPage _ =
-  getEntities (pagination (Limit <$> mbLimit) (Offset <$> mbPage)) DefaultOrder userTable
+  getEntities mbLimit mbPage DefaultOrder userTable
 
 getUser :: (MonadIO m, MonadReader r m, HasDBConn r) => UUID -> m UserEntity
 getUser userId' =

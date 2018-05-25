@@ -3,7 +3,6 @@
 
 module Pagination where
 
-import           Api.Resource
 import           AppPrelude
 import           Data.Aeson                   (FromJSON, ToJSON, Value (..),
                                                object, parseJSON, toJSON, (.:),
@@ -11,10 +10,17 @@ import           Data.Aeson                   (FromJSON, ToJSON, Value (..),
 import           Database.Beam.Backend.SQL
 import           Database.Beam.Query
 import           Database.Beam.Query.Internal
-import           Servant
+import qualified Web.HttpApiData as HAPI
 
-newtype Limit = Limit Integer
+newtype Limit = Limit Integer deriving (Show)
 newtype Offset = Offset Integer
+
+instance HAPI.FromHttpApiData Limit where
+  parseQueryParam l = Limit <$> HAPI.parseQueryParam l
+
+instance HAPI.FromHttpApiData Offset where
+  parseQueryParam o = Offset <$> HAPI.parseQueryParam o
+
 
 data Pagination =
   Pagination
@@ -22,8 +28,8 @@ data Pagination =
     , pageOffset :: Offset
     }
 
-pagination :: Maybe Limit -> Maybe Offset -> Pagination
-pagination mbLimit mbOffset =
+paramsToPagination :: Maybe Limit -> Maybe Offset -> Pagination
+paramsToPagination mbLimit mbOffset =
   Pagination
     {pageLimit = fromMaybe defaultLimit mbLimit
     ,pageOffset = fromMaybe (Offset 0) mbOffset
@@ -176,19 +182,5 @@ getPaginationContext (Pagination (Limit perPage) (Offset currentPage) ) (TotalCo
   where
     count' = fromIntegral count
 
-
-type PaginatedGetAPI a =
-       (  PaginationParams
-       :> Get '[JSON] (PaginatedResult a)
-       )
-
-type PaginationParams =
-          QueryParam "limit" Int
-       :> QueryParam "page" Int
-       :> QueryParam "orderBy" Text
-
-
-type RPaginatedResultAPI (resourceName :: Symbol) a i =
-  RResourceAPI resourceName PaginatedResult a i
 
 

@@ -23,7 +23,7 @@ import           Database.Schema
 import           Database.Transaction
 import           GHC.Generics                (Generic)
 import           Pagination
-import           Pagination                  (Pagination (..))
+import           Pagination                  (paramsToPagination)
 
 data OrderArg = DefaultOrder | CustomOrder Text
 
@@ -45,13 +45,15 @@ getEntities :: ( Beamable inner
                , HasDBConn r
                , MonadIO m
                )
-            => Pagination
+            => Maybe Limit
+            -> Maybe Offset
             -> OrderArg
             -> DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity inner))
             -> m (PaginatedResult (AppEntity inner Identity))
-getEntities pagination' orderArg t = do
+getEntities mbLimit mbOffset orderArg t = do
   tableCount' <- queryTableCount t
-  let paginationContext = getPaginationContext pagination' (TotalCount tableCount')
+  let pagination' = paramsToPagination mbLimit mbOffset
+      paginationContext = getPaginationContext pagination' (TotalCount tableCount')
   data' <- runQueryM $ paginateQuery pagination' baseQuery
   return $
     PaginatedResult

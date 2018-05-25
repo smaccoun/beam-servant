@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 19c423c09db8b2fd96bdbd78954f6b069d4785c58bc3e556ef0cb72c828dda49
+-- hash: 3268413c4f58a80e5ec09460380ac1652f2a1f054f28ee0895a5f47076203f3d
 
 name:           api
 version:        0.1.0.0
@@ -39,6 +39,7 @@ library
     , bytestring
     , data-default
     , fast-logger
+    , http-api-data
     , jose
     , lens
     , mtl
@@ -108,6 +109,7 @@ executable api-exe
     , bytestring
     , data-default
     , fast-logger
+    , http-api-data
     , jose
     , lens
     , mtl
@@ -158,6 +160,7 @@ test-suite api-test
     , bytestring
     , data-default
     , fast-logger
+    , http-api-data
     , jose
     , lens
     , mtl
