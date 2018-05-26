@@ -7,7 +7,6 @@
 {-# LANGUAGE TypeApplications     #-}
 {-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-{-# LANGUAGE UndecidableInstances #-}
 
 module Database.Crud where
 
@@ -122,7 +121,6 @@ createEntity table' baseEntity = do
                   default_
                   (val_ now)
               ]
-
 
 deleteByID :: (MonadIO m, MonadReader r m, HasDBConn r) =>
               DatabaseEntity be db (TableEntity (AppEntity table))

@@ -42,3 +42,21 @@ crResourceServer
   -> ServerT (CRResourceAPI name a i) AppM
 crResourceServer listAs getA postA =
   listAs :<|> getA :<|> postA
+
+
+{- Create/Read/Update API -}
+type CRUResourceAPI (resourceName :: Symbol) a i = resourceName :>
+  (    Get '[JSON] [a]
+  :<|> Capture "id" i    :> Get '[JSON] a
+  :<|> ReqBody '[JSON] a :> Post '[JSON] NoContent
+  :<|> ReqBody '[JSON] a :> Patch '[JSON] NoContent
+  )
+
+cruResourceServer
+  :: AppM [a]
+  -> (i -> AppM a)
+  -> (a -> AppM NoContent)
+  -> (a -> AppM NoContent)
+  -> ServerT (CRUResourceAPI name a i) AppM
+cruResourceServer listAs getA postA updateA =
+  listAs :<|> getA :<|> postA :<|> updateA
