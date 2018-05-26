@@ -94,10 +94,6 @@ getEntity t uuid' = do
   return result
 
 
---createEntity :: (MonadIO m, MonadReader r m, HasDBConn r, Beamable table)
---             => p
---             -> DatabaseEntity be db (TableEntity (AppEntity table))
---             -> m ()
 createEntity :: (Database.Beam.Schema.Tables.GFieldsFulfillConstraint
                   (Database.Beam.Backend.SQL.SQL92.HasSqlValueSyntax PgValueSyntax)
                   (Rep (table Exposed))
@@ -126,3 +122,12 @@ createEntity table' baseEntity = do
                   default_
                   (val_ now)
               ]
+
+
+deleteByID :: (MonadIO m, MonadReader r m, HasDBConn r) =>
+              DatabaseEntity be db (TableEntity (AppEntity table))
+              -> UUID
+              -> m ()
+deleteByID table' uuid' =
+  runSqlM $ runDelete $ delete table'
+    (\u -> u ^. appId ==. val_ uuid')

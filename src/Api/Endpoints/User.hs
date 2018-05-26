@@ -58,3 +58,9 @@ updatePassword userUUID newPassword =
   runSqlM $ runUpdate $ update userTable
     (\u -> [ u ^. table ^. password <-. val_ newPassword ])
     (\u -> u ^. appId ==. val_ userUUID )
+
+
+deleteUser :: (MonadIO m, MonadReader r m, HasDBConn r) =>
+              UUID -> m ()
+deleteUser userUUID =
+  deleteByID userTable userUUID
