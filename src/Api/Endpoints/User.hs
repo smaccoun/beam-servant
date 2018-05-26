@@ -11,7 +11,7 @@ import           Data.Text.Encoding     (encodeUtf8)
 import           Data.UUID              (UUID)
 import           Database.Beam
 import           Database.Crud
-import           Database.MasterEntity  (table)
+import           Database.MasterEntity  (table, appId)
 import           Database.Schema        (userTable)
 import           Database.Tables.User
 import           Database.Transaction
@@ -50,3 +50,11 @@ createUser :: (MonadIO m, MonadReader r m, HasDBConn r) => Email -> Password -> 
 createUser (Email email') (Password unencryptedPassword) = do
   encryptedPassword <- liftIO $ S.encryptPassIO S.defaultParams (S.Pass $ encodeUtf8 unencryptedPassword)
   createEntity userTable (User email' encryptedPassword)
+
+
+updatePassword :: (MonadIO m, MonadReader r m, HasDBConn r) =>
+                  UUID -> S.EncryptedPass -> m ()
+updatePassword userUUID newPassword =
+  runSqlM $ runUpdate $ update userTable
+    (\u -> [ u ^. table ^. password <-. val_ newPassword ])
+    (\u -> u ^. appId ==. val_ userUUID )
