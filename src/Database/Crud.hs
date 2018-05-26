@@ -13,20 +13,23 @@ module Database.Crud where
 
 import           App
 import           AppPrelude
-import           Control.Lens                hiding (element)
-import           Data.UUID                   (UUID)
+import           Control.Lens                    hiding (element)
+import           Data.Time.Clock
+import           Data.UUID                       (UUID)
 import           Database.Beam
+import           Database.Beam.Backend.SQL.SQL92
 import           Database.Beam.Backend.Types
 import           Database.Beam.Postgres
+import           Database.Beam.Postgres.Syntax
+import           Database.Beam.Schema.Tables
 import           Database.MasterEntity
 import           Database.Schema
 import           Database.Transaction
-import           GHC.Generics                (Generic)
+import           GHC.Generics                    (Generic)
 import           Pagination
-import           Pagination                  (paramsToPagination)
+import           Pagination                      (paramsToPagination)
 
 data OrderArg = DefaultOrder | CustomOrder Text
-
 
 queryTableCount :: (HasDBConn r, MonadReader r m, MonadIO m,
                           Table table, Database be db) =>
@@ -89,3 +92,37 @@ getEntity t uuid' = do
        guard_ (allItems ^. appId ==. val_ uuid')
        pure allItems
   return result
+
+
+--createEntity :: (MonadIO m, MonadReader r m, HasDBConn r, Beamable table)
+--             => p
+--             -> DatabaseEntity be db (TableEntity (AppEntity table))
+--             -> m ()
+createEntity :: (Database.Beam.Schema.Tables.GFieldsFulfillConstraint
+                  (Database.Beam.Backend.SQL.SQL92.HasSqlValueSyntax PgValueSyntax)
+                  (Rep (table Exposed))
+                  (Rep (table Identity))
+                  (Rep
+                    (table (Database.Beam.Schema.Tables.WithConstraint
+                              (Database.Beam.Backend.SQL.SQL92.HasSqlValueSyntax
+                                  PgValueSyntax)))),
+                Generic (table Exposed), Generic (table Identity),
+                Generic
+                  (table (Database.Beam.Schema.Tables.WithConstraint
+                            (Database.Beam.Backend.SQL.SQL92.HasSqlValueSyntax
+                              PgValueSyntax))),
+                Beamable table, HasDBConn r, MonadReader r m, MonadIO m)
+              => DatabaseEntity be db (TableEntity (AppEntity table))
+              -> table Identity
+              -> (m) ()
+createEntity table' baseEntity = do
+  now <- liftIO $ getCurrentTime
+  runInsertM $
+      insert table' $
+            insertExpressions
+              [ AppEntity
+                  default_
+                  (val_ baseEntity)
+                  default_
+                  (val_ now)
+              ]
