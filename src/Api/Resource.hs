@@ -37,19 +37,19 @@ rResourceServer listAs getA =
 
 {- Create/Read API -}
 
-type CreateAPI baseEntity =
-   ReqBody '[JSON] baseEntity :> Post '[JSON] ()
+type CreateAPI baseEntity appEntity =
+   ReqBody '[JSON] baseEntity :> Post '[JSON] appEntity
 
 type CRResourceAPI (resourceName :: Symbol) c a i baseEntity = resourceName :>
   (    GetListAPI c a
   :<|> GetItemAPI a i
-  :<|> CreateAPI baseEntity
+  :<|> CreateAPI baseEntity a
   )
 
 crResourceServer
   :: GetCollectionServer m c a
   -> (i -> m a)
-  -> (baseEntity -> m ())
+  -> (baseEntity -> m a)
   -> ServerT (CRResourceAPI name c a i baseEntity) m
 crResourceServer listAs getA postA =
   listAs :<|> getA :<|> postA
@@ -62,14 +62,14 @@ type UpdateAPI a i =
 type CRUResourceAPI (resourceName :: Symbol) c a i baseEntity = resourceName :>
   (    GetListAPI c a
   :<|> GetItemAPI a i
-  :<|> CreateAPI baseEntity
+  :<|> CreateAPI baseEntity a
   :<|> UpdateAPI baseEntity i
   )
 
 cruResourceServer
   :: GetCollectionServer m c a
   -> (i -> m a)
-  -> (baseEntity -> m ())
+  -> (baseEntity -> m a)
   -> (i -> baseEntity -> m ())
   -> ServerT (CRUResourceAPI name c a i baseEntity) m
 cruResourceServer listAs getA postA updateA =
@@ -82,7 +82,7 @@ type DeleteAPI i =
 type CRUDResourceAPI (resourceName :: Symbol) c a i baseEntity = resourceName :>
   (    GetListAPI c a
   :<|> GetItemAPI a i
-  :<|> CreateAPI baseEntity
+  :<|> CreateAPI baseEntity a
   :<|> UpdateAPI baseEntity i
   :<|> DeleteAPI i
   )
@@ -90,7 +90,7 @@ type CRUDResourceAPI (resourceName :: Symbol) c a i baseEntity = resourceName :>
 type CRUDResourceServer name c a i baseEntity m =
      GetCollectionServer m c a
   -> (i -> m a)
-  -> (baseEntity -> m ())
+  -> (baseEntity -> m a)
   -> (i -> baseEntity -> m ())
   -> (i -> m ())
   -> ServerT (CRUDResourceAPI name c a i baseEntity) m

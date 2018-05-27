@@ -46,7 +46,7 @@ getUserByEmail (Email email') = do
         pure users
   return $ userResult
 
-createUser :: (MonadIO m, MonadReader r m, HasDBConn r) => Email -> Password -> m ()
+createUser :: (MonadIO m, MonadReader r m, HasDBConn r) => Email -> Password -> m UserEntity
 createUser (Email email') (Password unencryptedPassword) = do
   encryptedPassword <- liftIO $ S.encryptPassIO S.defaultParams (S.Pass $ encodeUtf8 unencryptedPassword)
   createEntity userTable (User email' encryptedPassword)
