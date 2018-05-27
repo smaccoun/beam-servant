@@ -10,6 +10,7 @@
 
 module Database.Crud where
 
+import           Api.Resource
 import           App
 import           AppPrelude
 import           Control.Lens                    hiding (element)
@@ -27,8 +28,7 @@ import           Database.Transaction
 import           GHC.Generics                    (Generic)
 import           Pagination
 import           Pagination                      (paramsToPagination)
-
-data OrderArg = DefaultOrder | CustomOrder Text
+import           Servant
 
 queryTableCount :: (HasDBConn r, MonadReader r m, MonadIO m,
                           Table table, Database be db) =>
@@ -36,9 +36,7 @@ queryTableCount :: (HasDBConn r, MonadReader r m, MonadIO m,
 queryTableCount entityTable = do
   let totalCount = aggregate_ (\_ -> as_ @Int countAll_) (all_ entityTable)
   runQuerySingle $ select totalCount
-
-getEntities :: ( Beamable inner
-               , Typeable inner
+getEntities :: ( Beamable inner , Typeable inner
                , Generic (inner Identity)
                , Generic (inner Exposed)
                , Database.Beam.Backend.Types.GFromBackendRow
@@ -47,12 +45,12 @@ getEntities :: ( Beamable inner
                , HasDBConn r
                , MonadIO m
                )
-            => Maybe Limit
+            => DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity inner))
+            -> Maybe Limit
             -> Maybe Offset
-            -> OrderArg
-            -> DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity inner))
+            -> Maybe Order
             -> m (PaginatedResult (AppEntity inner Identity))
-getEntities mbLimit mbOffset orderArg t = do
+getEntities  t mbLimit mbOffset mbOrder = do
   tableCount' <- queryTableCount t
   let pagination' = paramsToPagination mbLimit mbOffset
       paginationContext = getPaginationContext pagination' (TotalCount tableCount')
@@ -68,9 +66,9 @@ getEntities mbLimit mbOffset orderArg t = do
       $ all_ t
 
     orderColumn =
-      case orderArg of
-        DefaultOrder  -> updated_at
-        CustomOrder _ -> updated_at
+      case mbOrder of
+        Nothing -> updated_at
+        Just _ -> updated_at
 
 
 getEntity :: ( Beamable inner
@@ -93,39 +91,76 @@ getEntity t uuid' = do
   return result
 
 
-createEntity :: (Database.Beam.Schema.Tables.GFieldsFulfillConstraint
-                  (Database.Beam.Backend.SQL.SQL92.HasSqlValueSyntax PgValueSyntax)
-                  (Rep (table Exposed))
-                  (Rep (table Identity))
-                  (Rep
-                    (table (Database.Beam.Schema.Tables.WithConstraint
-                              (Database.Beam.Backend.SQL.SQL92.HasSqlValueSyntax
-                                  PgValueSyntax)))),
-                Generic (table Exposed), Generic (table Identity),
-                Generic
-                  (table (Database.Beam.Schema.Tables.WithConstraint
-                            (Database.Beam.Backend.SQL.SQL92.HasSqlValueSyntax
-                              PgValueSyntax))),
-                Beamable table, HasDBConn r, MonadReader r m, MonadIO m)
-              => DatabaseEntity be db (TableEntity (AppEntity table))
-              -> table Identity
-              -> (m) ()
+createEntity :: (GFieldsFulfillConstraint
+                    (HasSqlValueSyntax PgValueSyntax)
+                    (Rep (table Exposed))
+                    (Rep (table Identity))
+                    (Rep (table (WithConstraint (HasSqlValueSyntax PgValueSyntax)))),
+                  Generic (table Exposed), Generic (table Identity),
+                  Generic (table (WithConstraint (HasSqlValueSyntax PgValueSyntax))),
+                  Beamable table, HasDBConn r, MonadReader r m, MonadIO m)
+                => DatabaseEntity be db (TableEntity (AppEntity table))
+                -> table Identity
+                -> m ()
 createEntity table' baseEntity = do
-  now <- liftIO $ getCurrentTime
+  now <- liftIO getCurrentTime
   runInsertM $
-      insert table' $
-            insertExpressions
-              [ AppEntity
-                  default_
-                  (val_ baseEntity)
-                  default_
-                  (val_ now)
-              ]
+      insert table' $ insertExpressions $
+        [ AppEntity
+          default_
+          (val_ baseEntity)
+          default_
+          (val_ now)
+        ]
 
-deleteByID :: (MonadIO m, MonadReader r m, HasDBConn r) =>
-              DatabaseEntity be db (TableEntity (AppEntity table))
+
+
+--mkFullEntity :: (Columnar f UTCTime
+--                  ~
+--                  QGenExpr ctxt2 expr2 s2 UTCTime,
+--                  Columnar f UUID ~ QGenExpr ctxt1 expr1 s1 a,
+--                  HasSqlValueSyntax (Sql92ExpressionValueSyntax expr2) UTCTime,
+--                  IsSql92ExpressionSyntax expr2, IsSql92ExpressionSyntax expr1,
+--                  SqlValable (table f), MonadIO m)
+--             => HaskellLiteralForQExpr (table f)
+--             -> m (AppEntity table f)
+--mkFullEntity baseEntity = do
+--  now <- liftIO $ getCurrentTime
+--  return $
+--  
+
+deleteByID :: (MonadIO m, MonadReader r m, HasDBConn r)
+              => DatabaseEntity be db (TableEntity (AppEntity table))
               -> UUID
               -> m ()
 deleteByID table' uuid' =
   runSqlM $ runDelete $ delete table'
     (\u -> u ^. appId ==. val_ uuid')
+
+
+
+type CrudEntityAPI (resourceName :: Symbol) a baseEntity = CRUDResourceAPI resourceName PaginatedResult a UUID baseEntity
+
+
+crudEntityServer :: (HasDBConn r, Generic (table Identity),
+                Generic (table Exposed),
+                Generic (table (WithConstraint (HasSqlValueSyntax PgValueSyntax))),
+                GFieldsFulfillConstraint
+                  (HasSqlValueSyntax PgValueSyntax)
+                  (Rep (table Exposed))
+                  (Rep (table Identity))
+                  (Rep (table (WithConstraint (HasSqlValueSyntax PgValueSyntax)))),
+                Beamable table, Typeable table,
+                GFromBackendRow
+                  Postgres (Rep (table Exposed)) (Rep (table Identity)),
+                MonadIO m, MonadReader r m) =>
+              DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity table))
+              -> (UUID -> AppEntity table Identity -> m ())
+              -> ServerT (CRUDResourceAPI name PaginatedResult (AppEntity table Identity) UUID (table Identity)) m
+crudEntityServer table' updateEntity =
+  crudResourceServer
+      (getEntities table')
+      (getEntity table')
+      (createEntity table')
+      updateEntity
+      (deleteByID table')

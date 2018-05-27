@@ -13,13 +13,13 @@ import           Servant
 type GetListAPI c a =
   QueryParam "limit" Limit
     :> QueryParam "page" Offset
-    :> QueryParam "orderBy" Text
+    :> QueryParam "orderBy" Order
     :> Get '[JSON] (c a)
 
 type GetItemAPI a i =
   Capture "id" i    :> Get '[JSON] a
 
-type GetCollectionServer m c a = (Maybe Limit -> Maybe Offset -> Maybe Text -> m (c a))
+type GetCollectionServer m c a = (Maybe Limit -> Maybe Offset -> Maybe Order -> m (c a))
 
 {- Read API -}
 type RResourceAPI (resourceName :: Symbol) c a i = resourceName :>
@@ -37,62 +37,64 @@ rResourceServer listAs getA =
 
 {- Create/Read API -}
 
-type CreateAPI a =
-   ReqBody '[JSON] a :> Post '[JSON] NoContent
+type CreateAPI baseEntity =
+   ReqBody '[JSON] baseEntity :> Post '[JSON] ()
 
-type CRResourceAPI (resourceName :: Symbol) c a i = resourceName :>
+type CRResourceAPI (resourceName :: Symbol) c a i baseEntity = resourceName :>
   (    GetListAPI c a
   :<|> GetItemAPI a i
-  :<|> CreateAPI a
+  :<|> CreateAPI baseEntity
   )
 
 crResourceServer
   :: GetCollectionServer m c a
   -> (i -> m a)
-  -> (a -> m NoContent)
-  -> ServerT (CRResourceAPI name c a i) m
+  -> (baseEntity -> m ())
+  -> ServerT (CRResourceAPI name c a i baseEntity) m
 crResourceServer listAs getA postA =
   listAs :<|> getA :<|> postA
 
 
 {- Create/Read/Update API -}
-type UpdateAPI a =
-   ReqBody '[JSON] a :> Patch '[JSON] NoContent
+type UpdateAPI a i =
+   Capture "id" i :> ReqBody '[JSON] a :> Patch '[JSON] ()
 
-type CRUResourceAPI (resourceName :: Symbol) c a i = resourceName :>
+type CRUResourceAPI (resourceName :: Symbol) c a i baseEntity = resourceName :>
   (    GetListAPI c a
   :<|> GetItemAPI a i
-  :<|> CreateAPI a
-  :<|> UpdateAPI a
+  :<|> CreateAPI baseEntity
+  :<|> UpdateAPI a i
   )
 
 cruResourceServer
   :: GetCollectionServer m c a
   -> (i -> m a)
-  -> (a -> m NoContent)
-  -> (a -> m NoContent)
-  -> ServerT (CRUResourceAPI name c a i) m
+  -> (baseEntity -> m ())
+  -> (i -> a -> m ())
+  -> ServerT (CRUResourceAPI name c a i baseEntity) m
 cruResourceServer listAs getA postA updateA =
   listAs :<|> getA :<|> postA :<|> updateA
 
 {- Create/Read/Update/Delete API -}
-type DeleteAPI a i =
-   Capture "id" i :> Delete '[JSON] NoContent
+type DeleteAPI i =
+   Capture "id" i :> Delete '[JSON] ()
 
-type CRUDResourceAPI (resourceName :: Symbol) c a i = resourceName :>
+type CRUDResourceAPI (resourceName :: Symbol) c a i baseEntity = resourceName :>
   (    GetListAPI c a
   :<|> GetItemAPI a i
-  :<|> CreateAPI a
-  :<|> UpdateAPI a
-  :<|> DeleteAPI a i
+  :<|> CreateAPI baseEntity
+  :<|> UpdateAPI a i
+  :<|> DeleteAPI i
   )
 
-crudResourceServer
-  :: GetCollectionServer m c a
+type CRUDResourceServer name c a i baseEntity m =
+     GetCollectionServer m c a
   -> (i -> m a)
-  -> (a -> m NoContent)
-  -> (a -> m NoContent)
-  -> (i -> m NoContent)
-  -> ServerT (CRUDResourceAPI name c a i) m
+  -> (baseEntity -> m ())
+  -> (i -> a -> m ())
+  -> (i -> m ())
+  -> ServerT (CRUDResourceAPI name c a i baseEntity) m
+
+crudResourceServer :: CRUDResourceServer name c a i baseEntity m
 crudResourceServer listAs getA postA updateA deleteA =
   listAs :<|> getA :<|> postA :<|> updateA :<|> deleteA

@@ -13,13 +13,18 @@ import           Database.Beam.Query.Internal
 import qualified Web.HttpApiData as HAPI
 
 newtype Limit = Limit Integer deriving (Show)
-newtype Offset = Offset Integer
+newtype Offset = Offset Integer deriving (Show)
+data Order = Order Text deriving (Show)
+
 
 instance HAPI.FromHttpApiData Limit where
   parseQueryParam l = Limit <$> HAPI.parseQueryParam l
 
 instance HAPI.FromHttpApiData Offset where
   parseQueryParam o = Offset <$> HAPI.parseQueryParam o
+
+instance HAPI.FromHttpApiData Order where
+  parseQueryParam o = Order <$> HAPI.parseQueryParam o
 
 
 data Pagination =

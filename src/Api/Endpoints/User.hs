@@ -29,10 +29,10 @@ userServer _ = do
 getUsers :: (MonadIO m, MonadReader r m, HasDBConn r) =>
          Maybe Limit ->
          Maybe Offset ->
-         Maybe Text ->
+         Maybe Order ->
           m (PaginatedResult UserEntity)
-getUsers mbLimit mbPage _ =
-  getEntities mbLimit mbPage DefaultOrder userTable
+getUsers mbLimit mbPage mbOrder =
+  getEntities userTable mbLimit mbPage mbOrder
 
 getUser :: (MonadIO m, MonadReader r m, HasDBConn r) => UUID -> m UserEntity
 getUser userId' =
