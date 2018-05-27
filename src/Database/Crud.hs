@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveGeneric        #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE OverloadedStrings    #-}
+{-# LANGUAGE RankNTypes           #-}
 {-# LANGUAGE StandaloneDeriving   #-}
 {-# LANGUAGE TemplateHaskell      #-}
 {-# LANGUAGE TypeApplications     #-}
@@ -68,7 +69,7 @@ getEntities  t mbLimit mbOffset mbOrder = do
     orderColumn =
       case mbOrder of
         Nothing -> updated_at
-        Just _ -> updated_at
+        Just _  -> updated_at
 
 
 getEntity :: ( Beamable inner
@@ -112,22 +113,6 @@ createEntity table' baseEntity = do
           default_
           (val_ now)
         ]
-
-
-
---mkFullEntity :: (Columnar f UTCTime
---                  ~
---                  QGenExpr ctxt2 expr2 s2 UTCTime,
---                  Columnar f UUID ~ QGenExpr ctxt1 expr1 s1 a,
---                  HasSqlValueSyntax (Sql92ExpressionValueSyntax expr2) UTCTime,
---                  IsSql92ExpressionSyntax expr2, IsSql92ExpressionSyntax expr1,
---                  SqlValable (table f), MonadIO m)
---             => HaskellLiteralForQExpr (table f)
---             -> m (AppEntity table f)
---mkFullEntity baseEntity = do
---  now <- liftIO $ getCurrentTime
---  return $
---  
 
 deleteByID :: (MonadIO m, MonadReader r m, HasDBConn r)
               => DatabaseEntity be db (TableEntity (AppEntity table))

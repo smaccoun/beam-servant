@@ -23,7 +23,7 @@ import           GHC.Generics         (Generic)
 data AppEntity table f
     = AppEntity
     { _appId      :: C f UUID
-    , _table      :: table f
+    , _baseTable  :: table f
     , _created_at :: C f UTCTime
     , _updated_at :: C f UTCTime
     } deriving (Generic)
@@ -43,7 +43,7 @@ dropLensUnderOption =
 
 instance (ToJSON (t Identity)) => ToJSON (AppEntity t Identity) where
   toJSON appEntity =
-    case A.toJSON (appEntity ^. table) of
+    case A.toJSON (appEntity ^. baseTable) of
       Object o -> Object $
         HMS.union o $ HMS.fromList $
             [("id" , appEntity ^. appId & A.toJSON)

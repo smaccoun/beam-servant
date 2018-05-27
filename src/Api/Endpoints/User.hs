@@ -11,7 +11,7 @@ import           Data.Text.Encoding     (encodeUtf8)
 import           Data.UUID              (UUID)
 import           Database.Beam
 import           Database.Crud
-import           Database.MasterEntity  (table, appId)
+import           Database.MasterEntity  (baseTable, appId)
 import           Database.Schema        (userTable)
 import           Database.Tables.User
 import           Database.Transaction
@@ -42,7 +42,7 @@ getUserByEmail :: (MonadIO m, MonadReader r m, HasDBConn r) => Email -> m UserEn
 getUserByEmail (Email email') = do
   userResult <- runQuerySingle $ select $
     do  users <- all_ (userTable)
-        guard_ (users ^. table ^. email ==. val_ email')
+        guard_ (users ^. baseTable ^. email ==. val_ email')
         pure users
   return $ userResult
 
@@ -56,7 +56,7 @@ updatePassword :: (MonadIO m, MonadReader r m, HasDBConn r) =>
                   UUID -> S.EncryptedPass -> m ()
 updatePassword userUUID newPassword =
   runSqlM $ runUpdate $ update userTable
-    (\u -> [ u ^. table ^. password <-. val_ newPassword ])
+    (\u -> [ u ^. baseTable ^. password <-. val_ newPassword ])
     (\u -> u ^. appId ==. val_ userUUID )
 
 

@@ -14,7 +14,7 @@ import           AppPrelude
 import           Control.Lens          hiding (element)
 import           Data.Aeson
 import           Data.UUID             (UUID)
-import           Database.MasterEntity (appId, table)
+import           Database.MasterEntity (appId, baseTable)
 import qualified Database.Tables.User  as UT (UserT, email)
 import           GHC.Generics          (Generic)
 import           Models.Credentials    (Email (..))
@@ -38,5 +38,5 @@ userApiFromUserDB :: UT.UserT Identity -> UserResponse
 userApiFromUserDB userT =
   UserResponse
     {_id = userT ^. appId
-    ,_email = Email $ userT ^. table ^. UT.email
+    ,_email = Email $ userT ^. baseTable ^. UT.email
     }
