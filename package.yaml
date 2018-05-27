@@ -43,10 +43,12 @@ dependencies:
 - beam-postgres
 - data-default
 - fast-logger
+- http-api-data
 - jose
 - lens
 - mtl
 - natural-transformation
+- optional-args
 - postgresql-simple
 - protolude
 - resource-pool

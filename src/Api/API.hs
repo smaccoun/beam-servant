@@ -16,11 +16,13 @@ import           Api.Endpoints.User
 import           App
 import           AppPrelude
 import           Data.Swagger                        (Swagger, ToSchema)
+import           Data.Swagger.Internal.ParamSchema
 import           Data.Text                           (Text)
-import           Database.Tables.BlogPost            (BlogPostEntity, BlogPost)
+import           Database.Tables.BlogPost            (BlogPost, BlogPostEntity)
 import           Models.Credentials                  (Email, Password)
 import           Models.Login
 import           Models.User                         (UserResponse (..))
+import           Pagination
 import           Servant
 import           Servant.Auth.Server
 import           Servant.Auth.Server.SetCookieOrphan ()
@@ -70,6 +72,12 @@ serverAPI jwts =
 
 swaggerUnprotected :: Swagger
 swaggerUnprotected = toSwagger unprotectedProxy
+
+instance ToSchema PaginationContext
+instance (ToSchema a) => ToSchema (PaginatedResult a)
+instance ToParamSchema Limit
+instance ToParamSchema Offset
+instance ToParamSchema Order
 
 instance ToSchema Login
 instance ToSchema Email

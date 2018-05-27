@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c3cff6106c69830fe3ebda387f9d8ca9bac000f5f247002c5f1f0fddc4ea79b3
+-- hash: a2f4c7553e474427e64f5a66623c49841e9006393283812e79d9d9d352e67927
 
 name:           api
 version:        0.1.0.0
@@ -39,10 +39,12 @@ library
     , bytestring
     , data-default
     , fast-logger
+    , http-api-data
     , jose
     , lens
     , mtl
     , natural-transformation
+    , optional-args
     , postgresql-simple
     , protolude
     , regex-compat
@@ -87,6 +89,7 @@ library
       Models.Credentials
       Models.Login
       Models.User
+      Pagination
   other-modules:
       Paths_api
   default-language: Haskell2010
@@ -108,10 +111,12 @@ executable api-exe
     , bytestring
     , data-default
     , fast-logger
+    , http-api-data
     , jose
     , lens
     , mtl
     , natural-transformation
+    , optional-args
     , postgresql-simple
     , protolude
     , regex-compat
@@ -157,10 +162,12 @@ test-suite api-test
     , bytestring
     , data-default
     , fast-logger
+    , http-api-data
     , jose
     , lens
     , mtl
     , natural-transformation
+    , optional-args
     , postgresql-simple
     , protolude
     , regex-compat

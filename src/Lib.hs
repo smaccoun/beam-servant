@@ -33,14 +33,14 @@ startApp charArgs = do
     env  <- lookupEnvDefault "SERVANT_ENV" Development
     port <- lookupEnvDefault "SERVANT_PORT" 8080
 
-    (config, logTo) <- setAppConfig env args
-    let logger = getLogger config
+    (config', logTo) <- setAppConfig env args
+    let logger = _appLogger config'
 
     midware <- makeMiddleware logger env
     FL.pushLogStr logger $ FL.toLogStr $ logInitialMetaInfo port env logTo args
     Warp.run port
       $ midware
-      $ app config
+      $ app config'
 
 
 logInitialMetaInfo :: (Show a, Show a1, Show a2) =>
@@ -64,7 +64,6 @@ setAppConfig env args = do
     logger  <- makeLogger logTo
 
     jwkJsonString <- fmap (LBS.fromStrict . encodeUtf8) $ lookupEnvOrError "AUTH_JWK"
-    putStrLn jwkJsonString
     let eitherJWKJson = (A.eitherDecode jwkJsonString :: Either String Jose.JWK)
         jwk =
           case eitherJWKJson of
@@ -73,24 +72,24 @@ setAppConfig env args = do
 
     return (Config logger pool jwk, logTo)
 
-getDBConnection :: Environment -> IO PGPool
+getDBConnection :: Environment -> IO DBConn
 getDBConnection env = do
     dbConfig <- getDBConnectionInfo  env
-    mkPool $ connInfoToPG dbConfig
+    fmap DBConn $ mkPool $ connInfoToPG dbConfig
 
 
 app :: App.Config -> Wai.Application
-app config@(Config _ _ authKey) = do
+app config'@(Config _ _ authKey) = do
     let jwtCfg = defaultJWTSettings authKey
         cfg = defaultCookieSettings S.:. jwtCfg S.:. S.EmptyContext
         apiWithDocs = (Proxy :: Proxy ApiWithDocs)
-    S.serveWithContext apiWithDocs cfg (serverWithDocs config jwtCfg)
+    S.serveWithContext apiWithDocs cfg (serverWithDocs config' jwtCfg)
 
 appServer :: App.Config -> JWTSettings ->  S.Server (API auths)
-appServer config jwtConfig =
+appServer config' jwtConfig =
   let c = Proxy :: Proxy '[CookieSettings, JWTSettings]
   in
-  hoistServerWithContext api c (runCustomHandler config) (serverAPI jwtConfig)
+  hoistServerWithContext api c (runCustomHandler config') (serverAPI jwtConfig)
 
 type ApiWithDocs =
        API '[JWT]
@@ -99,14 +98,14 @@ type ApiWithDocs =
 type SwaggerAPI = SUI.SwaggerSchemaUI "swagger-ui" "swagger.json"
 
 serverWithDocs :: App.Config -> JWTSettings ->  S.Server ApiWithDocs
-serverWithDocs config jwtConfig =
-       appServer config jwtConfig
+serverWithDocs config' jwtConfig =
+       appServer config' jwtConfig
   :<|> SUI.swaggerSchemaUIServer swaggerUnprotected
 
 
 runCustomHandler :: Config -> AppM a -> S.Handler a
-runCustomHandler config handler =
-  catchError (nt config handler) errorHandler
+runCustomHandler config' handler =
+  catchError (nt config' handler) errorHandler
   where
     errorHandler :: S.ServantErr -> S.Handler a
     errorHandler err = errorHandler' err (S.errHTTPCode err)
@@ -116,4 +115,4 @@ runCustomHandler config handler =
       S.throwError err
 
 nt :: App.Config -> AppM a -> S.Handler a
-nt s (AppM x) = runReaderT x s
+nt s x = runReaderT (runAppM x) s

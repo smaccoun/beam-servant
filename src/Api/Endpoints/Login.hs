@@ -12,7 +12,7 @@ import qualified Data.ByteString.Lazy  as BSL
 import           Data.Text             (Text)
 import           Data.Text.Encoding    (encodeUtf8)
 import           Data.UUID             (UUID)
-import           Database.MasterEntity (appId, table)
+import           Database.MasterEntity (appId, baseTable)
 import           Database.Tables.User  as UT (UserEntity, password)
 import           Models.Credentials    (Password (..))
 import           Models.Login
@@ -57,4 +57,4 @@ loginUserPassword jwtCfg (Login loginEmail loginPassword) = do
 
 hasCorrectPassword :: UserEntity -> Password -> Bool
 hasCorrectPassword userT (Password password') =
-  fst $  S.verifyPass S.defaultParams (S.Pass $ encodeUtf8 password') (userT ^. table ^. UT.password)
+  fst $  S.verifyPass S.defaultParams (S.Pass $ encodeUtf8 password') (userT ^. baseTable ^. UT.password)

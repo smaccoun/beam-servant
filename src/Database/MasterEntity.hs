@@ -23,7 +23,7 @@ import           GHC.Generics         (Generic)
 data AppEntity table f
     = AppEntity
     { _appId      :: C f UUID
-    , _table      :: table f
+    , _baseTable  :: table f
     , _created_at :: C f UTCTime
     , _updated_at :: C f UTCTime
     } deriving (Generic)
@@ -42,13 +42,8 @@ dropLensUnderOption =
           A.fieldLabelModifier = drop 1 }
 
 instance (ToJSON (t Identity)) => ToJSON (AppEntity t Identity) where
-  toJSON = defaultAppEntityJSON
-
-defaultAppEntityJSON :: (ToJSON (table f),
-                        ToJSON (Columnar f UTCTime), ToJSON (Columnar f UUID)) =>
-                      AppEntity table f -> Value
-defaultAppEntityJSON appEntity =
-    case A.toJSON (appEntity ^. table) of
+  toJSON appEntity =
+    case A.toJSON (appEntity ^. baseTable) of
       Object o -> Object $
         HMS.union o $ HMS.fromList $
             [("id" , appEntity ^. appId & A.toJSON)

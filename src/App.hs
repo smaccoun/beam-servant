@@ -1,9 +1,11 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TemplateHaskell            #-}
 
 module App where
 
 import           AppPrelude                 hiding (traceIO)
 
+import           Control.Lens.TH
 import           Control.Monad.IO.Class     (liftIO)
 import           Control.Monad.Trans.Reader (ReaderT)
 import           Crypto.JOSE.JWK            (JWK)
@@ -31,10 +33,17 @@ data LogTo
   deriving (Show, Eq, Read)
 
 data Config = Config
-  { getLogger  :: LoggerSet
-  , getPool    :: Pool PGS.Connection
-  , getAuthKey :: JWK
+  { _appLogger  :: LoggerSet
+  , _appDBConn  :: DBConn
+  , _appAuthKey :: JWK
   }
+
+data DBConn = DBConn {
+    _dbPoolConn :: Pool PGS.Connection
+    }
+
+makeLenses ''Config
+makeClassy ''DBConn
 
 newtype AppM a =
   AppM
@@ -48,11 +57,12 @@ newtype AppM a =
     , MonadError Servant.ServantErr
     )
 
-type PGPool = Pool PGS.Connection
+instance HasDBConn Config where
+  dBConn = appDBConn
 
 addToLogger :: Text -> AppM ()
 addToLogger message =
-  AppPrelude.ask >>= \cfg -> liftIO $ pushLogStrLn (getLogger cfg) (toLogStr message)
+  AppPrelude.ask >>= \cfg -> liftIO $ pushLogStrLn (_appLogger cfg) (toLogStr message)
 
 makeLogger :: LogTo -> IO LoggerSet
 makeLogger logTo = case logTo of
@@ -60,20 +70,13 @@ makeLogger logTo = case logTo of
         STDErr        -> FL.newStderrLoggerSet FL.defaultBufSize
         File filename -> FL.newFileLoggerSet FL.defaultBufSize $ unpack filename
 
-getConnFromPool :: Pool PGS.Connection -> AppM PGS.Connection
-getConnFromPool pool = liftIO $ getIOConnFromPool pool
-
-getIOConnFromPool :: Pool PGS.Connection -> IO PGS.Connection
-getIOConnFromPool pool = withResource pool return
-
-
-getConn :: AppM PGS.Connection
-getConn = ask >>= getConnFromPool . getPool
+getConnFromPool :: MonadIO m => DBConn -> m PGS.Connection
+getConnFromPool (DBConn pool) = liftIO $ withResource pool return
 
 
 mkPool :: PGS.ConnectInfo -> IO (Pool PGS.Connection)
 mkPool con =
-  createPool start PGS.close 10 (0.5) 10
+  createPool start PGS.close 10 10 5
     where
       start = PGS.connect con
 
