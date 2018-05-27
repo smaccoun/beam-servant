@@ -114,6 +114,24 @@ createEntity table' baseEntity = do
           (val_ now)
         ]
 
+updateByID :: (GFieldsFulfillConstraint
+                  (HasSqlValueSyntax PgValueSyntax)
+                  (Rep (table Exposed))
+                  (Rep (table Identity))
+                  (Rep (table (WithConstraint (HasSqlValueSyntax PgValueSyntax)))),
+                Generic (table Exposed), Generic (table Identity),
+                Generic (table (WithConstraint (HasSqlValueSyntax PgValueSyntax))),
+                Beamable table, MonadIO m, MonadReader r m, HasDBConn r) =>
+              DatabaseEntity be db (TableEntity (AppEntity table))
+              -> UUID -> table Identity -> m ()
+updateByID table' uuid' baseEntity' = do
+  now <- liftIO getCurrentTime
+  runSqlM $ runUpdate $ update table'
+    (\u -> [ u ^. baseTable <-. val_ baseEntity'
+           , u ^. updated_at <-. val_ now
+           ])
+    (\u -> u ^. appId ==. val_ uuid' )
+
 deleteByID :: (MonadIO m, MonadReader r m, HasDBConn r)
               => DatabaseEntity be db (TableEntity (AppEntity table))
               -> UUID
@@ -138,14 +156,13 @@ crudEntityServer :: (HasDBConn r, Generic (table Identity),
                 Beamable table, Typeable table,
                 GFromBackendRow
                   Postgres (Rep (table Exposed)) (Rep (table Identity)),
-                MonadIO m, MonadReader r m) =>
-              DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity table))
-              -> (UUID -> AppEntity table Identity -> m ())
+                MonadIO m, MonadReader r m)
+              => DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity table))
               -> ServerT (CRUDResourceAPI name PaginatedResult (AppEntity table Identity) UUID (table Identity)) m
-crudEntityServer table' updateEntity =
+crudEntityServer table' =
   crudResourceServer
       (getEntities table')
       (getEntity table')
       (createEntity table')
-      updateEntity
+      (updateByID table')
       (deleteByID table')

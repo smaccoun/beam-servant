@@ -63,14 +63,14 @@ type CRUResourceAPI (resourceName :: Symbol) c a i baseEntity = resourceName :>
   (    GetListAPI c a
   :<|> GetItemAPI a i
   :<|> CreateAPI baseEntity
-  :<|> UpdateAPI a i
+  :<|> UpdateAPI baseEntity i
   )
 
 cruResourceServer
   :: GetCollectionServer m c a
   -> (i -> m a)
   -> (baseEntity -> m ())
-  -> (i -> a -> m ())
+  -> (i -> baseEntity -> m ())
   -> ServerT (CRUResourceAPI name c a i baseEntity) m
 cruResourceServer listAs getA postA updateA =
   listAs :<|> getA :<|> postA :<|> updateA
@@ -83,7 +83,7 @@ type CRUDResourceAPI (resourceName :: Symbol) c a i baseEntity = resourceName :>
   (    GetListAPI c a
   :<|> GetItemAPI a i
   :<|> CreateAPI baseEntity
-  :<|> UpdateAPI a i
+  :<|> UpdateAPI baseEntity i
   :<|> DeleteAPI i
   )
 
@@ -91,7 +91,7 @@ type CRUDResourceServer name c a i baseEntity m =
      GetCollectionServer m c a
   -> (i -> m a)
   -> (baseEntity -> m ())
-  -> (i -> a -> m ())
+  -> (i -> baseEntity -> m ())
   -> (i -> m ())
   -> ServerT (CRUDResourceAPI name c a i baseEntity) m
 
