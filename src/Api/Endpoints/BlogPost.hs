@@ -11,7 +11,6 @@ import           Database.Crud
 import           Database.MasterEntity
 import           Database.Schema
 import           Database.Tables.BlogPost
-import           Models.User              (UserResponse (..))
 import           Pagination
 import           Servant
 
@@ -35,17 +34,20 @@ getBlogPost blogPostId' =
 type BlogPostMutateAPI = "blogPost" :>
        CreateAPI BlogPost BlogPostEntity
   :<|> UpdateAPI BlogPost UUID
+  :<|> DeleteAPI UUID
 
 instance FromJSON BlogPost
 
-blogPostMutateServer :: (HasDBConn r2, HasDBConn r1,
-                          MonadReader r2 m2, MonadReader r1 m1, MonadIO m2, MonadIO m1) =>
-                        UserResponse
-                        -> (BlogPost -> m1 BlogPostEntity)
-                      :<|> (UUID -> BlogPost -> m2 ())
+blogPostMutateServer :: (MonadIO m3, MonadIO m2, MonadIO m1,
+                          MonadReader r3 m3, MonadReader r2 m2, MonadReader r1 m1,
+                          HasDBConn r3, HasDBConn r2, HasDBConn r1) =>
+                        p
+                        -> (BlogPostBaseT Identity -> m1 BlogPostEntity)
+                            :<|> ((UUID -> BlogPost -> m2 ()) :<|> (UUID -> m3 ()))
 blogPostMutateServer _ =
        createBlogPost
   :<|> updateBlogPost
+  :<|> deleteBlogPost
 
 createBlogPost :: (MonadIO m, MonadReader r m, HasDBConn r)
                   => BlogPostBaseT Identity
@@ -60,3 +62,8 @@ updateBlogPost :: (MonadIO m, MonadReader r m, HasDBConn r)
                 -> m ()
 updateBlogPost = updateByID blogPostTable
 
+
+deleteBlogPost :: (HasDBConn r, MonadReader r m, MonadIO m) =>
+                  UUID -> m ()
+deleteBlogPost uuid' =
+  deleteByID blogPostTable uuid'
