@@ -14,9 +14,9 @@ module Database.Crud where
 import           Api.Resource
 import           App
 import           AppPrelude
-import           Control.Lens                    hiding (element)
+import           Control.Lens                             hiding (element)
 import           Data.Time.Clock
-import           Data.UUID                       (UUID)
+import           Data.UUID                                (UUID)
 import           Database.Beam
 import           Database.Beam.Backend.SQL.SQL92
 import           Database.Beam.Backend.Types
@@ -26,9 +26,9 @@ import           Database.Beam.Schema.Tables
 import           Database.MasterEntity
 import           Database.Schema
 import           Database.Transaction
-import           GHC.Generics                    (Generic)
+import           GHC.Generics                             (Generic)
 import           Pagination
-import           Pagination                      (paramsToPagination)
+import           Pagination                               (paramsToPagination)
 import           Servant
 
 queryTableCount :: (HasDBConn r, MonadReader r m, MonadIO m,
@@ -99,20 +99,25 @@ createEntity :: (GFieldsFulfillConstraint
                     (Rep (table (WithConstraint (HasSqlValueSyntax PgValueSyntax)))),
                   Generic (table Exposed), Generic (table Identity),
                   Generic (table (WithConstraint (HasSqlValueSyntax PgValueSyntax))),
-                  Beamable table, HasDBConn r, MonadReader r m, MonadIO m)
-                => DatabaseEntity be db (TableEntity (AppEntity table))
+                  Beamable table, MonadReader r m, HasDBConn r,
+                  GFromBackendRow
+                    Postgres (Rep (table Exposed)) (Rep (table Identity)),
+                  MonadIO m)
+                => DatabaseEntity Postgres db (TableEntity (AppEntity table))
                 -> table Identity
-                -> m ()
+                -> m (AppEntity table Identity)
 createEntity table' baseEntity = do
   now <- liftIO getCurrentTime
-  runInsertM $
-      insert table' $ insertExpressions $
-        [ AppEntity
-          default_
-          (val_ baseEntity)
-          default_
-          (val_ now)
-        ]
+  res <- runInsertM table' $ insertExpressions $
+          [ AppEntity
+            default_
+            (val_ baseEntity)
+            default_
+            (val_ now)
+          ]
+  case res of
+    (x:_) -> return x
+    []    -> panic "No values returned on insert"
 
 updateByID :: (GFieldsFulfillConstraint
                   (HasSqlValueSyntax PgValueSyntax)

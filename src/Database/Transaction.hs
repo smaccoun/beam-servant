@@ -1,15 +1,18 @@
-{-# LANGUAGE ConstraintKinds       #-}
-{-# LANGUAGE RankNTypes            #-}
-{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE RankNTypes      #-}
+{-# LANGUAGE TypeFamilies    #-}
 
 module Database.Transaction where
 
 import           App
 import           AppPrelude
-import           Control.Lens                  (view)
+import           Control.Lens                             (view)
 import           Database.Beam.Backend
+import           Database.Beam.Backend.SQL.BeamExtensions
 import           Database.Beam.Postgres
+import           Database.Beam.Postgres.Syntax
 import           Database.Beam.Query
+import           Database.Beam.Schema.Tables
 
 runSql ::
        DBConn
@@ -40,12 +43,19 @@ runQuerySingle :: (MonadIO m, MonadReader r m, HasDBConn r,
 runQuerySingle query' = do
   result <- runSqlM $ runSelectReturningOne query'
   case result of
-    Just x -> return x
+    Just x  -> return x
     Nothing -> panic "Should have found exactly one result"
 
 
-runInsertM :: (MonadIO m, MonadReader r m, HasDBConn r) =>
-              SqlInsert PgInsertSyntax -> m ()
-runInsertM insertStmt = do
-  runSqlM (runInsert insertStmt)
+runInsertM :: (GFromBackendRow
+                  Postgres (Rep (table Exposed)) (Rep (table Identity)),
+                Generic (table Exposed), Generic (table Identity), Beamable table,
+                HasDBConn r, MonadReader r m, MonadIO m) =>
+              DatabaseEntity Postgres db (TableEntity table)
+              -> SqlInsertValues
+                    Database.Beam.Postgres.Syntax.PgInsertValuesSyntax
+                    (table (QExpr Database.Beam.Postgres.Syntax.PgExpressionSyntax s))
+              -> m [table Identity]
+runInsertM table' insertStmt' = do
+  runSqlM (runInsertReturningList table' insertStmt')
 
