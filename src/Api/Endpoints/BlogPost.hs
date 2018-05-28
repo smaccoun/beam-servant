@@ -6,6 +6,7 @@ import           Api.Resource
 import           App
 import           AppPrelude
 import           Data.Aeson
+import           Models.User                         (UserResponse (..))
 import           Data.UUID                (UUID)
 import           Database.Crud
 import           Database.MasterEntity
@@ -31,39 +32,11 @@ getBlogPost :: (MonadIO m, HasDBConn r, MonadReader r m) =>
 getBlogPost blogPostId' =
   getEntity blogPostTable blogPostId'
 
-type BlogPostMutateAPI = "blogPost" :>
-       CreateAPI BlogPost BlogPostEntity
-  :<|> UpdateAPI BlogPost UUID
-  :<|> DeleteAPI UUID
+type BlogPostMutateAPI = MutateEntityAPI "blogPost" BlogPostEntity BlogPost
 
 instance FromJSON BlogPost
 
-blogPostMutateServer :: (MonadIO m3, MonadIO m2, MonadIO m1,
-                          MonadReader r3 m3, MonadReader r2 m2, MonadReader r1 m1,
-                          HasDBConn r3, HasDBConn r2, HasDBConn r1) =>
-                        p
-                        -> (BlogPostBaseT Identity -> m1 BlogPostEntity)
-                            :<|> ((UUID -> BlogPost -> m2 ()) :<|> (UUID -> m3 ()))
-blogPostMutateServer _ =
-       createBlogPost
-  :<|> updateBlogPost
-  :<|> deleteBlogPost
-
-createBlogPost :: (MonadIO m, MonadReader r m, HasDBConn r)
-                  => BlogPostBaseT Identity
-                  -> m BlogPostEntity
-createBlogPost bpr =
-  createEntity blogPostTable bpr
-
-
-updateBlogPost :: (MonadIO m, MonadReader r m, HasDBConn r)
-                => UUID
-                -> BlogPost
-                -> m ()
-updateBlogPost = updateByID blogPostTable
-
-
-deleteBlogPost :: (HasDBConn r, MonadReader r m, MonadIO m) =>
-                  UUID -> m ()
-deleteBlogPost uuid' =
-  deleteByID blogPostTable uuid'
+blogPostMutateServer :: (HasDBConn r, MonadIO m, MonadReader r m)
+                    => UserResponse
+                    -> ServerT (CUDResourceAPI name BlogPostEntity UUID (BlogPost)) m
+blogPostMutateServer _ = cudEntityServer blogPostTable

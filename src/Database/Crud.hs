@@ -145,11 +145,34 @@ deleteByID table' uuid' =
   runSqlM $ runDelete $ delete table'
     (\u -> u ^. appId ==. val_ uuid')
 
+{--- Common CRUD Servers ----}
 
+{- Mutate Server -}
+type MutateEntityAPI (resourceName :: Symbol) a baseEntity = CUDResourceAPI resourceName a UUID baseEntity
+
+cudEntityServer :: (HasDBConn r, MonadIO m,
+                    GFromBackendRow
+                      Postgres (Rep (table Exposed)) (Rep (table Identity)),
+                    Beamable table, Generic (table Identity), Generic (table Exposed),
+                    Generic (table (WithConstraint (HasSqlValueSyntax PgValueSyntax))),
+                    GFieldsFulfillConstraint
+                      (HasSqlValueSyntax PgValueSyntax)
+                      (Rep (table Exposed))
+                      (Rep (table Identity))
+                      (Rep (table (WithConstraint (HasSqlValueSyntax PgValueSyntax)))),
+                    MonadReader r m)
+                    => DatabaseEntity Postgres db (TableEntity (AppEntity table))
+                    -> ServerT (CUDResourceAPI name (AppEntity table Identity) UUID (table Identity)) m
+cudEntityServer table' =
+  cudResourceServer
+      (createEntity table')
+      (updateByID table')
+      (deleteByID table')
 
 type CrudEntityAPI (resourceName :: Symbol) a baseEntity = CRUDResourceAPI resourceName PaginatedResult a UUID baseEntity
 
 
+{- Full CRUD Server -}
 crudEntityServer :: (HasDBConn r, Generic (table Identity),
                 Generic (table Exposed),
                 Generic (table (WithConstraint (HasSqlValueSyntax PgValueSyntax))),

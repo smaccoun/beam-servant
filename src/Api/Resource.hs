@@ -56,13 +56,13 @@ type MutateEndpoints a baseEntity i =
     :<|> UpdateAPI baseEntity i
     :<|> DeleteAPI i
 
-type CUDResourceAPI (resourceName :: Symbol) c a i baseEntity = resourceName :> MutateEndpoints a baseEntity i
+type CUDResourceAPI (resourceName :: Symbol) a i baseEntity = resourceName :> MutateEndpoints a baseEntity i
 
 cudResourceServer
   :: (baseEntity -> m a)
   -> (i -> baseEntity -> m ())
   -> (i -> m ())
-  -> ServerT (CUDResourceAPI name c a i baseEntity) m
+  -> ServerT (CUDResourceAPI name a i baseEntity) m
 cudResourceServer postA updateA deleteA =
    postA :<|> updateA :<|> deleteA
 
