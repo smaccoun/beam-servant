@@ -33,7 +33,7 @@ getBlogPost blogPostId' =
   getEntity blogPostTable blogPostId'
 
 type BlogPostMutateAPI = "blogPost" :>
-       CreateAPI BlogPost
+       CreateAPI BlogPost BlogPostEntity
   :<|> UpdateAPI BlogPost UUID
 
 instance FromJSON BlogPost
@@ -41,7 +41,7 @@ instance FromJSON BlogPost
 blogPostMutateServer :: (HasDBConn r2, HasDBConn r1,
                           MonadReader r2 m2, MonadReader r1 m1, MonadIO m2, MonadIO m1) =>
                         UserResponse
-                        -> (BlogPost -> m1 ())
+                        -> (BlogPost -> m1 BlogPostEntity)
                       :<|> (UUID -> BlogPost -> m2 ())
 blogPostMutateServer _ =
        createBlogPost
@@ -49,7 +49,7 @@ blogPostMutateServer _ =
 
 createBlogPost :: (MonadIO m, MonadReader r m, HasDBConn r)
                   => BlogPostBaseT Identity
-                  -> m ()
+                  -> m BlogPostEntity
 createBlogPost bpr =
   createEntity blogPostTable bpr
 
