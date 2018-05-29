@@ -3,12 +3,14 @@ module Init where
 import           AppPrelude                           hiding (traceIO)
 
 import           Config.AppConfig
+import           Config.DBConfig
 import           Control.Monad.IO.Class               (liftIO)
 import           Data.Default
 import           Data.Maybe                           (fromMaybe)
 import           Data.Pool
 import           Data.Text                            (pack, unpack)
 import           Data.Text                            (Text)
+import           Prelude                    (read)
 import qualified Database.PostgreSQL.Simple           as PGS
 import qualified Network.Wai                          as Wai
 import           Network.Wai.Middleware.Cors
@@ -19,19 +21,32 @@ import           System.Log.FastLogger                (LoggerSet, pushLogStrLn,
 import qualified System.Log.FastLogger                as FL
 import           Text.Read                            (Read, readMaybe)
 
-addToLogger :: Text -> AppM ()
-addToLogger message =
-  AppPrelude.ask >>= \cfg -> liftIO $ pushLogStrLn (_appLogger cfg) (toLogStr message)
+
+data EnvConfig =
+  EnvConfig
+    {runEnv      :: Environment
+    ,port        :: Int
+    ,dbEnvConfig :: DBConfig
+    }
+
+readEnv :: IO EnvConfig
+readEnv = do
+    runEnv  <- lookupEnvDefault "SERVANT_ENV" Development
+    port <- lookupEnvDefault "SERVANT_PORT" 8080
+    dbConfig' <- getDBConnectionInfo
+
+    return $
+      EnvConfig
+        {runEnv = runEnv
+        ,port = port
+        ,dbEnvConfig = dbConfig'
+        }
 
 makeLogger :: LogTo -> IO LoggerSet
 makeLogger logTo = case logTo of
         STDOut        -> FL.newStdoutLoggerSet FL.defaultBufSize
         STDErr        -> FL.newStderrLoggerSet FL.defaultBufSize
         File filename -> FL.newFileLoggerSet FL.defaultBufSize $ unpack filename
-
-getConnFromPool :: MonadIO m => DBConn -> m PGS.Connection
-getConnFromPool (DBConn pool) = liftIO $ withResource pool return
-
 
 mkPool :: PGS.ConnectInfo -> IO (Pool PGS.Connection)
 mkPool con =
@@ -44,6 +59,18 @@ makeMiddleware logger _ =
           combineMiddleware corsified
         $ MidRL.mkRequestLogger
         $ Data.Default.def { MidRL.destination = MidRL.Logger logger }
+
+
+
+addToLogger :: Text -> AppM ()
+addToLogger message =
+  AppPrelude.ask >>= \cfg -> liftIO $ pushLogStrLn (_appLogger cfg) (toLogStr message)
+
+getConnFromPool :: MonadIO m => DBConn -> m PGS.Connection
+getConnFromPool (DBConn pool) = liftIO $ withResource pool return
+
+
+
 
 corsified :: Wai.Middleware
 corsified = cors (const $ Just appCorsResourcePolicy)
@@ -87,3 +114,23 @@ lookupEnvOrError var = do
   case env of
     Just e  -> return $ pack e
     Nothing -> panic $ "Could not read environment variable: " <> var
+
+
+getDBConnectionInfo :: IO DBConfig
+getDBConnectionInfo = do
+  dbHost'      <- lookupEnvOrError "DB_HOST"
+  dbPort'      <- lookupEnvOrError "DB_PORT"
+  dbDatabase'  <- lookupEnvOrError "DB_DATABASE"
+  dbSchema'    <- lookupEnvOrError "DB_SCHEMA"
+  dbUsername'  <- lookupEnvOrError "DB_USERNAME"
+  dbPassword'  <- lookupEnvOrError "DB_PASSWORD"
+
+  return $
+    DBConfig
+      {dbHost      = dbHost'
+      ,dbPort      = read (unpack dbPort')
+      ,dbDatabase  = dbDatabase'
+      ,dbSchema    = Just dbSchema'
+      ,dbUsername  = dbUsername'
+      ,dbPassword  = dbPassword'
+      }

@@ -30,11 +30,9 @@ import ApiDocs
 startApp :: [[Char]] -> IO ()
 startApp charArgs = do
     let args = fmap T.pack charArgs
-    runEnv  <- lookupEnvDefault "SERVANT_ENV" Development
-    port <- lookupEnvDefault "SERVANT_PORT" 8080
-    dbConfig' <- getDBConnectionInfo
+    EnvConfig{..} <- readEnv
 
-    (config', logTo) <- setAppConfig runEnv dbConfig' args
+    (config', logTo) <- setAppConfig runEnv dbEnvConfig args
     let logger = _appLogger config'
 
     midware <- makeMiddleware logger runEnv

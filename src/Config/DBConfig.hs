@@ -8,8 +8,6 @@ import           AppPrelude
 import           Control.Lens.TH
 import qualified Data.Text                  as T
 import qualified Database.PostgreSQL.Simple as PGS
-import           Init
-import           Prelude                    (read)
 
 data DBConfig =
   DBConfig
@@ -23,25 +21,6 @@ data DBConfig =
 
 makeClassy ''DBConfig
 
-
-getDBConnectionInfo :: IO DBConfig
-getDBConnectionInfo = do
-  dbHost'      <- lookupEnvOrError "DB_HOST"
-  dbPort'      <- lookupEnvOrError "DB_PORT"
-  dbDatabase'  <- lookupEnvOrError "DB_DATABASE"
-  dbSchema'    <- lookupEnvOrError "DB_SCHEMA"
-  dbUsername'  <- lookupEnvOrError "DB_USERNAME"
-  dbPassword'  <- lookupEnvOrError "DB_PASSWORD"
-
-  return $
-    DBConfig
-      {dbHost      = dbHost'
-      ,dbPort      = read (T.unpack dbPort')
-      ,dbDatabase  = dbDatabase'
-      ,dbSchema    = Just dbSchema'
-      ,dbUsername  = dbUsername'
-      ,dbPassword  = dbPassword'
-      }
 
 
 connInfoToPG :: DBConfig -> PGS.ConnectInfo
