@@ -12,9 +12,9 @@ import           Database.Beam.Query
 import           Database.Beam.Query.Internal
 import qualified Web.HttpApiData as HAPI
 
-newtype Limit = Limit Integer deriving (Show)
-newtype Offset = Offset Integer deriving (Show)
-data Order = Order Text deriving (Show)
+newtype Limit = Limit Integer deriving (Generic, Show)
+newtype Offset = Offset Integer deriving (Generic, Show)
+data Order = Order Text deriving (Generic, Show)
 
 
 instance HAPI.FromHttpApiData Limit where
@@ -31,7 +31,7 @@ data Pagination =
   Pagination
     { pageLimit  :: Limit
     , pageOffset :: Offset
-    }
+    } deriving (Generic)
 
 paramsToPagination :: Maybe Limit -> Maybe Offset -> Pagination
 paramsToPagination mbLimit mbOffset =
@@ -43,7 +43,7 @@ paramsToPagination mbLimit mbOffset =
 data PaginatedResult entity = PaginatedResult
   { __pagination :: PaginationContext
   , __data       :: [entity]
-  }
+  } deriving (Generic)
 
 data PaginationContext = PaginationContext
   { currentPage  :: Integer
