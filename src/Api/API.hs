@@ -12,17 +12,13 @@ module Api.API where
 
 import           Api.Endpoints.Login
 import           Api.Endpoints.User
-import           Config.AppConfig
 import           AppPrelude
-import           Data.Swagger                        (Swagger, ToSchema)
+import           Config.AppConfig
 import           Data.Text                           (Text)
-import           Models.Credentials                  (Email, Password)
-import           Models.Login
 import           Models.User                         (UserResponse (..))
 import           Servant
 import           Servant.Auth.Server
 import           Servant.Auth.Server.SetCookieOrphan ()
-import           Servant.Swagger
 
 ---------------------------------------------------------------
 type Protected
@@ -59,13 +55,3 @@ serverAPI jwts =
        protected
   :<|> unprotected jwts
 
-
--- SWAGGER
-
-swaggerUnprotected :: Swagger
-swaggerUnprotected = toSwagger unprotectedProxy
-
-instance ToSchema Login
-instance ToSchema Email
-instance ToSchema LoginResponse
-instance ToSchema Password

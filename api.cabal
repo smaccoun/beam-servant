@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 5d2c098237708b4a3c01a27306b8d8f2a3884392b1b5960b734b550105c9b1fd
+-- hash: 5d7cb424c75ada15ab84f75b541f75ec24df9632a8110e67eaa830165ab83030
 
 name:           api
 version:        0.1.0.0
@@ -73,6 +73,7 @@ library
       Api.Endpoints.Login
       Api.Endpoints.User
       Api.Resource
+      ApiDocs
       App
       AppPrelude
       Config.AppConfig
