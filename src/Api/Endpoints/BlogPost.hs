@@ -3,7 +3,7 @@
 module Api.Endpoints.BlogPost where
 
 import           Api.Resource
-import           App
+import           Config.AppConfig
 import           AppPrelude
 import           Data.Aeson
 import           Models.User                         (UserResponse (..))

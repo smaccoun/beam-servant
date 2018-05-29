@@ -13,7 +13,7 @@ module Api.API where
 import           Api.Endpoints.BlogPost
 import           Api.Endpoints.Login
 import           Api.Endpoints.User
-import           App
+import           Config.AppConfig
 import           AppPrelude
 import           Data.Swagger                        (Swagger, ToSchema)
 import           Data.Swagger.Internal.ParamSchema

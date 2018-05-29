@@ -9,8 +9,8 @@ import           Network.Wai.Middleware.Cors
 import qualified Network.Wai.Middleware.RequestLogger as MidRL
 import qualified System.Log.FastLogger                as FL
 
-import           App
 import           AppPrelude
+import           Config.AppConfig                     (Environment)
 
 makeMiddleware :: FL.LoggerSet -> Environment -> IO Wai.Middleware
 makeMiddleware logger _ =
