@@ -24,8 +24,8 @@ import qualified Servant                  as S
 import           Servant.Auth.Server      (CookieSettings (..), JWT,
                                            JWTSettings, defaultCookieSettings,
                                            defaultJWTSettings)
-import qualified Servant.Swagger.UI       as SUI
 import qualified System.Log.FastLogger    as FL
+import ApiDocs
 
 startApp :: [[Char]] -> IO ()
 startApp charArgs = do
@@ -95,12 +95,11 @@ type ApiWithDocs =
        API '[JWT]
   :<|> SwaggerAPI
 
-type SwaggerAPI = SUI.SwaggerSchemaUI "swagger-ui" "swagger.json"
 
 serverWithDocs :: Config -> JWTSettings ->  S.Server ApiWithDocs
 serverWithDocs config' jwtConfig =
        appServer config' jwtConfig
-  :<|> SUI.swaggerSchemaUIServer swaggerUnprotected
+  :<|> docServer
 
 
 runCustomHandler :: Config -> AppM a -> S.Handler a

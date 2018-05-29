@@ -13,20 +13,13 @@ module Api.API where
 import           Api.Endpoints.BlogPost
 import           Api.Endpoints.Login
 import           Api.Endpoints.User
-import           Config.AppConfig
 import           AppPrelude
-import           Data.Swagger                        (Swagger, ToSchema)
-import           Data.Swagger.Internal.ParamSchema
+import           Config.AppConfig
 import           Data.Text                           (Text)
-import           Database.Tables.BlogPost            (BlogPost, BlogPostEntity)
-import           Models.Credentials                  (Email, Password)
-import           Models.Login
 import           Models.User                         (UserResponse (..))
-import           Pagination
 import           Servant
 import           Servant.Auth.Server
 import           Servant.Auth.Server.SetCookieOrphan ()
-import           Servant.Swagger
 
 ---------------------------------------------------------------
 type Protected
@@ -66,22 +59,3 @@ serverAPI :: JWTSettings -> ServerT (API auths) AppM
 serverAPI jwts =
        protected
   :<|> unprotected jwts
-
-
--- SWAGGER
-
-swaggerUnprotected :: Swagger
-swaggerUnprotected = toSwagger unprotectedProxy
-
-instance ToSchema PaginationContext
-instance (ToSchema a) => ToSchema (PaginatedResult a)
-instance ToParamSchema Limit
-instance ToParamSchema Offset
-instance ToParamSchema Order
-
-instance ToSchema Login
-instance ToSchema Email
-instance ToSchema LoginResponse
-instance ToSchema Password
-instance ToSchema BlogPostEntity
-instance ToSchema BlogPost
