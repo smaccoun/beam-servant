@@ -4,8 +4,8 @@
 
 module Database.Transaction where
 
-import           App
 import           AppPrelude
+import           Config.AppConfig
 import           Control.Lens                             (view)
 import           Database.Beam.Backend
 import           Database.Beam.Backend.SQL.BeamExtensions
@@ -13,6 +13,7 @@ import           Database.Beam.Postgres
 import           Database.Beam.Postgres.Syntax
 import           Database.Beam.Query
 import           Database.Beam.Schema.Tables
+import           Init                                     (getConnFromPool)
 
 runSql ::
        DBConn

@@ -12,11 +12,11 @@
 module Database.Crud where
 
 import           Api.Resource
-import           App
 import           AppPrelude
-import           Control.Lens                             hiding (element)
+import           Config.AppConfig
+import           Control.Lens                    hiding (element)
 import           Data.Time.Clock
-import           Data.UUID                                (UUID)
+import           Data.UUID                       (UUID)
 import           Database.Beam
 import           Database.Beam.Backend.SQL.SQL92
 import           Database.Beam.Backend.Types
@@ -26,9 +26,9 @@ import           Database.Beam.Schema.Tables
 import           Database.MasterEntity
 import           Database.Schema
 import           Database.Transaction
-import           GHC.Generics                             (Generic)
+import           GHC.Generics                    (Generic)
 import           Pagination
-import           Pagination                               (paramsToPagination)
+import           Pagination                      (paramsToPagination)
 import           Servant
 
 queryTableCount :: (HasDBConn r, MonadReader r m, MonadIO m,

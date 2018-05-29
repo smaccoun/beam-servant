@@ -3,8 +3,8 @@
 module Api.Endpoints.Login where
 
 import           Api.Endpoints.User    (getUserByEmail)
-import           App
 import           AppPrelude
+import           Config.AppConfig
 import           Control.Lens
 import qualified Crypto.Scrypt         as S
 import           Data.Aeson

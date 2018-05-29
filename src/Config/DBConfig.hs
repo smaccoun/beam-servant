@@ -4,11 +4,11 @@
 
 module Config.DBConfig where
 
-import           App
 import           AppPrelude
 import           Control.Lens.TH
 import qualified Data.Text                  as T
 import qualified Database.PostgreSQL.Simple as PGS
+import           Init
 import           Prelude                    (read)
 
 data DBConfig =
@@ -24,8 +24,8 @@ data DBConfig =
 makeClassy ''DBConfig
 
 
-getDBConnectionInfo :: Environment -> IO DBConfig
-getDBConnectionInfo _ = do
+getDBConnectionInfo :: IO DBConfig
+getDBConnectionInfo = do
   dbHost'      <- lookupEnvOrError "DB_HOST"
   dbPort'      <- lookupEnvOrError "DB_PORT"
   dbDatabase'  <- lookupEnvOrError "DB_DATABASE"
