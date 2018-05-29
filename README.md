@@ -1,4 +1,4 @@
-# Haskell Back-End for [Create-Haskstar-App](https://github.com/smaccoun/create-haskstar-app)
+
 
 ## Features
 
@@ -8,6 +8,9 @@
 - Pagination
 - [Automated CRUD utilities](#crud)
 - Automatic API generation with Servant Swagger and Swagger UI
+
+
+#### This is also the Haskell Back-End for [Create-Haskstar-App](https://github.com/smaccoun/create-haskstar-app)
 
 
 ## Table Of Contents

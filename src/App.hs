@@ -30,34 +30,33 @@ import ApiDocs
 startApp :: [[Char]] -> IO ()
 startApp charArgs = do
     let args = fmap T.pack charArgs
-    env  <- lookupEnvDefault "SERVANT_ENV" Development
+    runEnv  <- lookupEnvDefault "SERVANT_ENV" Development
     port <- lookupEnvDefault "SERVANT_PORT" 8080
+    dbConfig' <- getDBConnectionInfo
 
-    (config', logTo) <- setAppConfig env args
+    (config', logTo) <- setAppConfig runEnv dbConfig' args
     let logger = _appLogger config'
 
-    midware <- makeMiddleware logger env
-    FL.pushLogStr logger $ FL.toLogStr $ logInitialMetaInfo port env logTo args
+    midware <- makeMiddleware logger runEnv
+    FL.pushLogStr logger $ FL.toLogStr $ logInitialMetaInfo port runEnv logTo args
+
+    startServer port midware config'
+
+
+startServer :: Warp.Port
+                -> (Application
+                -> Application)
+                -> Config
+                -> IO ()
+startServer port midware config' =
     Warp.run port
       $ midware
       $ app config'
 
 
-logInitialMetaInfo :: (Show a, Show a1, Show a2) =>
-                a2 -> a1 -> a -> [Text] -> [Char]
-logInitialMetaInfo port env logTo args =
-  intercalate " " $
-      ["Listening on port", show port
-      , "at level", show env
-      , "and logging to", (show logTo)
-      , "with args", T.unpack (T.unwords args)
-      , "\n"
-      ]
-
-
-setAppConfig :: Environment -> [Text] -> IO (Config, LogTo)
-setAppConfig _ args = do
-    pool <- getDBConnection
+setAppConfig :: Environment -> DBConfig -> [Text] -> IO (Config, LogTo)
+setAppConfig _ dbConfig' args = do
+    pool <- getDBConnection dbConfig'
     logTo <- case listToMaybe args of
       Just filename -> return $ File filename
       Nothing       -> lookupEnvDefault "SERVANT_LOG" STDOut
@@ -72,10 +71,9 @@ setAppConfig _ args = do
 
     return (Config logger pool jwk, logTo)
 
-getDBConnection :: IO DBConn
-getDBConnection = do
-    dbConfig <- getDBConnectionInfo
-    fmap DBConn $ mkPool $ connInfoToPG dbConfig
+getDBConnection :: DBConfig -> IO DBConn
+getDBConnection dbConfig' = do
+    fmap DBConn $ mkPool $ connInfoToPG dbConfig'
 
 
 app :: Config -> Wai.Application
@@ -116,3 +114,15 @@ runCustomHandler config' handler =
 nt :: Config -> AppM a -> S.Handler a
 nt s x = runReaderT (runAppM x) s
 
+
+
+logInitialMetaInfo :: (Show a, Show a1, Show a2) =>
+                a2 -> a1 -> a -> [Text] -> [Char]
+logInitialMetaInfo port env logTo args =
+  intercalate " " $
+      ["Listening on port", show port
+      , "at level", show env
+      , "and logging to", (show logTo)
+      , "with args", T.unpack (T.unwords args)
+      , "\n"
+      ]
