@@ -12,9 +12,8 @@ module Database.MasterEntity where
 
 import           AppPrelude
 import           Control.Lens         hiding (element, (.=))
-import           Data.Aeson           (ToJSON, Value (..))
+import           Data.Aeson           (ToJSON)
 import qualified Data.Aeson           as A
-import qualified Data.HashMap.Strict  as HMS
 import           Data.Time.Clock      (UTCTime)
 import           Data.UUID            (UUID)
 import           Database.Beam
@@ -42,14 +41,13 @@ dropLensUnderOption =
           A.fieldLabelModifier = drop 1 }
 
 instance (ToJSON (t Identity)) => ToJSON (AppEntity t Identity) where
-  toJSON appEntity =
-    case A.toJSON (appEntity ^. baseTable) of
-      Object o -> Object $
-        HMS.union o $ HMS.fromList $
+  toJSON appEntity = A.object $
+        [("meta",  A.object $
             [("id" , appEntity ^. appId & A.toJSON)
             ,("createdAt" , appEntity ^. created_at & A.toJSON)
             ,("updatedAt" , appEntity ^. updated_at & A.toJSON)
             ]
-      _ ->
-        Null
+          )
+        ,("baseEntity", A.toJSON (appEntity ^. baseTable))
+        ]
 
