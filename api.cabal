@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3268413c4f58a80e5ec09460380ac1652f2a1f054f28ee0895a5f47076203f3d
+-- hash: 8da0ad5fa19fb3b3fbd956e7d4e6d1732ca0240323fc3cb470c0cb2afb52079b
 
 name:           api
 version:        0.1.0.0
@@ -70,6 +70,7 @@ library
     , word8
   exposed-modules:
       Api.API
+      Api.Endpoints.BlogPost
       Api.Endpoints.Login
       Api.Endpoints.User
       Api.Resource
