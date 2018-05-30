@@ -29,6 +29,10 @@ endpointSpec = context "General Endpoint Test" $ do
     it "Should return 404 on fake endpoint" $ do
       baseGet "/thisisabadfakeendpoint" `shouldRespondWith` 404
 
+  describe "Should return unauthorized" $ do
+    it "Should return 401 on unauthorized request" $ do
+      baseGet "/users" `shouldRespondWith` 401
+
 baseGet :: Text -> WaiSession SResponse
 baseGet url =
   request (encodeUtf8 "GET") (encodeUtf8 url) [] (L.encodeUtf8 "")
