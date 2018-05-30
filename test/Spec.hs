@@ -20,10 +20,14 @@ runSpec = do
   hspec $ with (return app') endpointSpec
 
 endpointSpec :: SpecWith Network.Wai.Application
-endpointSpec =
+endpointSpec = context "General Endpoint Test" $ do
   describe "health check" $ do
     it "Should return 200 on GET /health" $ do
       baseGet "/health" `shouldRespondWith` 200
+
+  describe "Bad Endpoint" $ do
+    it "Should return 404 on fake endpoint" $ do
+      baseGet "/thisisabadfakeendpoint" `shouldRespondWith` 404
 
 baseGet :: Text -> WaiSession SResponse
 baseGet url =
