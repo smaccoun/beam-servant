@@ -21,7 +21,6 @@ import           System.Log.FastLogger                (LoggerSet, pushLogStrLn,
 import qualified System.Log.FastLogger                as FL
 import           Text.Read                            (Read, readMaybe)
 
-
 data EnvConfig =
   EnvConfig
     {runEnv      :: Environment
@@ -70,8 +69,6 @@ getConnFromPool :: MonadIO m => DBConn -> m PGS.Connection
 getConnFromPool (DBConn pool) = liftIO $ withResource pool return
 
 
-
-
 corsified :: Wai.Middleware
 corsified = cors (const $ Just appCorsResourcePolicy)
 
@@ -93,13 +90,7 @@ appCorsResourcePolicy = CorsResourcePolicy {
 envPool :: Environment -> Int
 envPool Test        = 1
 envPool Development = 1
-envPool Production  = 8
-
-
-lookupEnvStrDefault :: Text -> Text -> IO Text
-lookupEnvStrDefault var def' = do
-  env <- lookupEnv . unpack $ var
-  return (fromMaybe def' (pack <$> env))
+envPool Production  = 10
 
 
 lookupEnvDefault :: Read a => Text -> a -> IO a

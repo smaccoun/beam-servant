@@ -21,8 +21,6 @@ data DBConfig =
 
 makeClassy ''DBConfig
 
-
-
 connInfoToPG :: DBConfig -> PGS.ConnectInfo
 connInfoToPG (DBConfig dbHost dbPort dbDatabase _ dbUsername dbPassword) =
   PGS.defaultConnectInfo
