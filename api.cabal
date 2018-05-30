@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ac8b062be2ac7a6901e4410ffa0ac1ab38e620fee9f006bb1d4e419628ae9a96
+-- hash: 687da6872eddb087b77c1cd2fb1e47852d13958ab7759b70609e3f0062013386
 
 name:           api
 version:        0.1.0.0
@@ -160,10 +160,13 @@ test-suite api-test
     , beam-migrate
     , beam-postgres
     , bytestring
+    , case-insensitive
     , data-default
     , fast-logger
     , hspec
+    , hspec-wai
     , http-api-data
+    , http-types
     , jose
     , lens
     , mtl

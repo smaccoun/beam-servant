@@ -101,3 +101,6 @@ tests:
     - api
     - hspec
     - QuickCheck
+    - hspec-wai
+    - http-types
+    - case-insensitive
