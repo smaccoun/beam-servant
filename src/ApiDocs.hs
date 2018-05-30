@@ -14,8 +14,7 @@ import qualified Servant.Swagger.UI                as SUI
 type SwaggerAPI = SUI.SwaggerSchemaUI "swagger-ui" "swagger.json"
 
 docServer :: Server SwaggerAPI
-docServer =
-  SUI.swaggerSchemaUIServer swaggerUnprotected
+docServer = SUI.swaggerSchemaUIServer swaggerUnprotected
 
 
 -- SWAGGER

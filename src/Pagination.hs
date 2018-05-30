@@ -34,11 +34,10 @@ data Pagination =
     } deriving (Generic)
 
 paramsToPagination :: Maybe Limit -> Maybe Offset -> Pagination
-paramsToPagination mbLimit mbOffset =
-  Pagination
-    {pageLimit = fromMaybe defaultLimit mbLimit
-    ,pageOffset = fromMaybe (Offset 0) mbOffset
-    }
+paramsToPagination mbLimit mbOffset = Pagination
+  { pageLimit  = fromMaybe defaultLimit mbLimit
+  , pageOffset = fromMaybe (Offset 0) mbOffset
+  }
 
 data PaginatedResult entity = PaginatedResult
   { __pagination :: PaginationContext
@@ -78,114 +77,138 @@ defaultOffset :: Offset
 defaultOffset = Offset 0
 
 
-paginateQuery :: (Sql92ProjectionExpressionSyntax
-      (Sql92SelectTableProjectionSyntax
-          (Sql92SelectSelectTableSyntax syntax))
-    ~
-    Sql92SelectTableExpressionSyntax
-      (Sql92SelectSelectTableSyntax syntax),
-    Sql92TableSourceSelectSyntax
-      (Sql92FromTableSourceSyntax
-          (Sql92SelectTableFromSyntax (Sql92SelectSelectTableSyntax syntax)))
-    ~
-    syntax,
-    ThreadRewritable
-      (QNested QueryInaccessible)
-      (WithRewrittenThread
-          (QNested (QNested QueryInaccessible))
-          (QNested QueryInaccessible)
-          a),
-    ThreadRewritable (QNested (QNested QueryInaccessible)) a,
-    ProjectibleWithPredicate
-      ValueContext
-      (Sql92ProjectionExpressionSyntax
-          (Sql92SelectTableProjectionSyntax
-            (Sql92SelectSelectTableSyntax syntax)))
-      a,
-    ProjectibleWithPredicate
-      ValueContext
-      (Sql92ProjectionExpressionSyntax
-          (Sql92SelectTableProjectionSyntax
-            (Sql92SelectSelectTableSyntax syntax)))
-      (WithRewrittenThread
-          (QNested (QNested QueryInaccessible))
-          (QNested QueryInaccessible)
-          a),
-    ProjectibleWithPredicate
-      ValueContext
-      (Sql92ProjectionExpressionSyntax
-          (Sql92SelectTableProjectionSyntax
-            (Sql92SelectSelectTableSyntax syntax)))
-      (WithRewrittenThread
-          (QNested QueryInaccessible)
-          QueryInaccessible
-          (WithRewrittenThread
-            (QNested (QNested QueryInaccessible))
-            (QNested QueryInaccessible)
-            a)),
-    ProjectibleWithPredicate
-      AnyType
-      (Sql92ProjectionExpressionSyntax
-          (Sql92SelectTableProjectionSyntax
-            (Sql92SelectSelectTableSyntax syntax)))
-      a,
-    ProjectibleWithPredicate
-      AnyType
-      (Sql92ProjectionExpressionSyntax
-          (Sql92SelectTableProjectionSyntax
-            (Sql92SelectSelectTableSyntax syntax)))
-      (WithRewrittenThread
-          (QNested (QNested QueryInaccessible))
-          (QNested QueryInaccessible)
-          a),
-    ProjectibleWithPredicate
-      AnyType
-      (Sql92ProjectionExpressionSyntax
-          (Sql92SelectTableProjectionSyntax
-            (Sql92SelectSelectTableSyntax syntax)))
-      (WithRewrittenThread
-          (QNested QueryInaccessible)
-          QueryInaccessible
-          (WithRewrittenThread
-            (QNested (QNested QueryInaccessible))
-            (QNested QueryInaccessible)
-            a)),
-    HasQBuilder syntax) =>
-    Pagination
-    -> Q syntax db (QNested (QNested QueryInaccessible)) a
-    -> SqlSelect
-        syntax
-        (QExprToIdentity
-            (WithRewrittenThread
-              (QNested QueryInaccessible)
-              QueryInaccessible
-              (WithRewrittenThread
-                  (QNested (QNested QueryInaccessible))
-                  (QNested QueryInaccessible)
-                  a)))
+paginateQuery
+  :: ( Sql92ProjectionExpressionSyntax
+         ( Sql92SelectTableProjectionSyntax
+             (Sql92SelectSelectTableSyntax syntax)
+         )
+         ~
+         Sql92SelectTableExpressionSyntax
+         (Sql92SelectSelectTableSyntax syntax)
+     , Sql92TableSourceSelectSyntax
+         ( Sql92FromTableSourceSyntax
+             (Sql92SelectTableFromSyntax (Sql92SelectSelectTableSyntax syntax))
+         )
+         ~
+         syntax
+     , ThreadRewritable
+         (QNested QueryInaccessible)
+         ( WithRewrittenThread
+             (QNested (QNested QueryInaccessible))
+             (QNested QueryInaccessible)
+             a
+         )
+     , ThreadRewritable (QNested (QNested QueryInaccessible)) a
+     , ProjectibleWithPredicate
+         ValueContext
+         ( Sql92ProjectionExpressionSyntax
+             ( Sql92SelectTableProjectionSyntax
+                 (Sql92SelectSelectTableSyntax syntax)
+             )
+         )
+         a
+     , ProjectibleWithPredicate
+         ValueContext
+         ( Sql92ProjectionExpressionSyntax
+             ( Sql92SelectTableProjectionSyntax
+                 (Sql92SelectSelectTableSyntax syntax)
+             )
+         )
+         ( WithRewrittenThread
+             (QNested (QNested QueryInaccessible))
+             (QNested QueryInaccessible)
+             a
+         )
+     , ProjectibleWithPredicate
+         ValueContext
+         ( Sql92ProjectionExpressionSyntax
+             ( Sql92SelectTableProjectionSyntax
+                 (Sql92SelectSelectTableSyntax syntax)
+             )
+         )
+         ( WithRewrittenThread
+             (QNested QueryInaccessible)
+             QueryInaccessible
+             ( WithRewrittenThread
+                 (QNested (QNested QueryInaccessible))
+                 (QNested QueryInaccessible)
+                 a
+             )
+         )
+     , ProjectibleWithPredicate
+         AnyType
+         ( Sql92ProjectionExpressionSyntax
+             ( Sql92SelectTableProjectionSyntax
+                 (Sql92SelectSelectTableSyntax syntax)
+             )
+         )
+         a
+     , ProjectibleWithPredicate
+         AnyType
+         ( Sql92ProjectionExpressionSyntax
+             ( Sql92SelectTableProjectionSyntax
+                 (Sql92SelectSelectTableSyntax syntax)
+             )
+         )
+         ( WithRewrittenThread
+             (QNested (QNested QueryInaccessible))
+             (QNested QueryInaccessible)
+             a
+         )
+     , ProjectibleWithPredicate
+         AnyType
+         ( Sql92ProjectionExpressionSyntax
+             ( Sql92SelectTableProjectionSyntax
+                 (Sql92SelectSelectTableSyntax syntax)
+             )
+         )
+         ( WithRewrittenThread
+             (QNested QueryInaccessible)
+             QueryInaccessible
+             ( WithRewrittenThread
+                 (QNested (QNested QueryInaccessible))
+                 (QNested QueryInaccessible)
+                 a
+             )
+         )
+     , HasQBuilder syntax
+     )
+  => Pagination
+  -> Q syntax db (QNested (QNested QueryInaccessible)) a
+  -> SqlSelect
+       syntax
+       ( QExprToIdentity
+           ( WithRewrittenThread
+               (QNested QueryInaccessible)
+               QueryInaccessible
+               ( WithRewrittenThread
+                   (QNested (QNested QueryInaccessible))
+                   (QNested QueryInaccessible)
+                   a
+               )
+           )
+       )
 paginateQuery (Pagination (Limit limit') (Offset offset')) query' =
   select $ limit_ limit' $ offset_ offset' $ query'
 
 newtype TotalCount = TotalCount Int
 
 getPaginationContext :: Pagination -> TotalCount -> PaginationContext
-getPaginationContext (Pagination (Limit perPage) (Offset currentPage) ) (TotalCount count) =
-  PaginationContext
-    {count = count'
-    ,perPage = perPage
-    ,currentPage = currentPage
-    ,previousPage =
-          if currentPage <= 0
-          then Nothing
-          else (Just $ currentPage - 1)
-    , nextPage =
-          if (currentPage + 1) * perPage < count'
-          then (Just $ currentPage + 1)
-          else Nothing
-    , totalPages = ceiling $ (fromIntegral count / fromIntegral perPage :: Double)
+getPaginationContext (Pagination (Limit perPage) (Offset currentPage)) (TotalCount count)
+  = PaginationContext
+    { count        = count'
+    , perPage      = perPage
+    , currentPage  = currentPage
+    , previousPage = if currentPage <= 0
+      then Nothing
+      else (Just $ currentPage - 1)
+    , nextPage     = if (currentPage + 1) * perPage < count'
+      then (Just $ currentPage + 1)
+      else Nothing
+    , totalPages   = ceiling
+      $ (fromIntegral count / fromIntegral perPage :: Double)
     }
-  where
-    count' = fromIntegral count
+  where count' = fromIntegral count
 
 
 

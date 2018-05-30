@@ -23,10 +23,9 @@ makeClassy ''DBConfig
 
 connInfoToPG :: DBConfig -> PGS.ConnectInfo
 connInfoToPG (DBConfig dbHost dbPort dbDatabase _ dbUsername dbPassword) =
-  PGS.defaultConnectInfo
-        { PGS.connectHost = T.unpack dbHost
-        , PGS.connectUser = T.unpack dbUsername
-        , PGS.connectPort = fromInteger dbPort
-        , PGS.connectPassword = T.unpack dbPassword
-        , PGS.connectDatabase = T.unpack dbDatabase
-        }
+  PGS.defaultConnectInfo { PGS.connectHost     = T.unpack dbHost
+                         , PGS.connectUser     = T.unpack dbUsername
+                         , PGS.connectPort     = fromInteger dbPort
+                         , PGS.connectPassword = T.unpack dbPassword
+                         , PGS.connectDatabase = T.unpack dbDatabase
+                         }

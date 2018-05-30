@@ -36,9 +36,7 @@ instance (Beamable table, Typeable table) => Table (AppEntity table) where
     primaryKey = MyAppKey <$> _appId
 
 dropLensUnderOption :: A.Options
-dropLensUnderOption =
-  A.defaultOptions {
-          A.fieldLabelModifier = drop 1 }
+dropLensUnderOption = A.defaultOptions { A.fieldLabelModifier = drop 1 }
 
 instance (ToJSON (t Identity)) => ToJSON (AppEntity t Identity) where
   toJSON appEntity = A.object $

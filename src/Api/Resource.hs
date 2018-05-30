@@ -42,12 +42,11 @@ type ReadOnlyEndpoints c a i =
 type RResourceAPI (resourceName :: Symbol) c a i =
   resourceName :> ReadOnlyEndpoints c a i
 
-rResourceServer ::
-     GetCollectionServer m c a
+rResourceServer
+  :: GetCollectionServer m c a
   -> (i -> m a)
   -> ServerT (RResourceAPI name c a i) m
-rResourceServer listAs getA =
-  listAs :<|> getA
+rResourceServer listAs getA = listAs :<|> getA
 
 
 {- Mutate Server. Commonly used under protected endpoints -}
@@ -63,8 +62,7 @@ cudResourceServer
   -> (i -> baseEntity -> m ())
   -> (i -> m ())
   -> ServerT (CUDResourceAPI name c a i baseEntity) m
-cudResourceServer postA updateA deleteA =
-   postA :<|> updateA :<|> deleteA
+cudResourceServer postA updateA deleteA = postA :<|> updateA :<|> deleteA
 
 {- Create/Read/Update/Delete API -}
 
@@ -103,8 +101,7 @@ crResourceServer
   -> (i -> m a)
   -> (baseEntity -> m a)
   -> ServerT (CRResourceAPI name c a i baseEntity) m
-crResourceServer listAs getA postA =
-  listAs :<|> getA :<|> postA
+crResourceServer listAs getA postA = listAs :<|> getA :<|> postA
 
 
 {- Create/Read/Update API -}

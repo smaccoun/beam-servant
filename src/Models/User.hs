@@ -35,8 +35,7 @@ instance ToJWT UserResponse
 instance FromJWT UserResponse
 
 userApiFromUserDB :: UT.UserT Identity -> UserResponse
-userApiFromUserDB userT =
-  UserResponse
-    {_id = userT ^. appId
-    ,_email = Email $ userT ^. baseTable ^. UT.email
-    }
+userApiFromUserDB userT = UserResponse
+  { _id    = userT ^. appId
+  , _email = Email $ userT ^. baseTable ^. UT.email
+  }

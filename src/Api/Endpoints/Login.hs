@@ -35,26 +35,26 @@ loginAPI = Proxy
 
 
 loginServer :: JWTSettings -> ServerT LoginAPI AppM
-loginServer jwtSettings =
-  loginUserPassword jwtSettings
+loginServer jwtSettings = loginUserPassword jwtSettings
 
 
 loginUserPassword :: JWTSettings -> Login -> AppM LoginResponse
 loginUserPassword jwtCfg (Login loginEmail loginPassword) = do
   userResult <- getUserByEmail loginEmail
-  if hasCorrectPassword userResult loginPassword then do
-    let userApi = userApiFromUserDB userResult
-    eitherJWT <- liftIO $ makeJWT userApi jwtCfg Nothing
-    case eitherJWT of
-      Left e    -> panic $ show e
-      Right jwt -> return $
-        LoginResponse
-          {jwtToken = decodeUtf8 $ BSL.toStrict jwt
-          ,userId = userResult ^. appId
+  if hasCorrectPassword userResult loginPassword
+    then do
+      let userApi = userApiFromUserDB userResult
+      eitherJWT <- liftIO $ makeJWT userApi jwtCfg Nothing
+      case eitherJWT of
+        Left  e   -> panic $ show e
+        Right jwt -> return $ LoginResponse
+          { jwtToken = decodeUtf8 $ BSL.toStrict jwt
+          , userId   = userResult ^. appId
           }
-  else
-     throwError err500 {errBody = "Incorrect Password"}
+    else throwError err500 { errBody = "Incorrect Password" }
 
 hasCorrectPassword :: UserEntity -> Password -> Bool
-hasCorrectPassword userT (Password password') =
-  fst $  S.verifyPass S.defaultParams (S.Pass $ encodeUtf8 password') (userT ^. baseTable ^. UT.password)
+hasCorrectPassword userT (Password password') = fst $ S.verifyPass
+  S.defaultParams
+  (S.Pass $ encodeUtf8 password')
+  (userT ^. baseTable ^. UT.password)

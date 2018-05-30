@@ -21,7 +21,8 @@ makeLenses ''MyAppDb
 instance Database be MyAppDb
 
 appDb :: DatabaseSettings be MyAppDb
-appDb = defaultDbSettings `withDbModification` renamingFields (\f -> (subRegex (mkRegex ".*\\__") (unpack f) "") & pack)
+appDb = defaultDbSettings `withDbModification` renamingFields
+  (\f -> (subRegex (mkRegex ".*\\__") (unpack f) "") & pack)
 
 
 {- CONVENIENCE TABLE ACCESS -}

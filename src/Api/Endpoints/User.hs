@@ -26,41 +26,47 @@ userServer :: UserResponse -> ServerT UserAPI AppM
 userServer _ = do
   rResourceServer getUsers getUser
 
-getUsers :: (MonadIO m, MonadReader r m, HasDBConn r) =>
-         Maybe Limit ->
-         Maybe Offset ->
-         Maybe Order ->
-          m (PaginatedResult UserEntity)
-getUsers mbLimit mbPage mbOrder =
-  getEntities userTable mbLimit mbPage mbOrder
+getUsers
+  :: (MonadIO m, MonadReader r m, HasDBConn r)
+  => Maybe Limit
+  -> Maybe Offset
+  -> Maybe Order
+  -> m (PaginatedResult UserEntity)
+getUsers mbLimit mbPage mbOrder = getEntities userTable mbLimit mbPage mbOrder
 
 getUser :: (MonadIO m, MonadReader r m, HasDBConn r) => UUID -> m UserEntity
-getUser userId' =
-  getEntity userTable userId'
+getUser userId' = getEntity userTable userId'
 
-getUserByEmail :: (MonadIO m, MonadReader r m, HasDBConn r) => Email -> m UserEntity
+getUserByEmail
+  :: (MonadIO m, MonadReader r m, HasDBConn r) => Email -> m UserEntity
 getUserByEmail (Email email') = do
-  userResult <- runQuerySingle $ select $
-    do  users <- all_ (userTable)
-        guard_ (users ^. baseTable ^. email ==. val_ email')
-        pure users
+  userResult <- runQuerySingle $ select $ do
+    users <- all_ (userTable)
+    guard_ (users ^. baseTable ^. email ==. val_ email')
+    pure users
   return $ userResult
 
-createUser :: (MonadIO m, MonadReader r m, HasDBConn r) => Email -> Password -> m UserEntity
+createUser
+  :: (MonadIO m, MonadReader r m, HasDBConn r)
+  => Email
+  -> Password
+  -> m UserEntity
 createUser (Email email') (Password unencryptedPassword) = do
-  encryptedPassword <- liftIO $ S.encryptPassIO S.defaultParams (S.Pass $ encodeUtf8 unencryptedPassword)
+  encryptedPassword <- liftIO
+    $ S.encryptPassIO S.defaultParams (S.Pass $ encodeUtf8 unencryptedPassword)
   createEntity userTable (User email' encryptedPassword)
 
 
-updatePassword :: (MonadIO m, MonadReader r m, HasDBConn r) =>
-                  UUID -> S.EncryptedPass -> m ()
-updatePassword userUUID newPassword =
-  runSqlM $ runUpdate $ update userTable
-    (\u -> [ u ^. baseTable ^. password <-. val_ newPassword ])
-    (\u -> u ^. appId ==. val_ userUUID )
+updatePassword
+  :: (MonadIO m, MonadReader r m, HasDBConn r)
+  => UUID
+  -> S.EncryptedPass
+  -> m ()
+updatePassword userUUID newPassword = runSqlM $ runUpdate $ update
+  userTable
+  (\u -> [u ^. baseTable ^. password <-. val_ newPassword])
+  (\u -> u ^. appId ==. val_ userUUID)
 
 
-deleteUser :: (MonadIO m, MonadReader r m, HasDBConn r) =>
-              UUID -> m ()
-deleteUser userUUID =
-  deleteByID userTable userUUID
+deleteUser :: (MonadIO m, MonadReader r m, HasDBConn r) => UUID -> m ()
+deleteUser userUUID = deleteByID userTable userUUID
