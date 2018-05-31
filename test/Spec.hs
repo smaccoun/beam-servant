@@ -1,10 +1,12 @@
 import           App
 import           AppPrelude
+import           Config.AppConfig
+import qualified Database.PostgreSQL.Simple as PGS
 import           Init
 import           Network.Wai
 import           Request
 import           Test.Hspec
-import           Test.Hspec.Wai            (shouldRespondWith, with)
+import           Test.Hspec.Wai             (shouldRespondWith, with)
 
 main :: IO ()
 main = do
@@ -14,10 +16,11 @@ runSpec :: IO ()
 runSpec = do
   testFullServer
 
+testFullServer :: IO ()
 testFullServer = do
-  startApp []
-  hspec $ do
-    endpointSpec
+  EnvConfig {..}   <- readEnv
+  (config', _) <- setAppConfig runEnv dbEnvConfig []
+  hspec $ with (prepServer config') endpointSpec
 
 endpointSpec :: SpecWith Network.Wai.Application
 endpointSpec = context "General Endpoint Test" $ do
@@ -32,3 +35,28 @@ endpointSpec = context "General Endpoint Test" $ do
   describe "Should return unauthorized" $ do
     it "Should return 401 on unauthorized request" $ do
       unauthedGet "/users" `shouldRespondWith` 401
+
+
+prepServer :: Config -> IO Application
+prepServer config' = do
+  truncateDatabase (_appDBConn config')
+  return $ app config'
+
+truncateDatabase :: DBConn -> IO ()
+truncateDatabase dbConn' = do
+  conn <- getConnFromPool dbConn'
+  let query' = "DO \n\
+               \$func$ \n\
+               \BEGIN \n\
+               \  EXECUTE \n\
+               \  (SELECT 'TRUNCATE TABLE ' \n\
+               \       || string_agg(quote_ident(schemaname) || '.' || quote_ident(tablename), ', ') \n\
+               \       || ' CASCADE' \n\
+               \   FROM   pg_tables \n\
+               \   WHERE  schemaname = 'public' \n\
+               \   AND tablename NOT IN ('license_permission', 'business_permission') \n\
+               \   ); \n\
+               \END \n\
+               \$func$;"
+  _ <- liftIO (PGS.execute_ conn query')
+  return ()
