@@ -35,14 +35,32 @@ loginAPI = Proxy
 
 
 loginServer :: JWTSettings -> ServerT LoginAPI AppM
-loginServer jwtSettings = loginUserPassword jwtSettings
+loginServer jwtSettings = handleUserPasswordLogin jwtSettings
 
+handleUserPasswordLogin :: JWTSettings -> Login -> AppM LoginResponse
+handleUserPasswordLogin jwtSettings login' = do
+  loginResult <- loginUserPassword jwtSettings login'
+  case loginResult of
+    Right loginResponse -> return loginResponse
+    Left e' -> throwError e'
 
-loginUserPassword :: JWTSettings -> Login -> AppM LoginResponse
+loginUserPassword :: (MonadIO m, MonadReader r m, HasDBConn r)
+    => JWTSettings
+    -> Login
+    -> m (Either ServantErr LoginResponse)
 loginUserPassword jwtCfg (Login loginEmail loginPassword) = do
   userResult <- getUserByEmail loginEmail
   if hasCorrectPassword userResult loginPassword
     then do
+      loginResponse <- (getLoginResponse userResult jwtCfg)
+      return $ Right loginResponse
+    else return $ Left $ err500 { errBody = "Incorrect Password" }
+
+getLoginResponse :: MonadIO m =>
+             UserEntity
+          -> JWTSettings
+          -> m LoginResponse
+getLoginResponse userResult jwtCfg = do
       let userApi = userApiFromUserDB userResult
       eitherJWT <- liftIO $ makeJWT userApi jwtCfg Nothing
       case eitherJWT of
@@ -51,7 +69,6 @@ loginUserPassword jwtCfg (Login loginEmail loginPassword) = do
           { jwtToken = decodeUtf8 $ BSL.toStrict jwt
           , userId   = userResult ^. appId
           }
-    else throwError err500 { errBody = "Incorrect Password" }
 
 hasCorrectPassword :: UserEntity -> Password -> Bool
 hasCorrectPassword userT (Password password') = fst $ S.verifyPass

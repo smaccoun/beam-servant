@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 687da6872eddb087b77c1cd2fb1e47852d13958ab7759b70609e3f0062013386
+-- hash: 2398d022b7ea289da97827040f78693674473dd355fc39e0fa8c336e0e606a18
 
 name:           api
 version:        0.1.0.0
@@ -196,5 +196,7 @@ test-suite api-test
     , warp
     , word8
   other-modules:
+      Auth
+      Request
       Paths_api
   default-language: Haskell2010

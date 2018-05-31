@@ -52,7 +52,12 @@ setAppConfig _ dbConfig' args = do
     Just filename -> return $ File filename
     Nothing       -> lookupEnvDefault "SERVANT_LOG" STDOut
   logger        <- makeLogger logTo
+  jwk <- readJWK
 
+  return (Config logger pool jwk, logTo)
+
+readJWK :: IO JWK
+readJWK = do
   jwkJsonString <- fmap (LBS.fromStrict . encodeUtf8)
     $ lookupEnvOrError "AUTH_JWK"
   let eitherJWKJson = (A.eitherDecode jwkJsonString :: Either String JWK)
@@ -64,8 +69,7 @@ setAppConfig _ dbConfig' args = do
             <> T.pack e
             <> ". From reading: "
             <> (decodeUtf8 $ LBS.toStrict jwkJsonString)
-
-  return (Config logger pool jwk, logTo)
+  return jwk
 
 getDBConnection :: DBConfig -> IO DBConn
 getDBConnection dbConfig' = do
