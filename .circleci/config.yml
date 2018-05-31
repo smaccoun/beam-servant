@@ -10,7 +10,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - stack-{{ .Branch }}-{{ checksum "./back-end/stack.yaml" }}
+            - stack-{{ .Branch }}-{{ checksum "./stack.yaml" }}
 
       - run:
           name: build_api
@@ -18,7 +18,7 @@ jobs:
             ls -la
             ls -la ~/.stack
             mkdir -p /opt/build
-            cp -r ./back-end/* /opt/build
+            cp -r ./* /opt/build
             cd /opt/build
             ls
             stack setup
@@ -44,10 +44,10 @@ jobs:
             docker build --rm=false -t smaccoun/hasm-elm-example:latest -f DockerfileExe .
 
       - save_cache:
-          key: stack-{{ .Branch }}-{{ checksum "./back-end/stack.yaml" }}
+          key: stack-{{ .Branch }}-{{ checksum "./stack.yaml" }}
           paths:
             - ~/.stack
-            - ./back-end/.stack-work
+            - ./.stack-work
 
       - run:
           name: install_pip

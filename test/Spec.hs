@@ -12,10 +12,12 @@ main = do
 
 runSpec :: IO ()
 runSpec = do
-  EnvConfig {..}   <- readEnv
-  (config', _) <- setAppConfig runEnv dbEnvConfig []
-  let app' = app config'
-  hspec $ with (return app') (endpointSpec)
+  testFullServer
+
+testFullServer = do
+  startApp []
+  hspec $ do
+    endpointSpec
 
 endpointSpec :: SpecWith Network.Wai.Application
 endpointSpec = context "General Endpoint Test" $ do
