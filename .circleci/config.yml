@@ -49,6 +49,11 @@ jobs:
             - ~/.stack
             - ./.stack-work
 
+      - run:
+          name: run tests
+          command: |
+            ./run-test.sh
+
 
 workflows:
   version: 2
