@@ -16,16 +16,22 @@ prepServer config' = do
   putStrLn ("Meow" :: Text)
   conn <- getConnFromPool dbConn'
   putStrLn ("GOT CONN" :: Text)
-  _ <- PGS.withTransaction conn $ runMigration $
-        MigrationContext MigrationInitialization True conn
+  _ <- PGS.withTransaction conn $ runMigration $ MigrationContext
+    MigrationInitialization
+    True
+    conn
   putStrLn ("iNITIMIAL MIGRATION" :: Text)
-  _ <- PGS.withTransaction conn $ runMigration $
-        MigrationContext (MigrationDirectory "./migrations") True conn
+  _ <- PGS.withTransaction conn $ runMigration $ MigrationContext
+    (MigrationDirectory "./migrations")
+    True
+    conn
   return $ app config'
 
 truncateDatabase :: PGS.Connection -> IO ()
 truncateDatabase conn = do
-  let query' = "DO \n\
+  let
+    query'
+      = "DO \n\
                \$func$ \n\
                \BEGIN \n\
                \  EXECUTE \n\

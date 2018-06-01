@@ -51,8 +51,8 @@ setAppConfig _ dbConfig' args = do
   logTo <- case listToMaybe args of
     Just filename -> return $ File filename
     Nothing       -> lookupEnvDefault "SERVANT_LOG" STDOut
-  logger        <- makeLogger logTo
-  jwk <- readJWK
+  logger <- makeLogger logTo
+  jwk    <- readJWK
 
   return (Config logger pool jwk, logTo)
 

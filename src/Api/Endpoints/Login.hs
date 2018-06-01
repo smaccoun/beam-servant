@@ -42,12 +42,13 @@ handleUserPasswordLogin jwtSettings login' = do
   loginResult <- loginUserPassword jwtSettings login'
   case loginResult of
     Right loginResponse -> return loginResponse
-    Left e' -> throwError e'
+    Left  e'            -> throwError e'
 
-loginUserPassword :: (MonadIO m, MonadReader r m, HasDBConn r)
-    => JWTSettings
-    -> Login
-    -> m (Either ServantErr LoginResponse)
+loginUserPassword
+  :: (MonadIO m, MonadReader r m, HasDBConn r)
+  => JWTSettings
+  -> Login
+  -> m (Either ServantErr LoginResponse)
 loginUserPassword jwtCfg (Login loginEmail loginPassword) = do
   userResult <- getUserByEmail loginEmail
   if hasCorrectPassword userResult loginPassword
@@ -56,19 +57,16 @@ loginUserPassword jwtCfg (Login loginEmail loginPassword) = do
       return $ Right loginResponse
     else return $ Left $ err500 { errBody = "Incorrect Password" }
 
-getLoginResponse :: MonadIO m =>
-             UserEntity
-          -> JWTSettings
-          -> m LoginResponse
+getLoginResponse :: MonadIO m => UserEntity -> JWTSettings -> m LoginResponse
 getLoginResponse userResult jwtCfg = do
-      let userApi = userApiFromUserDB userResult
-      eitherJWT <- liftIO $ makeJWT userApi jwtCfg Nothing
-      case eitherJWT of
-        Left  e   -> panic $ show e
-        Right jwt -> return $ LoginResponse
-          { jwtToken = decodeUtf8 $ BSL.toStrict jwt
-          , userId   = userResult ^. appId
-          }
+  let userApi = userApiFromUserDB userResult
+  eitherJWT <- liftIO $ makeJWT userApi jwtCfg Nothing
+  case eitherJWT of
+    Left  e   -> panic $ show e
+    Right jwt -> return $ LoginResponse
+      { jwtToken = decodeUtf8 $ BSL.toStrict jwt
+      , userId   = userResult ^. appId
+      }
 
 hasCorrectPassword :: UserEntity -> Password -> Bool
 hasCorrectPassword userT (Password password') = fst $ S.verifyPass

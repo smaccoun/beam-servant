@@ -13,11 +13,9 @@ baseGet url headers =
   request (encodeUtf8 "GET") (encodeUtf8 url) headers (L.encodeUtf8 "")
 
 unauthedGet :: Text -> WaiSession SResponse
-unauthedGet url =
-  baseGet url []
+unauthedGet url = baseGet url []
 
 post :: Text -> Value -> WaiSession SResponse
 post path body = do
   request (encodeUtf8 "POST") (encodeUtf8 path) (headers) (encode body)
-  where
-    headers = [ (mk "Content-Type", encodeUtf8 $ "application/json")]
+  where headers = [(mk "Content-Type", encodeUtf8 $ "application/json")]

@@ -17,7 +17,7 @@ runSpec = do
 
 testFullServer :: IO ()
 testFullServer = do
-  EnvConfig {..}   <- readEnv
+  EnvConfig {..} <- readEnv
   putStrLn (show dbEnvConfig :: Text)
   (config', _) <- setAppConfig runEnv dbEnvConfig []
   hspec $ with (prepServer config') endpointSpec
