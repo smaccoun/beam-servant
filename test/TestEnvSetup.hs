@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module TestEnvSetup where
 
 import           App
@@ -11,9 +13,12 @@ import           Network.Wai
 prepServer :: Config -> IO Application
 prepServer config' = do
   let dbConn' = _appDBConn config'
+  putStrLn ("Meow" :: Text)
   conn <- getConnFromPool dbConn'
+  putStrLn ("GOT CONN" :: Text)
   _ <- PGS.withTransaction conn $ runMigration $
         MigrationContext MigrationInitialization True conn
+  putStrLn ("iNITIMIAL MIGRATION" :: Text)
   _ <- PGS.withTransaction conn $ runMigration $
         MigrationContext (MigrationDirectory "./migrations") True conn
   return $ app config'
