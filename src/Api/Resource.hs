@@ -50,18 +50,18 @@ rResourceServer listAs getA = listAs :<|> getA
 
 
 {- Mutate Server. Commonly used under protected endpoints -}
-type MutateEndpoints a baseEntity i =
-         CreateAPI baseEntity a
+type MutateEndpoints masterEntity baseEntity i =
+         CreateAPI baseEntity masterEntity
     :<|> UpdateAPI baseEntity i
     :<|> DeleteAPI i
 
-type CUDResourceAPI (resourceName :: Symbol) c a i baseEntity = resourceName :> MutateEndpoints a baseEntity i
+type CUDResourceAPI (resourceName :: Symbol) masterEntity baseEntity i = resourceName :> MutateEndpoints masterEntity baseEntity i
 
 cudResourceServer
-  :: (baseEntity -> m a)
+  :: (baseEntity -> m masterEntity)
   -> (i -> baseEntity -> m ())
   -> (i -> m ())
-  -> ServerT (CUDResourceAPI name c a i baseEntity) m
+  -> ServerT (CUDResourceAPI name masterEntity baseEntity i) m
 cudResourceServer postA updateA deleteA = postA :<|> updateA :<|> deleteA
 
 {- Create/Read/Update/Delete API -}

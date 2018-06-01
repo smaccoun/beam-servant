@@ -62,7 +62,7 @@ jobs:
             (cd / && sudo -u postgres psql postgres -c "CREATE USER root WITH PASSWORD 'root';")
             (cd / && sudo -u postgres psql postgres -c "ALTER USER root WITH SUPERUSER;")
             createdb root
-            (env $(cat .env.test | xargs) stack test )
+            (env $(cat .env.test.ci | xargs) stack test )
 
 
 workflows:

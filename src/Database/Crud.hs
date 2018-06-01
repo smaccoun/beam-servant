@@ -155,6 +155,35 @@ deleteByID table' uuid' =
 
 
 
+{- Special Packaged CRUD Server types -}
+
+type CUDEntityAPI (resourceName :: Symbol) masterEntity baseEntity = CUDResourceAPI resourceName masterEntity baseEntity UUID
+
+cudEntityServer :: (HasDBConn r, MonadIO m,
+                  GFromBackendRow
+                    Postgres (Rep (table Exposed)) (Rep (table Identity)),
+                  Beamable table, Generic (table Identity), Generic (table Exposed),
+                  Generic (table (WithConstraint (HasSqlValueSyntax PgValueSyntax))),
+                  GFieldsFulfillConstraint
+                    (HasSqlValueSyntax PgValueSyntax)
+                    (Rep (table Exposed))
+                    (Rep (table Identity))
+                    (Rep (table (WithConstraint (HasSqlValueSyntax PgValueSyntax)))),
+                  MonadReader r m) =>
+                  DatabaseEntity Postgres db (TableEntity (AppEntity table))
+                   -> ServerT
+                          ( CUDEntityAPI
+                              name
+                              (AppEntity table Identity)
+                              (table Identity)
+                          )
+                          m
+cudEntityServer table' = cudResourceServer (createEntity table')
+                                             (updateByID table')
+                                             (deleteByID table')
+
+
+
 type CrudEntityAPI (resourceName :: Symbol) a baseEntity = CRUDResourceAPI resourceName PaginatedResult a UUID baseEntity
 
 
