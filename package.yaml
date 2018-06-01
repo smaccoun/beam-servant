@@ -104,3 +104,4 @@ tests:
     - hspec-wai
     - http-types
     - case-insensitive
+    - postgresql-simple-migration

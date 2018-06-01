@@ -17,7 +17,7 @@ data DBConfig =
     ,dbSchema   :: Maybe T.Text
     ,dbUsername :: T.Text
     ,dbPassword :: T.Text
-    }
+    } deriving (Show)
 
 makeClassy ''DBConfig
 

@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2398d022b7ea289da97827040f78693674473dd355fc39e0fa8c336e0e606a18
+-- hash: e84ef2540afa8eeb641e76f056ea9cf084e5cc459c1381b29d290f52af7ad868
 
 name:           api
 version:        0.1.0.0
@@ -173,6 +173,7 @@ test-suite api-test
     , natural-transformation
     , optional-args
     , postgresql-simple
+    , postgresql-simple-migration
     , protolude
     , regex-compat
     , resource-pool
@@ -198,5 +199,6 @@ test-suite api-test
   other-modules:
       Auth
       Request
+      TestEnvSetup
       Paths_api
   default-language: Haskell2010
