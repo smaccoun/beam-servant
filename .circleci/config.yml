@@ -50,11 +50,16 @@ jobs:
             - ./.stack-work
 
       - run:
+          name: install postgresql
+          command: sudo apt-get -y install postgresql postgresql-contrib
+
+      - run:
           name: run tests
           command: |
-            docker run --name test-db  -p 7543:5432 -h 127.0.0.1  --env-file .env.test.setup -d postgres
-
-            sleep 10
+            sudo /etc/init.d/postgresql restart
+            (cd / && sudo -u postgres psql postgres -c "CREATE USER root WITH PASSWORD 'root';")
+            (cd / && sudo -u postgres psql postgres -c "ALTER USER root WITH SUPERUSER;")
+            createdb root
             (env $(cat .env.test | xargs) stack test )
 
 
