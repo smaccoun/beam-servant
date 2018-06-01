@@ -4,6 +4,7 @@ import           Api.API                           (unprotectedProxy)
 import           Api.Endpoints.Login               (LoginResponse)
 import           Data.Swagger                      (Swagger, ToSchema)
 import           Data.Swagger.Internal.ParamSchema
+import           Database.Tables.BlogPost
 import           Models.Credentials                (Email, Password)
 import           Models.Login
 import           Pagination
@@ -32,3 +33,5 @@ instance ToSchema Login
 instance ToSchema Email
 instance ToSchema LoginResponse
 instance ToSchema Password
+instance ToSchema BlogPostEntity
+instance ToSchema BlogPost
