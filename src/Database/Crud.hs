@@ -157,6 +157,26 @@ deleteByID table' uuid' =
 
 {- Special Packaged CRUD Server types -}
 
+type REntityAPI (resourceName :: Symbol) masterEntity = RResourceAPI resourceName PaginatedResult masterEntity UUID
+
+
+rEntityServer :: (HasDBConn r, Beamable inner, Typeable inner,
+                  Generic (inner Identity), Generic (inner Exposed),
+                  GFromBackendRow
+                    Postgres (Rep (inner Exposed)) (Rep (inner Identity)),
+                  MonadIO m, MonadReader r m) =>
+                  DatabaseEntity Postgres MyAppDb (TableEntity (AppEntity inner))
+                  -> ServerT
+                          ( REntityAPI
+                              name
+                              (AppEntity inner Identity)
+                          )
+                          m
+rEntityServer table' = rResourceServer (getEntities table')
+                                        (getEntity table')
+
+
+
 type CUDEntityAPI (resourceName :: Symbol) masterEntity baseEntity = CUDResourceAPI resourceName masterEntity baseEntity UUID
 
 cudEntityServer :: (HasDBConn r, MonadIO m,

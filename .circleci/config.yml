@@ -61,7 +61,7 @@ jobs:
             sudo /etc/init.d/postgresql restart
             (cd / && sudo -u postgres psql postgres -c "CREATE USER root WITH PASSWORD 'root';")
             (cd / && sudo -u postgres psql postgres -c "ALTER USER root WITH SUPERUSER;")
-            createdb root
+            createdb test_db
             (env $(cat .env.test.ci | xargs) stack test )
 
 
