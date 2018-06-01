@@ -1,4 +1,4 @@
-
+[![CircleCI](https://circleci.com/gh/smaccoun/beam-servant.svg?style=svg)](https://circleci.com/gh/smaccoun/beam-servant)
 
 ## Features
 
