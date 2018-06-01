@@ -52,7 +52,7 @@ jobs:
       - run:
           name: install postgresql
           command: |
-            supo apt-get update
+            sudo apt-get update
             sudo apt-get -y install postgresql-10 postgresql-contrib
 
       - run:
