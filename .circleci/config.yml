@@ -51,7 +51,9 @@ jobs:
 
       - run:
           name: install postgresql
-          command: sudo apt-get -y install postgresql postgresql-contrib
+          command: |
+            supo apt-get update
+            sudo apt-get -y install postgresql-10 postgresql-contrib
 
       - run:
           name: run tests
