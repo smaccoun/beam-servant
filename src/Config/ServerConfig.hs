@@ -14,9 +14,9 @@ import           Config.AppConfig                     (Environment)
 
 makeMiddleware :: FL.LoggerSet -> Environment -> IO Wai.Middleware
 makeMiddleware logger _ =
-          combineMiddleware corsified
-        $ MidRL.mkRequestLogger
-        $ def { MidRL.destination = MidRL.Logger logger }
+  combineMiddleware corsified $ MidRL.mkRequestLogger $ def
+    { MidRL.destination = MidRL.Logger logger
+    }
 
 corsified :: Wai.Middleware
 corsified = cors (const $ Just appCorsResourcePolicy)
@@ -25,8 +25,8 @@ combineMiddleware :: Wai.Middleware -> IO Wai.Middleware -> IO Wai.Middleware
 combineMiddleware a = fmap (. a)
 
 appCorsResourcePolicy :: CorsResourcePolicy
-appCorsResourcePolicy = CorsResourcePolicy {
-    corsOrigins        = Nothing
+appCorsResourcePolicy = CorsResourcePolicy
+  { corsOrigins        = Nothing
   , corsMethods        = ["OPTIONS", "GET", "PUT", "POST", "PATCH", "DELETE"]
   , corsRequestHeaders = ["Authorization", "Content-Type"]
   , corsExposedHeaders = Nothing
@@ -34,4 +34,4 @@ appCorsResourcePolicy = CorsResourcePolicy {
   , corsVaryOrigin     = False
   , corsRequireOrigin  = False
   , corsIgnoreFailures = False
-}
+  }

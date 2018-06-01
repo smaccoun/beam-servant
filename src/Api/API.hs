@@ -10,7 +10,6 @@
 
 module Api.API where
 
-import           Api.Endpoints.BlogPost
 import           Api.Endpoints.Login
 import           Api.Endpoints.User
 import           AppPrelude
@@ -23,29 +22,22 @@ import           Servant.Auth.Server.SetCookieOrphan ()
 
 ---------------------------------------------------------------
 type Protected
-   =    UserAPI
-   :<|> BlogPostMutateAPI
+   = UserAPI
 
 protected :: AuthResult UserResponse -> ServerT Protected AppM
-protected (Authenticated user) =
-       userServer user
-  :<|> blogPostMutateServer user
+protected (Authenticated user) = userServer user
 
-protected _ = throwAll err401
+protected _                    = throwAll err401
 
 type Unprotected =
        "health" :> Get '[JSON] Text
   :<|> LoginAPI
-  :<|> BlogPostViewAPI
 
 unprotectedProxy :: Proxy Unprotected
 unprotectedProxy = Proxy
 
 unprotected :: JWTSettings -> ServerT Unprotected AppM
-unprotected jwts =
-       return "Okay"
-  :<|> loginServer jwts
-  :<|> blogPostViewServer
+unprotected jwts = return "Okay" :<|> loginServer jwts
 
 type API auths =
        (Auth auths UserResponse :> Protected)
@@ -56,6 +48,5 @@ api = Proxy
 
 
 serverAPI :: JWTSettings -> ServerT (API auths) AppM
-serverAPI jwts =
-       protected
-  :<|> unprotected jwts
+serverAPI jwts = protected :<|> unprotected jwts
+

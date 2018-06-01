@@ -32,11 +32,11 @@ getBlogPost :: (MonadIO m, HasDBConn r, MonadReader r m) =>
 getBlogPost blogPostId' =
   getEntity blogPostTable blogPostId'
 
-type BlogPostMutateAPI = MutateEntityAPI "blogPost" BlogPostEntity BlogPost
+type BlogPostMutateAPI = CUDEntityAPI "blogPost" BlogPostEntity BlogPost
 
 instance FromJSON BlogPost
 
 blogPostMutateServer :: (HasDBConn r, MonadIO m, MonadReader r m)
                     => UserResponse
-                    -> ServerT (CUDResourceAPI name BlogPostEntity UUID (BlogPost)) m
+                    -> ServerT BlogPostMutateAPI m
 blogPostMutateServer _ = cudEntityServer blogPostTable

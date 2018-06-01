@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 452ce889c937fc781ac8159a65be58d86f4d1f365c1ce0b336cdf123b826959f
+-- hash: 03a8d97b91e25357f6a09f987138d017f5a132007e092de84fcf398194c1c653
 
 name:           api
 version:        0.1.0.0
@@ -46,6 +46,7 @@ library
     , natural-transformation
     , optional-args
     , postgresql-simple
+    , postgresql-simple-migration
     , protolude
     , regex-compat
     , resource-pool
@@ -119,6 +120,7 @@ executable api-exe
     , natural-transformation
     , optional-args
     , postgresql-simple
+    , postgresql-simple-migration
     , protolude
     , regex-compat
     , resource-pool
@@ -153,7 +155,8 @@ test-suite api-test
   default-extensions: OverloadedStrings NoImplicitPrelude ScopedTypeVariables FlexibleContexts FlexibleInstances MultiParamTypeClasses RecordWildCards NamedFieldPuns DeriveGeneric DuplicateRecordFields TypeOperators DataKinds
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aeson
+      QuickCheck
+    , aeson
     , api
     , attoparsec
     , base >=4.7 && <5
@@ -161,15 +164,20 @@ test-suite api-test
     , beam-migrate
     , beam-postgres
     , bytestring
+    , case-insensitive
     , data-default
     , fast-logger
+    , hspec
+    , hspec-wai
     , http-api-data
+    , http-types
     , jose
     , lens
     , mtl
     , natural-transformation
     , optional-args
     , postgresql-simple
+    , postgresql-simple-migration
     , protolude
     , regex-compat
     , resource-pool
@@ -193,5 +201,8 @@ test-suite api-test
     , warp
     , word8
   other-modules:
+      Auth
+      Request
+      TestEnvSetup
       Paths_api
   default-language: Haskell2010

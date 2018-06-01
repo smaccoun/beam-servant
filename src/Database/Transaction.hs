@@ -15,32 +15,28 @@ import           Database.Beam.Query
 import           Database.Beam.Schema.Tables
 import           Init                                     (getConnFromPool)
 
-runSql ::
-       DBConn
-    -> Pg a
-    -> IO a
+runSql :: DBConn -> Pg a -> IO a
 runSql pool query' = do
   conn <- getConnFromPool pool
   runBeamPostgres conn query'
 
-runSqlM :: (MonadIO m, MonadReader r m, HasDBConn r)
-    => Pg a
-    -> m a
+runSqlM :: (MonadIO m, MonadReader r m, HasDBConn r) => Pg a -> m a
 runSqlM query' = do
   conn <- view dBConn
   liftIO $ runSql conn query'
 
 
-runQueryM :: (FromBackendRow Postgres a, HasDBConn r,
-              MonadReader r m, MonadIO m) =>
-              SqlSelect PgSelectSyntax a -> m [a]
+runQueryM
+  :: (FromBackendRow Postgres a, HasDBConn r, MonadReader r m, MonadIO m)
+  => SqlSelect PgSelectSyntax a
+  -> m [a]
 runQueryM query' = do
-  runSqlM $
-    runSelectReturningList query'
+  runSqlM $ runSelectReturningList query'
 
-runQuerySingle :: (MonadIO m, MonadReader r m, HasDBConn r,
-                    FromBackendRow Postgres b) =>
-                  SqlSelect PgSelectSyntax b -> m b
+runQuerySingle
+  :: (MonadIO m, MonadReader r m, HasDBConn r, FromBackendRow Postgres b)
+  => SqlSelect PgSelectSyntax b
+  -> m b
 runQuerySingle query' = do
   result <- runSqlM $ runSelectReturningOne query'
   case result of
@@ -48,15 +44,20 @@ runQuerySingle query' = do
     Nothing -> panic "Should have found exactly one result"
 
 
-runInsertM :: (GFromBackendRow
-                  Postgres (Rep (table Exposed)) (Rep (table Identity)),
-                Generic (table Exposed), Generic (table Identity), Beamable table,
-                HasDBConn r, MonadReader r m, MonadIO m) =>
-              DatabaseEntity Postgres db (TableEntity table)
-              -> SqlInsertValues
-                    Database.Beam.Postgres.Syntax.PgInsertValuesSyntax
-                    (table (QExpr Database.Beam.Postgres.Syntax.PgExpressionSyntax s))
-              -> m [table Identity]
+runInsertM
+  :: ( GFromBackendRow Postgres (Rep (table Exposed)) (Rep (table Identity))
+     , Generic (table Exposed)
+     , Generic (table Identity)
+     , Beamable table
+     , HasDBConn r
+     , MonadReader r m
+     , MonadIO m
+     )
+  => DatabaseEntity Postgres db (TableEntity table)
+  -> SqlInsertValues
+       Database.Beam.Postgres.Syntax.PgInsertValuesSyntax
+       (table (QExpr Database.Beam.Postgres.Syntax.PgExpressionSyntax s))
+  -> m [table Identity]
 runInsertM table' insertStmt' = do
   runSqlM (runInsertReturningList table' insertStmt')
 
