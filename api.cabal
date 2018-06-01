@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: e84ef2540afa8eeb641e76f056ea9cf084e5cc459c1381b29d290f52af7ad868
+-- hash: e9d5830200dc7cdf895a21fd36f13df3fe06c819b184bb9b84cdbf22e6e06b68
 
 name:           api
 version:        0.1.0.0
@@ -46,6 +46,7 @@ library
     , natural-transformation
     , optional-args
     , postgresql-simple
+    , postgresql-simple-migration
     , protolude
     , regex-compat
     , resource-pool
@@ -117,6 +118,7 @@ executable api-exe
     , natural-transformation
     , optional-args
     , postgresql-simple
+    , postgresql-simple-migration
     , protolude
     , regex-compat
     , resource-pool

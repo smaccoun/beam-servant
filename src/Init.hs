@@ -10,11 +10,12 @@ import           Data.Maybe                           (fromMaybe)
 import           Data.Pool
 import           Data.Text                            (pack, unpack)
 import           Data.Text                            (Text)
-import           Prelude                    (read)
 import qualified Database.PostgreSQL.Simple           as PGS
+import           Database.PostgreSQL.Simple.Migration
 import qualified Network.Wai                          as Wai
 import           Network.Wai.Middleware.Cors
 import qualified Network.Wai.Middleware.RequestLogger as MidRL
+import           Prelude                              (read)
 import           System.Environment                   (lookupEnv)
 import           System.Log.FastLogger                (LoggerSet, pushLogStrLn,
                                                        toLogStr)
@@ -83,6 +84,23 @@ envPool :: Environment -> Int
 envPool Test        = 1
 envPool Development = 1
 envPool Production  = 10
+
+runAppMigrations :: Config -> IO ()
+runAppMigrations config' = do
+  let dbConn' = _appDBConn config'
+  conn <- getConnFromPool dbConn'
+  _ <- PGS.withTransaction conn $ runMigration $ MigrationContext
+    MigrationInitialization
+    True
+    conn
+  _ <- PGS.withTransaction conn $ runMigration $ MigrationContext
+    (MigrationDirectory migrationDir)
+    True
+    conn
+  return ()
+  where
+    migrationDir = "./migrations"
+
 
 
 lookupEnvDefault :: Read a => Text -> a -> IO a

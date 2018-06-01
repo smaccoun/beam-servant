@@ -50,6 +50,7 @@ dependencies:
 - natural-transformation
 - optional-args
 - postgresql-simple
+- postgresql-simple-migration
 - protolude
 - resource-pool
 - regex-compat
@@ -72,6 +73,7 @@ dependencies:
 - wai-extra
 - warp
 - word8
+
 
 
 library:
@@ -104,4 +106,4 @@ tests:
     - hspec-wai
     - http-types
     - case-insensitive
-    - postgresql-simple-migration
+    

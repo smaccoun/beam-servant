@@ -33,8 +33,9 @@ startApp charArgs = do
   EnvConfig {..}   <- readEnv
 
   (config', logTo) <- setAppConfig runEnv dbEnvConfig args
-  let logger = _appLogger config'
+  runAppMigrations config'
 
+  let logger = _appLogger config'
   midware <- makeMiddleware logger runEnv
   FL.pushLogStr logger $ FL.toLogStr $ logInitialMetaInfo port runEnv logTo args
 

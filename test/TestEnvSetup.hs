@@ -7,24 +7,12 @@ import           AppPrelude
 import           Init
 import           Config.AppConfig
 import qualified Database.PostgreSQL.Simple as PGS
-import           Database.PostgreSQL.Simple.Migration
 import           Network.Wai
+
 
 prepServer :: Config -> IO Application
 prepServer config' = do
-  let dbConn' = _appDBConn config'
-  putStrLn ("Meow" :: Text)
-  conn <- getConnFromPool dbConn'
-  putStrLn ("GOT CONN" :: Text)
-  _ <- PGS.withTransaction conn $ runMigration $ MigrationContext
-    MigrationInitialization
-    True
-    conn
-  putStrLn ("iNITIMIAL MIGRATION" :: Text)
-  _ <- PGS.withTransaction conn $ runMigration $ MigrationContext
-    (MigrationDirectory "./migrations")
-    True
-    conn
+  runAppMigrations config'
   return $ app config'
 
 truncateDatabase :: PGS.Connection -> IO ()
