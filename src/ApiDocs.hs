@@ -2,8 +2,10 @@ module ApiDocs where
 
 import           Api.API                           (unprotectedProxy)
 import           Api.Endpoints.Login               (LoginResponse)
+import           AppPrelude
 import           Data.Swagger                      (Swagger, ToSchema)
 import           Data.Swagger.Internal.ParamSchema
+import           Database.MasterEntity             (AppEntity)
 import           Models.Credentials                (Email, Password)
 import           Models.Login
 import           Pagination
@@ -21,6 +23,8 @@ docServer = SUI.swaggerSchemaUIServer swaggerUnprotected
 
 swaggerUnprotected :: Swagger
 swaggerUnprotected = toSwagger unprotectedProxy
+
+instance (ToSchema (t Identity)) => ToSchema (AppEntity t Identity)
 
 instance ToSchema PaginationContext
 instance (ToSchema a) => ToSchema (PaginatedResult a)
