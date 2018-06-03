@@ -12,7 +12,7 @@ module Database.MasterEntity where
 
 import           AppPrelude
 import           Control.Lens         hiding (element, (.=))
-import           Data.Aeson           (ToJSON)
+import           Data.Aeson           (ToJSON, FromJSON)
 import qualified Data.Aeson           as A
 import           Data.Time.Clock      (UTCTime)
 import           Data.UUID            (UUID)
@@ -48,4 +48,10 @@ instance (ToJSON (t Identity)) => ToJSON (AppEntity t Identity) where
           )
         ,("baseEntity", A.toJSON (appEntity ^. baseTable))
         ]
+
+instance ToJSON (PrimaryKey (AppEntity t) Identity) where
+    toJSON (MyAppKey cuuid) = A.toJSON cuuid
+
+instance FromJSON (PrimaryKey (AppEntity t) Identity) where
+    parseJSON a = MyAppKey <$> A.parseJSON a
 
